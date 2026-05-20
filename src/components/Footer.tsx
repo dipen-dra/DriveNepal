@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 export function Footer() {
   return (
@@ -7,7 +8,7 @@ export function Footer() {
       <div className="container-page py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl gradient-brand text-white font-bold">D</span>
+            <img src={logo} alt="DriveNepal Logo" className="h-9 w-9 object-contain" />
             <span className="font-display text-xl font-semibold text-white">DriveNepal</span>
           </div>
           <p className="text-sm leading-relaxed text-white/60">

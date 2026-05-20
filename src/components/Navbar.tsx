@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Bell, Menu, X, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import logo from "@/assets/logo.png";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -41,9 +42,7 @@ export function Navbar() {
     >
       <div className="container-page flex h-16 md:h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-xl gradient-brand text-white font-bold shadow-[var(--shadow-glow)]">
-            D
-          </span>
+          <img src={logo} alt="DriveNepal Logo" className="h-9 w-9 object-contain transition-transform group-hover:scale-105" />
           <span className="font-display text-xl font-semibold tracking-tight text-ink">
             Drive<span className="text-gradient">Nepal</span>
           </span>
