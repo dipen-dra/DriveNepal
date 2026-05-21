@@ -1,11 +1,48 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Mail, Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useNavigate, Link, useSearch } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api";
 
 export function AuthCard({
   title, subtitle, mode, footer,
 }: { title: string; subtitle: string; mode: "login" | "signup"; footer: React.ReactNode }) {
+  const { login, signup } = useAuth();
+  const navigate = useNavigate();
+  const search = useSearch({ strict: false }) as { registered?: boolean };
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(search.registered ? "Account created successfully. Please log in." : null);
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      if (mode === "login") {
+        await login(email, password);
+        void navigate({ to: "/dashboard" });
+      } else {
+        await signup(name, email, password);
+        void navigate({ to: "/login", search: { registered: true } });
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.errors?.[0]?.msg ?? err.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 noise-bg">
       <div className="hidden lg:flex relative overflow-hidden items-center justify-center p-12">
@@ -31,17 +68,51 @@ export function AuthCard({
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
           <p className="mt-2 text-muted-foreground">{subtitle}</p>
 
-          <form className="mt-8 space-y-4" onSubmit={(e) => e.preventDefault()}>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {error}
+            </motion.div>
+          )}
+
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3 text-sm text-emerald-600 dark:text-emerald-400"
+            >
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              {success}
+            </motion.div>
+          )}
+
+          <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             {mode === "signup" && (
               <Field label="Full name" icon={<User className="h-4 w-4" />}>
-                <input type="text" placeholder="Aayush Karki" className="w-full bg-transparent text-sm font-medium focus:outline-none" />
+                <input
+                  type="text" value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder="Aayush Karki" required
+                  className="w-full bg-transparent text-sm font-medium focus:outline-none"
+                />
               </Field>
             )}
             <Field label="Email" icon={<Mail className="h-4 w-4" />}>
-              <input type="email" placeholder="you@email.com" className="w-full bg-transparent text-sm font-medium focus:outline-none" />
+              <input
+                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@email.com" required
+                className="w-full bg-transparent text-sm font-medium focus:outline-none"
+              />
             </Field>
             <Field label="Password" icon={<Lock className="h-4 w-4" />}>
-              <input type={show ? "text" : "password"} placeholder="••••••••" className="w-full bg-transparent text-sm font-medium focus:outline-none" />
+              <input
+                type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••" required minLength={6}
+                className="w-full bg-transparent text-sm font-medium focus:outline-none"
+              />
               <button type="button" onClick={() => setShow((s) => !s)} className="text-muted-foreground hover:text-foreground">
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -52,12 +123,23 @@ export function AuthCard({
                 <label className="inline-flex items-center gap-2 text-muted-foreground cursor-pointer">
                   <input type="checkbox" className="accent-primary" /> Remember me
                 </label>
-                <a href="#" className="text-primary font-medium hover:underline">Forgot password?</a>
+                <Link to="/forgot-password" className="text-primary font-medium hover:underline">Forgot password?</Link>
               </div>
             )}
 
-            <button className="mt-2 w-full h-12 rounded-full gradient-brand text-white font-semibold shadow-[var(--shadow-glow)] inline-flex items-center justify-center hover:-translate-y-0.5 transition-transform">
-              {mode === "login" ? "Log in" : "Create account"} <ArrowRight className="ml-2 h-4 w-4" />
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full h-12 rounded-full gradient-brand text-white font-semibold shadow-[var(--shadow-glow)] inline-flex items-center justify-center hover:-translate-y-0.5 transition-transform disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0"
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  {mode === "login" ? "Logging in…" : "Creating account…"}
+                </span>
+              ) : (
+                <>{mode === "login" ? "Log in" : "Create account"} <ArrowRight className="ml-2 h-4 w-4" /></>
+              )}
             </button>
 
             <div className="flex items-center gap-3 text-xs text-muted-foreground">

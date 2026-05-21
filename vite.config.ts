@@ -25,6 +25,15 @@ export default defineConfig({
     tailwindcss(),
     cloudflare(),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   optimizeDeps: {
     exclude: excludeDeps,
   },

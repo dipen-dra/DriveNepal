@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AuthCard } from "@/components/AuthCard";
+import { redirectIfLoggedIn } from "@/lib/guards";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Login — DriveNepal" }] }),
+  beforeLoad: redirectIfLoggedIn,
   component: () => (
     <AuthCard
       title="Welcome back"

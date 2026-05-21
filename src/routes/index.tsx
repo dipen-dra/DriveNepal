@@ -1,13 +1,30 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight, Calendar, MapPin, Car, Bike, ShieldCheck, Clock, Tag,
   CreditCard, Zap, BadgeCheck, ChevronDown, Star, Quote,
 } from "lucide-react";
 import heroImg from "@/assets/hero-vehicles.jpg";
-import { vehicles, testimonials, faqs } from "@/lib/mock-data";
+import { getVehicles, type Vehicle } from "@/lib/api";
 import { VehicleCard } from "@/components/VehicleCard";
+
+// Keep testimonials & FAQs as static marketing content
+const testimonials = [
+  { name: "Aayush Karki", role: "Traveler, Kathmandu", text: "Booked a Himalayan for a Mustang trip — flawless from start to finish. The bike was spotless.", rating: 5 },
+  { name: "Sneha Maharjan", role: "Designer, Pokhara", text: "Rented a Tesla for a weekend. The handover was 5 minutes. Felt like Apple-level service.", rating: 5 },
+  { name: "Bikash Thapa", role: "Founder, Lalitpur", text: "Used DriveNepal twice for client visits. Professional, on-time, and the pricing is honest.", rating: 5 },
+  { name: "Priya Shrestha", role: "Photographer", text: "Loved the booking flow. Picked the SUV, paid via Khalti, done. Zero friction.", rating: 5 },
+];
+
+const faqs = [
+  { q: "What documents do I need to rent?", a: "A valid driving license, citizenship or passport, and one of: Khalti, eSewa, or cash deposit at pickup." },
+  { q: "Is there a security deposit?", a: "Yes. Refundable deposits range from NPR 5,000 to 25,000 depending on the vehicle category, returned within 24 hours of drop-off." },
+  { q: "Can I cancel my booking?", a: "Free cancellation up to 24 hours before pickup. After that, a 20% fee applies." },
+  { q: "Do you offer delivery?", a: "Inside Kathmandu Valley and Pokhara, we deliver free for bookings of 3+ days." },
+  { q: "What if the vehicle breaks down?", a: "Our 24/7 roadside team will reach you within 90 minutes anywhere on a paved highway in Nepal." },
+];
 
 export const Route = createFileRoute("/")({ component: Landing });
 
@@ -182,7 +199,13 @@ function Field({ icon, label, children }: { icon: React.ReactNode; label: string
 /* ---------------- POPULAR ---------------- */
 function PopularVehicles() {
   const [tab, setTab] = useState<"all" | "car" | "bike">("all");
-  const list = vehicles.filter((v) => tab === "all" || v.type === tab).slice(0, 6);
+  const { data, isLoading } = useQuery({
+    queryKey: ["vehicles", "home"],
+    queryFn: () => getVehicles({}),
+    staleTime: 5 * 60 * 1000,
+  });
+  const allVehicles: Vehicle[] = data?.data ?? [];
+  const list = allVehicles.filter((v) => tab === "all" || v.type === tab).slice(0, 6);
   return (
     <section className="container-page py-24 md:py-32">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
@@ -209,9 +232,26 @@ function PopularVehicles() {
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {list.map((v, i) => <VehicleCard key={v.id} v={v} index={i} />)}
-      </div>
+      {isLoading ? (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse">
+              <div className="aspect-[16/10] bg-muted" />
+              <div className="p-5 space-y-3">
+                <div className="h-3 w-1/3 bg-muted rounded" />
+                <div className="h-5 w-2/3 bg-muted rounded" />
+                <div className="h-3 w-1/4 bg-muted rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : list.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">No vehicles found.</div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {list.map((v, i) => <VehicleCard key={v._id} v={v} index={i} />)}
+        </div>
+      )}
 
       <div className="mt-12 flex justify-center">
         <Link to="/cars" className="inline-flex h-12 px-7 items-center rounded-full border border-border bg-background hover:bg-muted font-medium transition-colors">
