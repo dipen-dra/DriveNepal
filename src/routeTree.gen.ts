@@ -10,8 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationsRouteImport } from './routes/locations'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CarsRouteImport } from './routes/cars'
@@ -27,6 +29,11 @@ const SignupRoute = SignupRouteImport.update({
   path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -35,6 +42,11 @@ const LoginRoute = LoginRouteImport.update({
 const LocationsRoute = LocationsRouteImport.update({
   id: '/locations',
   path: '/locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -91,8 +103,10 @@ export interface FileRoutesByFullPath {
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
@@ -105,8 +119,10 @@ export interface FileRoutesByTo {
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
@@ -120,8 +136,10 @@ export interface FileRoutesById {
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
@@ -136,8 +154,10 @@ export interface FileRouteTypes {
     | '/cars'
     | '/contact'
     | '/dashboard'
+    | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/booking/$slug'
     | '/vehicles/$slug'
@@ -150,8 +170,10 @@ export interface FileRouteTypes {
     | '/cars'
     | '/contact'
     | '/dashboard'
+    | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/booking/$slug'
     | '/vehicles/$slug'
@@ -164,8 +186,10 @@ export interface FileRouteTypes {
     | '/cars'
     | '/contact'
     | '/dashboard'
+    | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/reset-password'
     | '/signup'
     | '/booking/$slug'
     | '/vehicles/$slug'
@@ -179,8 +203,10 @@ export interface RootRouteChildren {
   CarsRoute: typeof CarsRoute
   ContactRoute: typeof ContactRoute
   DashboardRoute: typeof DashboardRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LocationsRoute: typeof LocationsRoute
   LoginRoute: typeof LoginRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   BookingSlugRoute: typeof BookingSlugRoute
   VehiclesSlugRoute: typeof VehiclesSlugRoute
@@ -195,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -207,6 +240,13 @@ declare module '@tanstack/react-router' {
       path: '/locations'
       fullPath: '/locations'
       preLoaderRoute: typeof LocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -283,8 +323,10 @@ const rootRouteChildren: RootRouteChildren = {
   CarsRoute: CarsRoute,
   ContactRoute: ContactRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LocationsRoute: LocationsRoute,
   LoginRoute: LoginRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   BookingSlugRoute: BookingSlugRoute,
   VehiclesSlugRoute: VehiclesSlugRoute,
