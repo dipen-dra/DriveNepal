@@ -2,8 +2,10 @@ import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Booking } from '../models/Booking.js';
 import { Vehicle } from '../models/Vehicle.js';
+import { Notification } from '../models/Notification.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
+import { sendEmail } from '../utils/email.js';
 
 const router = Router();
 
@@ -90,6 +92,32 @@ router.post(
       couponCode,
     });
 
+    // Fire & forget notification creation
+    Notification.create({
+      user: req.user!._id,
+      type: 'booking',
+      title: 'Booking Confirmed!',
+      body: `Your booking for ${vehicle.name} has been reserved with Cash payment.`,
+      href: '/dashboard',
+    }).catch(console.error);
+
+    // Send confirmation email
+    sendEmail({
+      to: customerEmail,
+      subject: `Booking Confirmed: ${vehicle.name}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Booking Confirmed!</h2>
+          <p>Hi ${customerName},</p>
+          <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully reserved with <strong>Cash on Delivery/Pickup</strong>.</p>
+          <p><strong>Pickup:</strong> ${new Date(startDate).toLocaleDateString()} at ${pickup}</p>
+          <p><strong>Total Due:</strong> NPR ${total.toLocaleString()}</p>
+          <p>Please have the exact amount ready upon pickup.</p>
+          <p>Thank you for choosing DriveNepal!</p>
+        </div>
+      `,
+    }).catch(console.error);
+
     res.status(201).json({ success: true, data: booking });
   },
 );
@@ -107,6 +135,15 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
   }
   booking.status = 'cancelled';
   await booking.save();
+
+  Notification.create({
+    user: req.user!._id,
+    type: 'alert',
+    title: 'Booking Cancelled',
+    body: `Your booking for ${booking.vehicleName} has been cancelled successfully.`,
+    href: '/dashboard',
+  }).catch(console.error);
+
   res.json({ success: true, data: booking });
 });
 
@@ -140,6 +177,16 @@ router.patch(
       res.status(404).json({ success: false, message: 'Booking not found.' });
       return;
     }
+
+    // Notify user of status change
+    Notification.create({
+      user: booking.user,
+      type: status === 'completed' ? 'payment' : 'message',
+      title: `Booking ${status}`,
+      body: `The status of your booking for ${booking.vehicleName} has been updated to ${status}.`,
+      href: '/dashboard',
+    }).catch(console.error);
+
     res.json({ success: true, data: booking });
   },
 );

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import {
-  getMe, loginUser, registerUser, logoutUser,
+  getMe, loginUser, registerUser, logoutUser, googleLogin,
   type UserProfile,
 } from './api';
 
@@ -13,6 +13,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<UserProfile>;
   signup: (name: string, email: string, password: string) => Promise<UserProfile>;
+  googleSignIn: (credential: string) => Promise<UserProfile>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   setUser: (user: UserProfile | null) => void;
@@ -48,6 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(async (name: string, email: string, password: string): Promise<UserProfile> => {
     const res = await registerUser(name, email, password);
+    setUser(res.user);
+    return res.user;
+  }, []);
+
+  const googleSignIn = useCallback(async (credential: string): Promise<UserProfile> => {
+    const res = await googleLogin(credential);
+    setUser(res.user);
     return res.user;
   }, []);
 
@@ -64,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         signup,
+        googleSignIn,
         logout,
         refreshUser,
         setUser,
