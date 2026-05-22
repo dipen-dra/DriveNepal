@@ -28,8 +28,8 @@ export function Footer() {
           <ul className="space-y-2.5 text-sm">
             <li><Link to="/about" className="hover:text-white">About</Link></li>
             <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
-            <li><a href="#" className="hover:text-white">Careers</a></li>
-            <li><a href="#" className="hover:text-white">Press</a></li>
+            <li><Link to="/careers" className="hover:text-white">Careers</Link></li>
+            <li><Link to="/press" className="hover:text-white">Press</Link></li>
           </ul>
         </div>
 
@@ -39,7 +39,7 @@ export function Footer() {
             <li><Link to="/cars" className="hover:text-white">Cars</Link></li>
             <li><Link to="/bikes" className="hover:text-white">Bikes</Link></li>
             <li><Link to="/locations" className="hover:text-white">Locations</Link></li>
-            <li><a href="#" className="hover:text-white">Help Center</a></li>
+            <li><Link to="/help" className="hover:text-white">Help Center</Link></li>
           </ul>
         </div>
 
@@ -68,9 +68,9 @@ export function Footer() {
         <div className="container-page py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
           <span>© {new Date().getFullYear()} DriveNepal. All rights reserved.</span>
           <div className="flex gap-5">
-            <a href="#" className="hover:text-white">Terms</a>
-            <a href="#" className="hover:text-white">Privacy</a>
-            <a href="#" className="hover:text-white">Cookies</a>
+            <Link to="/terms" className="hover:text-white">Terms</Link>
+            <Link to="/privacy" className="hover:text-white">Privacy</Link>
+            <Link to="/cookies" className="hover:text-white">Cookies</Link>
           </div>
         </div>
       </div>
