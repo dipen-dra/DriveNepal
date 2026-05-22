@@ -2,13 +2,16 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useNavigate, Link, useSearch } from "@tanstack/react-router";
+import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
+import logo from "@/assets/logo.png";
 
 export function AuthCard({
   title, subtitle, mode, footer,
 }: { title: string; subtitle: string; mode: "login" | "signup"; footer: React.ReactNode }) {
-  const { login, signup } = useAuth();
+  const { login, signup, googleSignIn } = useAuth();
   const navigate = useNavigate();
   const search = useSearch({ strict: false }) as { registered?: boolean };
   const [show, setShow] = useState(false);
@@ -26,10 +29,16 @@ export function AuthCard({
     setLoading(true);
     try {
       if (mode === "login") {
-        await login(email, password);
-        void navigate({ to: "/dashboard" });
+        const user = await login(email, password);
+        toast.success("Successfully logged in!");
+        if (user.role === "admin") {
+          void navigate({ to: "/admin" });
+        } else {
+          void navigate({ to: "/dashboard" });
+        }
       } else {
         await signup(name, email, password);
+        toast.success("Account created successfully!");
         void navigate({ to: "/login", search: { registered: true } });
       }
     } catch (err) {
@@ -40,6 +49,27 @@ export function AuthCard({
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setError(null);
+    try {
+      if (credentialResponse.credential) {
+        const user = await googleSignIn(credentialResponse.credential);
+        toast.success("Google Sign-In successful!");
+        if (user.role === "admin") {
+          void navigate({ to: "/admin" });
+        } else {
+          void navigate({ to: "/dashboard" });
+        }
+      }
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.errors?.[0]?.msg ?? err.message);
+      } else {
+        setError("Google authentication failed. Please try again.");
+      }
     }
   };
 
@@ -65,6 +95,9 @@ export function AuthCard({
 
       <div className="flex items-center justify-center p-6 md:p-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
+          <Link to="/" className="inline-block mb-6">
+            <img src={logo} alt="DriveNepal" className="h-8 md:h-10 w-auto" />
+          </Link>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
           <p className="mt-2 text-muted-foreground">{subtitle}</p>
 
@@ -146,15 +179,17 @@ export function AuthCard({
               <div className="flex-1 h-px bg-border" /> or continue with <div className="flex-1 h-px bg-border" />
             </div>
 
-            <button type="button" className="w-full h-12 rounded-full border border-border bg-background hover:bg-muted font-medium inline-flex items-center justify-center gap-3 transition-colors">
-              <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden>
-                <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.5 2.4 30.1 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.4 13 17.7 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.9 7.2l7.6 5.9c4.4-4.1 7.1-10.1 7.1-17.6z" />
-                <path fill="#FBBC05" d="M10.4 28.8c-.5-1.4-.8-2.9-.8-4.5s.3-3.1.8-4.5l-7.8-6C.9 17.3 0 20.6 0 24.3s.9 7 2.6 10.5l7.8-6z" />
-                <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.8 2.3-8.3 2.3-6.3 0-11.6-3.5-13.6-8.7l-7.8 6C6.5 42.6 14.6 48 24 48z" />
-              </svg>
-              Continue with Google
-            </button>
+            <div className="flex justify-center mt-4">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError("Google authentication failed.")}
+                useOneTap
+                theme="outline"
+                shape="pill"
+                size="large"
+                text={mode === "login" ? "signin_with" : "signup_with"}
+              />
+            </div>
           </form>
 
           <p className="mt-8 text-sm text-center text-muted-foreground">{footer}</p>

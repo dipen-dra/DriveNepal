@@ -106,28 +106,3 @@ export const vehicles: Vehicle[] = [
   },
 ];
 
-export const locations = [
-  { id: "ktm", name: "Kathmandu", count: 42 },
-  { id: "pkr", name: "Pokhara", count: 28 },
-  { id: "ctw", name: "Chitwan", count: 14 },
-  { id: "ltn", name: "Lumbini", count: 9 },
-  { id: "btl", name: "Butwal", count: 11 },
-  { id: "drn", name: "Dharan", count: 7 },
-];
-
-export const testimonials = [
-  { name: "Aayush Karki", role: "Traveler, Kathmandu", text: "Booked a Himalayan for a Mustang trip — flawless from start to finish. The bike was spotless.", rating: 5 },
-  { name: "Sneha Maharjan", role: "Designer, Pokhara", text: "Rented a Tesla for a weekend. The handover was 5 minutes. Felt like Apple-level service.", rating: 5 },
-  { name: "Bikash Thapa", role: "Founder, Lalitpur", text: "Used DriveNepal twice for client visits. Professional, on-time, and the pricing is honest.", rating: 5 },
-  { name: "Priya Shrestha", role: "Photographer", text: "Loved the booking flow. Picked the SUV, paid via Khalti, done. Zero friction.", rating: 5 },
-];
-
-export const faqs = [
-  { q: "What documents do I need to rent?", a: "A valid driving license, citizenship or passport, and one of: Khalti, eSewa, or cash deposit at pickup." },
-  { q: "Is there a security deposit?", a: "Yes. Refundable deposits range from NPR 5,000 to 25,000 depending on the vehicle category, returned within 24 hours of drop-off." },
-  { q: "Can I cancel my booking?", a: "Free cancellation up to 24 hours before pickup. After that, a 20% fee applies." },
-  { q: "Do you offer delivery?", a: "Inside Kathmandu Valley and Pokhara, we deliver free for bookings of 3+ days." },
-  { q: "What if the vehicle breaks down?", a: "Our 24/7 roadside team will reach you within 90 minutes anywhere on a paved highway in Nepal." },
-];
-
-export const getVehicleBySlug = (slug: string) => vehicles.find((v) => v.slug === slug);

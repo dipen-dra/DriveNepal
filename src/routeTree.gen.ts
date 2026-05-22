@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as OtpVerificationRouteImport } from './routes/otp-verification'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -21,8 +22,23 @@ import { Route as BikesRouteImport } from './routes/bikes'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as VehiclesSlugRouteImport } from './routes/vehicles.$slug'
+import { Route as DashboardQueriesRouteImport } from './routes/dashboard/queries'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
+import { Route as DashboardOverviewRouteImport } from './routes/dashboard/overview'
+import { Route as DashboardBookingsRouteImport } from './routes/dashboard/bookings'
 import { Route as BookingSlugRouteImport } from './routes/booking.$slug'
+import { Route as AdminVehiclesRouteImport } from './routes/admin/vehicles'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminQueriesRouteImport } from './routes/admin/queries'
+import { Route as AdminOverviewRouteImport } from './routes/admin/overview'
+import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
+import { Route as PaymentKhaltiSuccessRouteImport } from './routes/payment/khalti/success'
+import { Route as PaymentKhaltiFailureRouteImport } from './routes/payment/khalti/failure'
+import { Route as PaymentEsewaSuccessRouteImport } from './routes/payment/esewa/success'
+import { Route as PaymentEsewaFailureRouteImport } from './routes/payment/esewa/failure'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -32,6 +48,11 @@ const SignupRoute = SignupRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OtpVerificationRoute = OtpVerificationRouteImport.update({
+  id: '/otp-verification',
+  path: '/otp-verification',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -84,65 +105,186 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const VehiclesSlugRoute = VehiclesSlugRouteImport.update({
   id: '/vehicles/$slug',
   path: '/vehicles/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardQueriesRoute = DashboardQueriesRouteImport.update({
+  id: '/queries',
+  path: '/queries',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardOverviewRoute = DashboardOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardBookingsRoute = DashboardBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const BookingSlugRoute = BookingSlugRouteImport.update({
   id: '/booking/$slug',
   path: '/booking/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVehiclesRoute = AdminVehiclesRouteImport.update({
+  id: '/vehicles',
+  path: '/vehicles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminQueriesRoute = AdminQueriesRouteImport.update({
+  id: '/queries',
+  path: '/queries',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminOverviewRoute = AdminOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBookingsRoute = AdminBookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const PaymentKhaltiSuccessRoute = PaymentKhaltiSuccessRouteImport.update({
+  id: '/payment/khalti/success',
+  path: '/payment/khalti/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentKhaltiFailureRoute = PaymentKhaltiFailureRouteImport.update({
+  id: '/payment/khalti/failure',
+  path: '/payment/khalti/failure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentEsewaSuccessRoute = PaymentEsewaSuccessRouteImport.update({
+  id: '/payment/esewa/success',
+  path: '/payment/esewa/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentEsewaFailureRoute = PaymentEsewaFailureRouteImport.update({
+  id: '/payment/esewa/failure',
+  path: '/payment/esewa/failure',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/bikes': typeof BikesRoute
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/otp-verification': typeof OtpVerificationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/payment/esewa/failure': typeof PaymentEsewaFailureRoute
+  '/payment/esewa/success': typeof PaymentEsewaSuccessRoute
+  '/payment/khalti/failure': typeof PaymentKhaltiFailureRoute
+  '/payment/khalti/success': typeof PaymentKhaltiSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
   '/bikes': typeof BikesRoute
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/otp-verification': typeof OtpVerificationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/payment/esewa/failure': typeof PaymentEsewaFailureRoute
+  '/payment/esewa/success': typeof PaymentEsewaSuccessRoute
+  '/payment/khalti/failure': typeof PaymentKhaltiFailureRoute
+  '/payment/khalti/success': typeof PaymentKhaltiSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/bikes': typeof BikesRoute
   '/cars': typeof CarsRoute
   '/contact': typeof ContactRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/locations': typeof LocationsRoute
   '/login': typeof LoginRoute
+  '/otp-verification': typeof OtpVerificationRoute
   '/reset-password': typeof ResetPasswordRoute
   '/signup': typeof SignupRoute
+  '/admin/bookings': typeof AdminBookingsRoute
+  '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
+  '/dashboard/bookings': typeof DashboardBookingsRoute
+  '/dashboard/overview': typeof DashboardOverviewRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/payment/esewa/failure': typeof PaymentEsewaFailureRoute
+  '/payment/esewa/success': typeof PaymentEsewaSuccessRoute
+  '/payment/khalti/failure': typeof PaymentKhaltiFailureRoute
+  '/payment/khalti/success': typeof PaymentKhaltiSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -157,26 +299,56 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/otp-verification'
     | '/reset-password'
     | '/signup'
+    | '/admin/bookings'
+    | '/admin/overview'
+    | '/admin/queries'
+    | '/admin/users'
+    | '/admin/vehicles'
     | '/booking/$slug'
+    | '/dashboard/bookings'
+    | '/dashboard/overview'
+    | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
+    | '/admin/'
+    | '/dashboard/'
+    | '/payment/esewa/failure'
+    | '/payment/esewa/success'
+    | '/payment/khalti/failure'
+    | '/payment/khalti/success'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
-    | '/admin'
     | '/bikes'
     | '/cars'
     | '/contact'
-    | '/dashboard'
     | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/otp-verification'
     | '/reset-password'
     | '/signup'
+    | '/admin/bookings'
+    | '/admin/overview'
+    | '/admin/queries'
+    | '/admin/users'
+    | '/admin/vehicles'
     | '/booking/$slug'
+    | '/dashboard/bookings'
+    | '/dashboard/overview'
+    | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
+    | '/admin'
+    | '/dashboard'
+    | '/payment/esewa/failure'
+    | '/payment/esewa/success'
+    | '/payment/khalti/failure'
+    | '/payment/khalti/success'
   id:
     | '__root__'
     | '/'
@@ -189,27 +361,48 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/locations'
     | '/login'
+    | '/otp-verification'
     | '/reset-password'
     | '/signup'
+    | '/admin/bookings'
+    | '/admin/overview'
+    | '/admin/queries'
+    | '/admin/users'
+    | '/admin/vehicles'
     | '/booking/$slug'
+    | '/dashboard/bookings'
+    | '/dashboard/overview'
+    | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
+    | '/admin/'
+    | '/dashboard/'
+    | '/payment/esewa/failure'
+    | '/payment/esewa/success'
+    | '/payment/khalti/failure'
+    | '/payment/khalti/success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BikesRoute: typeof BikesRoute
   CarsRoute: typeof CarsRoute
   ContactRoute: typeof ContactRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LocationsRoute: typeof LocationsRoute
   LoginRoute: typeof LoginRoute
+  OtpVerificationRoute: typeof OtpVerificationRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
   BookingSlugRoute: typeof BookingSlugRoute
   VehiclesSlugRoute: typeof VehiclesSlugRoute
+  PaymentEsewaFailureRoute: typeof PaymentEsewaFailureRoute
+  PaymentEsewaSuccessRoute: typeof PaymentEsewaSuccessRoute
+  PaymentKhaltiFailureRoute: typeof PaymentKhaltiFailureRoute
+  PaymentKhaltiSuccessRoute: typeof PaymentKhaltiSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -226,6 +419,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/otp-verification': {
+      id: '/otp-verification'
+      path: '/otp-verification'
+      fullPath: '/otp-verification'
+      preLoaderRoute: typeof OtpVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -298,12 +498,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/vehicles/$slug': {
       id: '/vehicles/$slug'
       path: '/vehicles/$slug'
       fullPath: '/vehicles/$slug'
       preLoaderRoute: typeof VehiclesSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/queries': {
+      id: '/dashboard/queries'
+      path: '/queries'
+      fullPath: '/dashboard/queries'
+      preLoaderRoute: typeof DashboardQueriesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/overview': {
+      id: '/dashboard/overview'
+      path: '/overview'
+      fullPath: '/dashboard/overview'
+      preLoaderRoute: typeof DashboardOverviewRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/bookings': {
+      id: '/dashboard/bookings'
+      path: '/bookings'
+      fullPath: '/dashboard/bookings'
+      preLoaderRoute: typeof DashboardBookingsRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/booking/$slug': {
       id: '/booking/$slug'
@@ -312,24 +554,132 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookingSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/vehicles': {
+      id: '/admin/vehicles'
+      path: '/vehicles'
+      fullPath: '/admin/vehicles'
+      preLoaderRoute: typeof AdminVehiclesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/queries': {
+      id: '/admin/queries'
+      path: '/queries'
+      fullPath: '/admin/queries'
+      preLoaderRoute: typeof AdminQueriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/overview': {
+      id: '/admin/overview'
+      path: '/overview'
+      fullPath: '/admin/overview'
+      preLoaderRoute: typeof AdminOverviewRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/bookings': {
+      id: '/admin/bookings'
+      path: '/bookings'
+      fullPath: '/admin/bookings'
+      preLoaderRoute: typeof AdminBookingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/payment/khalti/success': {
+      id: '/payment/khalti/success'
+      path: '/payment/khalti/success'
+      fullPath: '/payment/khalti/success'
+      preLoaderRoute: typeof PaymentKhaltiSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/khalti/failure': {
+      id: '/payment/khalti/failure'
+      path: '/payment/khalti/failure'
+      fullPath: '/payment/khalti/failure'
+      preLoaderRoute: typeof PaymentKhaltiFailureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/esewa/success': {
+      id: '/payment/esewa/success'
+      path: '/payment/esewa/success'
+      fullPath: '/payment/esewa/success'
+      preLoaderRoute: typeof PaymentEsewaSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/esewa/failure': {
+      id: '/payment/esewa/failure'
+      path: '/payment/esewa/failure'
+      fullPath: '/payment/esewa/failure'
+      preLoaderRoute: typeof PaymentEsewaFailureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminBookingsRoute: typeof AdminBookingsRoute
+  AdminOverviewRoute: typeof AdminOverviewRoute
+  AdminQueriesRoute: typeof AdminQueriesRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminVehiclesRoute: typeof AdminVehiclesRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminBookingsRoute: AdminBookingsRoute,
+  AdminOverviewRoute: AdminOverviewRoute,
+  AdminQueriesRoute: AdminQueriesRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminVehiclesRoute: AdminVehiclesRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface DashboardRouteChildren {
+  DashboardBookingsRoute: typeof DashboardBookingsRoute
+  DashboardOverviewRoute: typeof DashboardOverviewRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardQueriesRoute: typeof DashboardQueriesRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardBookingsRoute: DashboardBookingsRoute,
+  DashboardOverviewRoute: DashboardOverviewRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardQueriesRoute: DashboardQueriesRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BikesRoute: BikesRoute,
   CarsRoute: CarsRoute,
   ContactRoute: ContactRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LocationsRoute: LocationsRoute,
   LoginRoute: LoginRoute,
+  OtpVerificationRoute: OtpVerificationRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
   BookingSlugRoute: BookingSlugRoute,
   VehiclesSlugRoute: VehiclesSlugRoute,
+  PaymentEsewaFailureRoute: PaymentEsewaFailureRoute,
+  PaymentEsewaSuccessRoute: PaymentEsewaSuccessRoute,
+  PaymentKhaltiFailureRoute: PaymentKhaltiFailureRoute,
+  PaymentKhaltiSuccessRoute: PaymentKhaltiSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

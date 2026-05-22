@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { MapPin, ArrowRight } from "lucide-react";
-import { locations } from "@/lib/mock-data";
+import { getVehicles } from "@/lib/api";
 
 export const Route = createFileRoute("/locations")({
   head: () => ({ meta: [{ title: "Locations — DriveNepal" }] }),
@@ -9,6 +10,26 @@ export const Route = createFileRoute("/locations")({
 });
 
 function LocationsPage() {
+  const { data: res } = useQuery({
+    queryKey: ["vehicles", "locations"],
+    queryFn: () => getVehicles({}),
+  });
+
+  const vehicles = res?.data || [];
+
+  const locationCounts = vehicles.reduce((acc, v) => {
+    // If backend location is missing for some reason, use 'Kathmandu'
+    const loc = v.location || "Kathmandu";
+    acc[loc] = (acc[loc] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const locations = Object.entries(locationCounts).map(([name, count]) => ({
+    id: name,
+    name,
+    count,
+  }));
+
   return (
     <>
       <section className="noise-bg">
@@ -20,6 +41,12 @@ function LocationsPage() {
       </section>
 
       <section className="container-page py-16">
+        {locations.length === 0 && !res && (
+          <div className="text-muted-foreground">Loading locations...</div>
+        )}
+        {locations.length === 0 && res && (
+          <div className="text-muted-foreground">No locations currently available.</div>
+        )}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {locations.map((loc, i) => (
             <motion.div

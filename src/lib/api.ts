@@ -3,7 +3,7 @@
  * All requests go through /api (proxied to localhost:5000 in dev).
  */
 
-const BASE = '/api';
+const BASE = typeof window === 'undefined' ? 'http://localhost:5001/api' : '/api';
 
 export class ApiError extends Error {
   constructor(
@@ -85,6 +85,18 @@ export interface Vehicle {
   isAvailable: boolean;
 }
 
+export type NotifType = 'booking' | 'payment' | 'promo' | 'alert' | 'message';
+
+export interface AppNotification {
+  _id: string;
+  type: NotifType;
+  title: string;
+  body: string;
+  href?: string;
+  read: boolean;
+  createdAt: string;
+}
+
 export type BookingStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
 export interface Booking {
   _id: string;
@@ -136,6 +148,12 @@ export const registerUser = (name: string, email: string, password: string) =>
     body: JSON.stringify({ name, email, password }),
   });
 
+export const googleLogin = (credential: string) =>
+  request<{ success: boolean; user: UserProfile; token: string }>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ credential }),
+  });
+
 export const logoutUser = () =>
   request<{ success: boolean }>('/auth/logout', { method: 'POST' });
 
@@ -143,15 +161,21 @@ export const getMe = () =>
   request<{ success: boolean; user: UserProfile }>('/auth/me');
 
 export const forgotPassword = (email: string) =>
-  request<{ success: boolean; message: string; resetUrl?: string }>('/auth/forgot-password', {
+  request<{ success: boolean; message: string }>('/auth/forgot-password', {
     method: 'POST',
     body: JSON.stringify({ email }),
   });
 
-export const resetPassword = (token: string, password: string) =>
+export const verifyOtp = (email: string, otp: string) =>
+  request<{ success: boolean; message: string }>('/auth/verify-otp', {
+    method: 'POST',
+    body: JSON.stringify({ email, otp }),
+  });
+
+export const resetPassword = (email: string, otp: string, password: string) =>
   request<{ success: boolean; message: string }>('/auth/reset-password', {
     method: 'POST',
-    body: JSON.stringify({ token, password }),
+    body: JSON.stringify({ email, otp, password }),
   });
 
 // ── Vehicles ───────────────────────────────────────────────
@@ -177,20 +201,41 @@ export const getVehicles = (filters: VehicleFilters = {}) => {
 export const getVehicle = (slug: string) =>
   request<{ success: boolean; data: Vehicle }>(`/vehicles/${slug}`);
 
-export const createVehicle = (data: Partial<Vehicle>) =>
-  request<{ success: boolean; data: Vehicle }>('/vehicles', {
+export const createVehicle = async (data: FormData): Promise<{ success: boolean; data: Vehicle }> => {
+  const res = await fetch(`${BASE}/vehicles`, {
     method: 'POST',
-    body: JSON.stringify(data),
+    credentials: 'include',
+    body: data,
   });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, json.message || 'Failed to create vehicle');
+  return json;
+};
 
-export const updateVehicle = (id: string, data: Partial<Vehicle>) =>
-  request<{ success: boolean; data: Vehicle }>(`/vehicles/${id}`, {
+export const updateVehicle = async (id: string, data: FormData): Promise<{ success: boolean; data: Vehicle }> => {
+  const res = await fetch(`${BASE}/vehicles/${id}`, {
     method: 'PUT',
-    body: JSON.stringify(data),
+    credentials: 'include',
+    body: data,
   });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new ApiError(res.status, json.message || 'Failed to update vehicle');
+  return json;
+};
 
 export const deleteVehicle = (id: string) =>
   request<{ success: boolean; message: string }>(`/vehicles/${id}`, { method: 'DELETE' });
+
+// ── Notifications ──────────────────────────────────────────
+
+export const getNotifications = () =>
+  request<{ success: boolean; data: AppNotification[] }>('/notifications');
+
+export const markNotificationRead = (id: string) =>
+  request<{ success: boolean; data: AppNotification }>(`/notifications/${id}/read`, { method: 'PATCH' });
+
+export const markAllNotificationsRead = () =>
+  request<{ success: boolean; message: string }>('/notifications/read-all', { method: 'PATCH' });
 
 // ── Bookings ───────────────────────────────────────────────
 
@@ -206,6 +251,8 @@ export interface CreateBookingPayload {
   customerPhone: string;
   license: string;
   couponCode?: string;
+  insurance?: string;
+  addons?: string[];
 }
 
 export const getMyBookings = (status?: string) => {
@@ -242,6 +289,26 @@ export const updateProfile = (data: Partial<UserProfile>) =>
     body: JSON.stringify(data),
   });
 
+export const uploadAvatar = async (file: File): Promise<{ success: boolean; data: UserProfile }> => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const res = await fetch(`${BASE}/users/profile/avatar`, {
+    method: 'PATCH',
+    headers: {
+      // Don't set Content-Type here, let the browser set it with the boundary for FormData
+    },
+    credentials: 'include',
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(res.status, data.message || 'Avatar upload failed');
+  }
+  return data;
+};
+
 export const changePassword = (currentPassword: string, newPassword: string) =>
   request<{ success: boolean; message: string }>('/users/me/password', {
     method: 'PUT',
@@ -270,3 +337,70 @@ export const deleteUser = (id: string) =>
 
 export const getAdminStats = () =>
   request<{ success: boolean; data: AdminStats }>('/admin/stats');
+
+/* ── Payments ────────────────────────────────────────────── */
+
+export async function initiateEsewaPayment(bookingData: CreateBookingPayload): Promise<{ success: boolean; data: {
+  ESEWA_URL: string;
+  amount: string;
+  success_url: string;
+  failure_url: string;
+  product_delivery_charge: string;
+  product_service_charge: string;
+  product_code: string;
+  signature: string;
+  signed_field_names: string;
+  tax_amount: string;
+  total_amount: string;
+  transaction_uuid: string;
+} }> {
+  return request('/payment/esewa/initiate', {
+    method: 'POST',
+    body: JSON.stringify({ bookingData }),
+  });
+}
+
+export async function verifyEsewaPayment(data: string): Promise<{ success: boolean; data: Booking }> {
+  return request(`/payment/esewa/verify?data=${encodeURIComponent(data)}`, { method: 'GET' });
+}
+
+export async function verifyKhaltiPayment(token: string, amount: number, bookingData: CreateBookingPayload): Promise<{ success: boolean; data: Booking }> {
+  return request('/payment/khalti/verify', {
+    method: 'POST',
+    body: JSON.stringify({ token, amount, bookingData }),
+  });
+}
+
+/* ── Contact Queries ───────────────────────────────────────── */
+
+export interface ContactQuery {
+  _id: string;
+  user?: UserProfile;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  reply?: string;
+  isReplied: boolean;
+  repliedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const submitQuery = (payload: { name: string; email: string; subject: string; message: string }) =>
+  request<{ success: boolean; data: ContactQuery }>('/queries', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+export const getAdminQueries = () =>
+  request<{ success: boolean; data: ContactQuery[] }>('/queries/admin/all');
+
+export const getUserQueries = () =>
+  request<{ success: boolean; data: ContactQuery[] }>('/queries/me');
+
+export const replyToQuery = (id: string, reply: string) =>
+  request<{ success: boolean; data: ContactQuery }>(`/queries/admin/${id}/reply`, {
+    method: 'POST',
+    body: JSON.stringify({ reply }),
+  });

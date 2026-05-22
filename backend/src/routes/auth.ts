@@ -2,8 +2,12 @@ import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { body, validationResult } from 'express-validator';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
+import { sendEmail } from '../utils/email.js';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = Router();
 
@@ -112,6 +116,68 @@ router.post(
   },
 );
 
+/* ── POST /api/auth/google ───────────────────────────────── */
+router.post('/google', async (req: Request, res: Response): Promise<void> => {
+  const { credential } = req.body;
+  if (!credential) {
+    res.status(400).json({ success: false, message: 'Google credential required' });
+    return;
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      res.status(400).json({ success: false, message: 'Invalid Google token' });
+      return;
+    }
+
+    let user = await User.findOne({ email: payload.email });
+    if (!user) {
+      // Create new user with random password (Google users don't need it)
+      const randomPassword = crypto.randomBytes(16).toString('hex');
+      user = await User.create({
+        name: payload.name || 'Google User',
+        email: payload.email,
+        password: randomPassword,
+        avatar: payload.picture || '',
+        authProvider: 'google',
+        role: 'user',
+        isActive: true,
+      });
+    }
+
+    if (!user.isActive) {
+      res.status(403).json({ success: false, message: 'Account is suspended.' });
+      return;
+    }
+
+    const token = signToken(user._id.toString(), user.role);
+    sendTokenCookie(res, token);
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        city: user.city,
+        avatar: user.avatar,
+        license: user.license,
+      },
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    res.status(401).json({ success: false, message: 'Google authentication failed' });
+  }
+});
+
 /* ── POST /api/auth/logout ───────────────────────────────── */
 router.post('/logout', (_req: Request, res: Response): void => {
   res.clearCookie('token');
@@ -160,22 +226,62 @@ router.post(
       return;
     }
 
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save({ validateBeforeSave: false });
 
-    // In production: send email with reset link
-    // For dev: return token in response
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
-    console.log(`🔑 Reset link (dev only): ${resetUrl}`);
+    // Send email with OTP
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Your Password Reset OTP — DriveNepal',
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Password Reset</h2>
+            <p>You requested a password reset for your DriveNepal account.</p>
+            <p>Here is your 6-digit verification code:</p>
+            <h1 style="background: #f4f4f5; padding: 12px; text-align: center; letter-spacing: 5px; border-radius: 8px;">
+              ${otp}
+            </h1>
+            <p style="color: #666; font-size: 14px;">This code expires in 10 minutes. If you did not request this, please ignore this email.</p>
+          </div>
+        `,
+      });
+    } catch (err) {
+      console.error('Email send error:', err);
+    }
 
     res.json({
       success: true,
       message: 'If that email exists, a reset link has been sent.',
-      // Only expose in development for testing
-      ...(process.env.NODE_ENV !== 'production' && { resetUrl }),
     });
+  },
+);
+
+/* ── POST /api/auth/verify-otp ──────────────────────────── */
+router.post(
+  '/verify-otp',
+  [
+    body('email').isEmail().withMessage('Valid email required'),
+    body('otp').isLength({ min: 6, max: 6 }).withMessage('Valid 6-digit OTP required'),
+  ],
+  async (req: Request, res: Response): Promise<void> => {
+    const { email, otp } = req.body as { email: string; otp: string };
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: hashedOtp,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+      return;
+    }
+
+    res.json({ success: true, message: 'OTP verified successfully.' });
   },
 );
 
@@ -183,20 +289,22 @@ router.post(
 router.post(
   '/reset-password',
   [
-    body('token').notEmpty(),
+    body('email').isEmail().withMessage('Valid email required'),
+    body('otp').isLength({ min: 6, max: 6 }).withMessage('Valid OTP required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   ],
   async (req: Request, res: Response): Promise<void> => {
-    const { token, password } = req.body as { token: string; password: string };
-    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    const { email, otp, password } = req.body as { email: string; otp: string; password: string };
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
     const user = await User.findOne({
-      resetPasswordToken: hashedToken,
+      email,
+      resetPasswordToken: hashedOtp,
       resetPasswordExpires: { $gt: new Date() },
     }).select('+resetPasswordToken +resetPasswordExpires');
 
     if (!user) {
-      res.status(400).json({ success: false, message: 'Invalid or expired reset token.' });
+      res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
       return;
     }
 

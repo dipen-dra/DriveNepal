@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Star, MapPin, Fuel, Gauge, Users, Check, ArrowLeft, Calendar, Shield,
 } from "lucide-react";
@@ -36,6 +36,16 @@ export const Route = createFileRoute("/vehicles/$slug")({
 function VehicleDetail() {
   const { vehicle: v } = Route.useLoaderData();
   const [img, setImg] = useState(v.image);
+
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
+  const [pickupLocation, setPickupLocation] = useState("Kathmandu — Thamel hub");
+
+  const days = useMemo(() => {
+    if (!pickupDate || !returnDate) return 1;
+    const ms = +new Date(returnDate) - +new Date(pickupDate);
+    return Math.max(1, Math.ceil(ms / 86400000));
+  }, [pickupDate, returnDate]);
 
   const { data: suggestionsData } = useQuery({
     queryKey: ["vehicles", v.type],
@@ -128,32 +138,38 @@ function VehicleDetail() {
             </div>
 
             <div className="mt-6 space-y-3">
-              <DateField label="Pickup" />
-              <DateField label="Return" />
+              <DateField label="Pickup" value={pickupDate} onChange={setPickupDate} />
+              <DateField label="Return" value={returnDate} onChange={setReturnDate} />
               <label className="block">
                 <span className="text-xs uppercase tracking-wider text-muted-foreground">Pickup location</span>
-                <select className="mt-1 w-full h-11 px-3 rounded-xl bg-muted border border-transparent focus:border-primary focus:outline-none text-sm font-medium">
-                  <option>Kathmandu (Thamel hub)</option>
-                  <option>Pokhara (Lakeside)</option>
-                  <option>Tribhuvan Intl Airport</option>
+                <select 
+                  value={pickupLocation}
+                  onChange={(e) => setPickupLocation(e.target.value)}
+                  className="mt-1 w-full h-11 px-3 rounded-xl bg-muted border border-transparent focus:border-primary focus:outline-none text-sm font-medium"
+                >
+                  <option value="Kathmandu — Thamel hub">Kathmandu (Thamel hub)</option>
+                  <option value="Pokhara — Lakeside">Pokhara (Lakeside)</option>
+                  <option value="Kathmandu — Tribhuvan Intl Airport">Tribhuvan Intl Airport</option>
                 </select>
               </label>
             </div>
 
             <div className="mt-6 space-y-2 text-sm">
-              <Row k={`NPR ${v.pricePerDay.toLocaleString()} × 1 day`} v={`NPR ${v.pricePerDay.toLocaleString()}`} />
-              <Row k="Service fee" v={`NPR ${Math.round(v.pricePerDay * 0.05).toLocaleString()}`} />
-              <Row k="VAT (13%)" v={`NPR ${Math.round(v.pricePerDay * 0.13).toLocaleString()}`} />
+              <Row k={`NPR ${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`NPR ${(v.pricePerDay * days).toLocaleString()}`} />
+              <Row k="Service fee" v={`NPR ${Math.round(v.pricePerDay * days * 0.05).toLocaleString()}`} />
+              <Row k="VAT (13%)" v={`NPR ${Math.round(v.pricePerDay * days * 0.13).toLocaleString()}`} />
               <div className="pt-3 border-t border-border flex items-baseline justify-between">
                 <span className="font-semibold">Total</span>
                 <span className="font-display text-2xl font-bold text-ink">
-                  NPR {Math.round(v.pricePerDay * 1.18).toLocaleString()}
+                  NPR {Math.round(v.pricePerDay * days * 1.18).toLocaleString()}
                 </span>
               </div>
             </div>
 
             <Link
-              to="/booking/$slug" params={{ slug: v.slug }}
+              to="/booking/$slug" 
+              params={{ slug: v.slug }}
+              search={{ pickupDate, returnDate, pickupLocation }}
               className="mt-6 w-full h-12 inline-flex items-center justify-center rounded-full gradient-brand text-white font-semibold shadow-[var(--shadow-glow)] hover:-translate-y-0.5 transition-transform"
             >
               Continue to booking
@@ -185,13 +201,18 @@ function Spec({ icon, label, value }: { icon: React.ReactNode; label: string; va
   );
 }
 
-function DateField({ label }: { label: string }) {
+function DateField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
       <div className="mt-1 relative">
         <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <input type="date" className="w-full h-11 pl-10 pr-3 rounded-xl bg-muted border border-transparent focus:border-primary focus:outline-none text-sm font-medium" />
+        <input 
+          type="date" 
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full h-11 pl-10 pr-3 rounded-xl bg-muted border border-transparent focus:border-primary focus:outline-none text-sm font-medium" 
+        />
       </div>
     </label>
   );

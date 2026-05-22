@@ -2,8 +2,11 @@ import { Router, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { Booking } from '../models/Booking.js';
 import { Vehicle } from '../models/Vehicle.js';
+import { Notification } from '../models/Notification.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
+import { sendEmail } from '../utils/email.js';
+import { calculateBookingTotal } from './payment.js';
 
 const router = Router();
 
@@ -42,28 +45,19 @@ router.post(
     const {
       vehicleSlug, startDate, endDate, pickup, dropoff,
       payment, customerName, customerEmail, customerPhone,
-      license, couponCode,
+      license, couponCode, insurance, addons,
     } = req.body as {
       vehicleSlug: string; startDate: string; endDate: string;
       pickup: string; dropoff?: string; payment: 'Khalti' | 'eSewa' | 'Cash';
       customerName: string; customerEmail: string; customerPhone: string;
-      license: string; couponCode?: string;
+      license: string; couponCode?: string; insurance?: string; addons?: string[];
     };
 
-    const vehicle = await Vehicle.findOne({ slug: vehicleSlug });
-    if (!vehicle) {
-      res.status(404).json({ success: false, message: 'Vehicle not found.' });
-      return;
-    }
-
-    // Calculate pricing
-    const msPerDay = 86400000;
-    const days = Math.max(1, Math.ceil((+new Date(endDate) - +new Date(startDate)) / msPerDay));
-    const subtotal = vehicle.pricePerDay * days;
-    const serviceFee = Math.round(subtotal * 0.05);
-    const vat = Math.round(subtotal * 0.13);
-    const discount = couponCode === 'DRIVE10' ? Math.round(subtotal * 0.1) : 0;
-    const total = subtotal + serviceFee + vat - discount;
+    const {
+      total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount
+    } = await calculateBookingTotal(
+      vehicleSlug, startDate, endDate, couponCode, dropoff, pickup, insurance, addons
+    );
 
     const booking = await Booking.create({
       user: req.user!._id,
@@ -81,6 +75,8 @@ router.post(
       vat,
       discount,
       total,
+      insurance,
+      addons,
       status: 'upcoming',
       payment,
       customerName,
@@ -89,6 +85,32 @@ router.post(
       license,
       couponCode,
     });
+
+    // Fire & forget notification creation
+    Notification.create({
+      user: req.user!._id,
+      type: 'booking',
+      title: 'Booking Confirmed!',
+      body: `Your booking for ${vehicle.name} has been reserved with Cash payment.`,
+      href: '/dashboard',
+    }).catch(console.error);
+
+    // Send confirmation email
+    sendEmail({
+      to: customerEmail,
+      subject: `Booking Confirmed: ${vehicle.name}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Booking Confirmed!</h2>
+          <p>Hi ${customerName},</p>
+          <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully reserved with <strong>Cash on Delivery/Pickup</strong>.</p>
+          <p><strong>Pickup:</strong> ${new Date(startDate).toLocaleDateString()} at ${pickup}</p>
+          <p><strong>Total Due:</strong> NPR ${total.toLocaleString()}</p>
+          <p>Please have the exact amount ready upon pickup.</p>
+          <p>Thank you for choosing DriveNepal!</p>
+        </div>
+      `,
+    }).catch(console.error);
 
     res.status(201).json({ success: true, data: booking });
   },
@@ -107,6 +129,15 @@ router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Pr
   }
   booking.status = 'cancelled';
   await booking.save();
+
+  Notification.create({
+    user: req.user!._id,
+    type: 'alert',
+    title: 'Booking Cancelled',
+    body: `Your booking for ${booking.vehicleName} has been cancelled successfully.`,
+    href: '/dashboard',
+  }).catch(console.error);
+
   res.json({ success: true, data: booking });
 });
 
@@ -140,6 +171,16 @@ router.patch(
       res.status(404).json({ success: false, message: 'Booking not found.' });
       return;
     }
+
+    // Notify user of status change
+    Notification.create({
+      user: booking.user,
+      type: status === 'completed' ? 'payment' : 'message',
+      title: `Booking ${status}`,
+      body: `The status of your booking for ${booking.vehicleName} has been updated to ${status}.`,
+      href: '/dashboard',
+    }).catch(console.error);
+
     res.json({ success: true, data: booking });
   },
 );

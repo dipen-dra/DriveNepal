@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 import {
   ArrowRight, Calendar, MapPin, Car, Bike, ShieldCheck, Clock, Tag,
   CreditCard, Zap, BadgeCheck, ChevronDown, Star, Quote,
@@ -223,9 +224,12 @@ function PopularVehicles() {
             <button
               key={t.k}
               onClick={() => setTab(t.k)}
-              className={`relative h-10 px-5 inline-flex items-center gap-2 rounded-full text-sm font-medium transition-colors ${tab === t.k ? "text-white" : "text-foreground/70 hover:text-foreground"}`}
+              className={cn(
+                "relative h-10 px-5 inline-flex items-center gap-2 rounded-full text-sm font-medium transition-colors",
+                tab === t.k ? "text-primary" : "text-foreground/70 hover:text-foreground"
+              )}
             >
-              {tab === t.k && <motion.span layoutId="pop-tab" className="absolute inset-0 rounded-full gradient-brand -z-10" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
+              {tab === t.k && <motion.span layoutId="pop-tab" className="absolute inset-0 rounded-full bg-primary/10 -z-10" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
               {t.icon}{t.label}
             </button>
           ))}

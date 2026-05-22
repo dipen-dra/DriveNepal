@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import { Bell, Menu, X, LayoutDashboard, LogOut, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { useAuth } from "@/lib/auth-context";
 import logo from "@/assets/logo.png";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import { toast } from "sonner";
 
 const nav = [
   { to: "/", label: "Home" },
@@ -22,7 +25,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { location } = useRouterState();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,6 +39,7 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await logout();
+    toast.success("Logged out successfully");
     void navigate({ to: "/" });
   };
 
@@ -89,36 +93,40 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
 
-          {isAuthenticated && user ? (
+          {isLoading ? (
+            <div className="hidden md:flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+              <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+              <div className="h-10 w-20 rounded-full bg-muted animate-pulse" />
+            </div>
+          ) : isAuthenticated && user ? (
             <>
-              {user.role === "admin" && (
+              {user.role === "admin" ? (
                 <Link
                   to="/admin"
                   className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
-                  aria-label="Admin"
+                  aria-label="Admin Console"
                 >
                   <Shield className="h-4 w-4" />
                 </Link>
+              ) : (
+                <Link
+                  to="/dashboard"
+                  className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
+                  aria-label="Dashboard"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                </Link>
               )}
-              <Link
-                to="/dashboard"
-                className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
-                aria-label="Dashboard"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-              </Link>
-              <button
-                className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
-                aria-label="Notifications"
-              >
-                <Bell className="h-4 w-4" />
-              </button>
+              <div className="hidden md:block">
+                <NotificationCenter />
+              </div>
 
               {/* Avatar dropdown */}
               <div className="relative hidden md:block">
                 <button
                   onClick={() => setUserMenuOpen((s) => !s)}
-                  className="h-9 w-9 rounded-full gradient-brand text-white font-semibold text-sm inline-flex items-center justify-center shadow-[var(--shadow-glow)] hover:opacity-90 transition-opacity"
+                  className={cn("h-9 w-9 rounded-full font-semibold text-sm inline-flex items-center justify-center shadow-sm ring-1 ring-border hover:ring-primary/50 hover:opacity-90 transition-all", user.avatar ? "bg-background p-0.5" : "gradient-brand text-white")}
                 >
                   {user.avatar ? (
                     <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
@@ -127,27 +135,39 @@ export function Navbar() {
                   )}
                 </button>
                 {userMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute right-0 top-12 w-48 rounded-2xl bg-card border border-border shadow-[var(--shadow-card)] p-2 z-50"
-                  >
-                    <div className="px-3 py-2 border-b border-border mb-1">
-                      <p className="text-sm font-semibold text-ink truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                    <Link to="/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
-                      <LayoutDashboard className="h-3.5 w-3.5" /> Dashboard
-                    </Link>
-                    {user.role === "admin" && (
-                      <Link to="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
-                        <Shield className="h-3.5 w-3.5" /> Admin Panel
+                  <>
+                    {/* Invisible backdrop for closing dropdown on outside click */}
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute right-0 top-12 w-48 rounded-2xl bg-card border border-border shadow-[var(--shadow-card)] p-2 z-50"
+                    >
+                      <div className="px-3 py-2 border-b border-border mb-1">
+                        <p className="text-sm font-semibold text-ink truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      </div>
+                      <Link to="/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
+                        <LayoutDashboard className="h-3.5 w-3.5" /> Dashboard
                       </Link>
-                    )}
-                    <button onClick={handleLogout} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors">
-                      <LogOut className="h-3.5 w-3.5" /> Logout
-                    </button>
-                  </motion.div>
+                      {user.role === "admin" && (
+                        <Link to="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
+                          <Shield className="h-3.5 w-3.5" /> Admin Panel
+                        </Link>
+                      )}
+                      <ConfirmModal 
+                        title="Log out" 
+                        description="Are you sure you want to log out of your account?"
+                        onConfirm={handleLogout}
+                        confirmText="Log out"
+                      >
+                        <button className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors">
+                          <LogOut className="h-3.5 w-3.5" /> Logout
+                        </button>
+                      </ConfirmModal>
+                    </motion.div>
+                  </>
                 )}
               </div>
             </>
@@ -156,9 +176,9 @@ export function Navbar() {
               <Link to="/dashboard" className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors" aria-label="Dashboard">
                 <LayoutDashboard className="h-4 w-4" />
               </Link>
-              <button className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors">
-                <Bell className="h-4 w-4" />
-              </button>
+              <div className="hidden md:block">
+                <NotificationCenter />
+              </div>
               <Link to="/login" className="hidden md:inline-flex h-10 items-center px-4 rounded-full text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
                 Login
               </Link>
@@ -190,10 +210,24 @@ export function Navbar() {
                 {n.label}
               </Link>
             ))}
-            {isAuthenticated ? (
+            {isLoading ? (
               <div className="flex gap-2 pt-3 border-t border-border mt-1">
-                <Link to="/dashboard" className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium">Dashboard</Link>
-                <button onClick={handleLogout} className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium">Logout</button>
+                <div className="flex-1 h-11 rounded-full bg-muted animate-pulse" />
+                <div className="flex-1 h-11 rounded-full bg-muted animate-pulse" />
+              </div>
+            ) : isAuthenticated && user ? (
+              <div className="mt-8 flex gap-3">
+                <Link to={user.role === "admin" ? "/admin" : "/dashboard"} className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium">
+                  {user.role === "admin" ? "Admin Console" : "Dashboard"}
+                </Link>
+                <ConfirmModal 
+                  title="Log out" 
+                  description="Are you sure you want to log out?"
+                  onConfirm={handleLogout}
+                  confirmText="Log out"
+                >
+                  <button className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium">Logout</button>
+                </ConfirmModal>
               </div>
             ) : (
               <div className="flex gap-2 pt-3">

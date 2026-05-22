@@ -4,6 +4,7 @@ import { User } from '../models/User.js';
 import { Booking } from '../models/Booking.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
+import { upload } from '../middleware/upload.js';
 
 const router = Router();
 
@@ -73,6 +74,27 @@ router.put(
         role: user!.role,
       },
     });
+  },
+);
+
+/* ── PATCH /api/users/profile/avatar ─────────────────────── */
+router.patch(
+  '/profile/avatar',
+  protect,
+  upload.single('image'),
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    if (!req.file) {
+      res.status(400).json({ success: false, message: 'No image uploaded' });
+      return;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user!._id,
+      { avatar: req.file.path }, // Cloudinary returns the URL in req.file.path
+      { new: true },
+    );
+
+    res.json({ success: true, data: user });
   },
 );
 
