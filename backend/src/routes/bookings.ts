@@ -6,6 +6,7 @@ import { Notification } from '../models/Notification.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
 import { sendEmail } from '../utils/email.js';
+import { calculateBookingTotal } from './payment.js';
 
 const router = Router();
 
@@ -44,28 +45,19 @@ router.post(
     const {
       vehicleSlug, startDate, endDate, pickup, dropoff,
       payment, customerName, customerEmail, customerPhone,
-      license, couponCode,
+      license, couponCode, insurance, addons,
     } = req.body as {
       vehicleSlug: string; startDate: string; endDate: string;
       pickup: string; dropoff?: string; payment: 'Khalti' | 'eSewa' | 'Cash';
       customerName: string; customerEmail: string; customerPhone: string;
-      license: string; couponCode?: string;
+      license: string; couponCode?: string; insurance?: string; addons?: string[];
     };
 
-    const vehicle = await Vehicle.findOne({ slug: vehicleSlug });
-    if (!vehicle) {
-      res.status(404).json({ success: false, message: 'Vehicle not found.' });
-      return;
-    }
-
-    // Calculate pricing
-    const msPerDay = 86400000;
-    const days = Math.max(1, Math.ceil((+new Date(endDate) - +new Date(startDate)) / msPerDay));
-    const subtotal = vehicle.pricePerDay * days;
-    const serviceFee = Math.round(subtotal * 0.05);
-    const vat = Math.round(subtotal * 0.13);
-    const discount = couponCode === 'DRIVE10' ? Math.round(subtotal * 0.1) : 0;
-    const total = subtotal + serviceFee + vat - discount;
+    const {
+      total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount
+    } = await calculateBookingTotal(
+      vehicleSlug, startDate, endDate, couponCode, dropoff, pickup, insurance, addons
+    );
 
     const booking = await Booking.create({
       user: req.user!._id,
@@ -83,6 +75,8 @@ router.post(
       vat,
       discount,
       total,
+      insurance,
+      addons,
       status: 'upcoming',
       payment,
       customerName,

@@ -27,6 +27,8 @@ export interface IBooking extends Document {
   customerPhone: string;
   license: string;
   couponCode?: string;
+  insurance?: string;
+  addons?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +62,8 @@ const BookingSchema = new Schema<IBooking>(
     customerPhone: { type: String },
     license: { type: String },
     couponCode: { type: String },
+    insurance: { type: String, default: 'basic' },
+    addons: { type: [String], default: [] },
   },
   { timestamps: true },
 );

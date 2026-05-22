@@ -15,20 +15,46 @@ const ESEWA_SCD = 'EPAYTEST';
 const ESEWA_SECRET = process.env.ESEWA_SECRET || '8gBm/:&EnhH.1/q';
 
 // Helper to calculate total for verification
-const calculateBookingTotal = async (vehicleSlug: string, startDate: string, endDate: string, couponCode?: string, dropoff?: string, pickup?: string) => {
+export const calculateBookingTotal = async (
+  vehicleSlug: string,
+  startDate: string,
+  endDate: string,
+  couponCode?: string,
+  dropoff?: string,
+  pickup?: string,
+  insurance?: string,
+  addons?: string[]
+) => {
   const vehicle = await Vehicle.findOne({ slug: vehicleSlug });
   if (!vehicle) throw new Error('Vehicle not found');
 
+  const insurancePrices: Record<string, number> = {
+    basic: 0,
+    plus: 450,
+    max: 850,
+  };
+
+  const addonPrices: Record<string, number> = {
+    driver: 1800,
+    gps: 200,
+    child: 250,
+    helmet: 100,
+  };
+
+  const insurancePrice = insurancePrices[insurance || 'basic'] ?? 0;
+  const addonsPrice = (addons || []).reduce((sum, id) => sum + (addonPrices[id] ?? 0), 0);
+
   const msPerDay = 86400000;
   const days = Math.max(1, Math.ceil((+new Date(endDate) - +new Date(startDate)) / msPerDay));
-  const subtotal = vehicle.pricePerDay * days;
+  
+  const subtotal = vehicle.pricePerDay * days + (insurancePrice + addonsPrice) * days;
   const serviceFee = Math.round(subtotal * 0.05);
   const dropOffFee = (dropoff && pickup && dropoff !== pickup) ? 800 : 0;
   const vat = Math.round((subtotal + dropOffFee) * 0.13);
   const discount = couponCode === 'DRIVE10' ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + serviceFee + vat + dropOffFee - discount;
 
-  return { total, vehicle };
+  return { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount };
 };
 
 // @desc    Verify Khalti payment
@@ -58,9 +84,10 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
 
     if (verificationData.idx) {
       // Re-calculate to verify amount matches
-      const { total, vehicle } = await calculateBookingTotal(
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotal(
         bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-        bookingData.couponCode, bookingData.dropoff, bookingData.pickup
+        bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
+        bookingData.insurance, bookingData.addons
       );
 
       // Create Booking
@@ -74,12 +101,14 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
         dropoff: bookingData.dropoff || bookingData.pickup,
         startDate: bookingData.startDate,
         endDate: bookingData.endDate,
-        days: Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)),
-        subtotal: vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)),
-        serviceFee: Math.round(vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) * 0.05),
-        vat: Math.round((vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) + (bookingData.dropoff && bookingData.pickup && bookingData.dropoff !== bookingData.pickup ? 800 : 0)) * 0.13),
-        discount: bookingData.couponCode === 'DRIVE10' ? Math.round(vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) * 0.1) : 0,
-        total: total,
+        days,
+        subtotal,
+        serviceFee,
+        vat,
+        discount,
+        total,
+        insurance: bookingData.insurance,
+        addons: bookingData.addons,
         status: 'upcoming',
         payment: 'Khalti',
         customerName: bookingData.customerName,
@@ -135,7 +164,8 @@ router.post('/esewa/initiate', protect, async (req: AuthRequest, res: Response):
 
     const { total } = await calculateBookingTotal(
       bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-      bookingData.couponCode, bookingData.dropoff, bookingData.pickup
+      bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
+      bookingData.insurance, bookingData.addons
     );
 
     const bookingId = generateBookingId();
@@ -206,9 +236,10 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
         return;
       }
 
-      const { total, vehicle } = await calculateBookingTotal(
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotal(
         bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-        bookingData.couponCode, bookingData.dropoff, bookingData.pickup
+        bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
+        bookingData.insurance, bookingData.addons
       );
 
       const booking = await Booking.create({
@@ -221,12 +252,14 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
         dropoff: bookingData.dropoff || bookingData.pickup,
         startDate: bookingData.startDate,
         endDate: bookingData.endDate,
-        days: Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)),
-        subtotal: vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)),
-        serviceFee: Math.round(vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) * 0.05),
-        vat: Math.round((vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) + (bookingData.dropoff && bookingData.pickup && bookingData.dropoff !== bookingData.pickup ? 800 : 0)) * 0.13),
-        discount: bookingData.couponCode === 'DRIVE10' ? Math.round(vehicle.pricePerDay * Math.max(1, Math.ceil((+new Date(bookingData.endDate) - +new Date(bookingData.startDate)) / 86400000)) * 0.1) : 0,
-        total: total,
+        days,
+        subtotal,
+        serviceFee,
+        vat,
+        discount,
+        total,
+        insurance: bookingData.insurance,
+        addons: bookingData.addons,
         status: 'upcoming',
         payment: 'eSewa',
         customerName: bookingData.customerName,

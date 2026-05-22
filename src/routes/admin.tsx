@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { BarChart3, Car, Users, Calendar, Shield } from "lucide-react";
+import { BarChart3, Car, Users, Calendar, Shield, Mail } from "lucide-react";
 import { requireAdmin } from "@/lib/guards";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const tabs = [
   { id: "vehicles", label: "Vehicles", icon: Car, path: "/admin/vehicles" },
   { id: "bookings", label: "Bookings", icon: Calendar, path: "/admin/bookings" },
   { id: "users", label: "Users", icon: Users, path: "/admin/users" },
+  { id: "queries", label: "Queries", icon: Mail, path: "/admin/queries" },
 ] as const;
 
 function AdminLayout() {

@@ -4,7 +4,6 @@ import { User } from '../models/User.js';
 import { Booking } from '../models/Booking.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
-import { Booking } from '../models/Booking.js';
 import { upload } from '../middleware/upload.js';
 
 const router = Router();

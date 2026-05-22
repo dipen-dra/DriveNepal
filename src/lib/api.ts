@@ -3,7 +3,7 @@
  * All requests go through /api (proxied to localhost:5000 in dev).
  */
 
-const BASE = '/api';
+const BASE = typeof window === 'undefined' ? 'http://localhost:5001/api' : '/api';
 
 export class ApiError extends Error {
   constructor(
@@ -251,6 +251,8 @@ export interface CreateBookingPayload {
   customerPhone: string;
   license: string;
   couponCode?: string;
+  insurance?: string;
+  addons?: string[];
 }
 
 export const getMyBookings = (status?: string) => {
@@ -368,3 +370,37 @@ export async function verifyKhaltiPayment(token: string, amount: number, booking
     body: JSON.stringify({ token, amount, bookingData }),
   });
 }
+
+/* ── Contact Queries ───────────────────────────────────────── */
+
+export interface ContactQuery {
+  _id: string;
+  user?: UserProfile;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  reply?: string;
+  isReplied: boolean;
+  repliedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const submitQuery = (payload: { name: string; email: string; subject: string; message: string }) =>
+  request<{ success: boolean; data: ContactQuery }>('/queries', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+export const getAdminQueries = () =>
+  request<{ success: boolean; data: ContactQuery[] }>('/queries/admin/all');
+
+export const getUserQueries = () =>
+  request<{ success: boolean; data: ContactQuery[] }>('/queries/me');
+
+export const replyToQuery = (id: string, reply: string) =>
+  request<{ success: boolean; data: ContactQuery }>(`/queries/admin/${id}/reply`, {
+    method: 'POST',
+    body: JSON.stringify({ reply }),
+  });

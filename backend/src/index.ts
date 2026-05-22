@@ -11,6 +11,7 @@ import userRoutes from './routes/users.js';
 import adminRoutes from './routes/admin.js';
 import notificationRoutes from './routes/notifications.js';
 import paymentRoutes from './routes/payment.js';
+import queriesRoutes from './routes/queries.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -48,6 +49,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/queries', queriesRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

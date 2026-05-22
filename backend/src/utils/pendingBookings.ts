@@ -11,6 +11,8 @@ interface PendingBooking {
   customerPhone: string;
   license: string;
   couponCode?: string;
+  insurance?: string;
+  addons?: string[];
   // Metadata for verification
   totalAmount: number;
 }

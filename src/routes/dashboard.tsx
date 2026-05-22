@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, Outlet, useLocation } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
-import { Car, Calendar, User, LogOut } from "lucide-react";
+import { Car, Calendar, User, LogOut, Mail } from "lucide-react";
 import { requireAuth } from "@/lib/guards";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ const tabs = [
   { id: "overview", label: "Overview", icon: Car, path: "/dashboard/overview" },
   { id: "bookings", label: "My Bookings", icon: Calendar, path: "/dashboard/bookings" },
   { id: "profile", label: "Profile", icon: User, path: "/dashboard/profile" },
+  { id: "queries", label: "My Queries", icon: Mail, path: "/dashboard/queries" },
 ] as const;
 
 function DashboardLayout() {

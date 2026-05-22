@@ -25,12 +25,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as VehiclesSlugRouteImport } from './routes/vehicles.$slug'
+import { Route as DashboardQueriesRouteImport } from './routes/dashboard/queries'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard/profile'
 import { Route as DashboardOverviewRouteImport } from './routes/dashboard/overview'
 import { Route as DashboardBookingsRouteImport } from './routes/dashboard/bookings'
 import { Route as BookingSlugRouteImport } from './routes/booking.$slug'
 import { Route as AdminVehiclesRouteImport } from './routes/admin/vehicles'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as AdminQueriesRouteImport } from './routes/admin/queries'
 import { Route as AdminOverviewRouteImport } from './routes/admin/overview'
 import { Route as AdminBookingsRouteImport } from './routes/admin/bookings'
 import { Route as PaymentKhaltiSuccessRouteImport } from './routes/payment/khalti/success'
@@ -118,6 +120,11 @@ const VehiclesSlugRoute = VehiclesSlugRouteImport.update({
   path: '/vehicles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardQueriesRoute = DashboardQueriesRouteImport.update({
+  id: '/queries',
+  path: '/queries',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardProfileRoute = DashboardProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -146,6 +153,11 @@ const AdminVehiclesRoute = AdminVehiclesRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminQueriesRoute = AdminQueriesRouteImport.update({
+  id: '/queries',
+  path: '/queries',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminOverviewRoute = AdminOverviewRouteImport.update({
@@ -195,12 +207,14 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -223,12 +237,14 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -254,12 +270,14 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/admin/bookings': typeof AdminBookingsRoute
   '/admin/overview': typeof AdminOverviewRoute
+  '/admin/queries': typeof AdminQueriesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/vehicles': typeof AdminVehiclesRoute
   '/booking/$slug': typeof BookingSlugRoute
   '/dashboard/bookings': typeof DashboardBookingsRoute
   '/dashboard/overview': typeof DashboardOverviewRoute
   '/dashboard/profile': typeof DashboardProfileRoute
+  '/dashboard/queries': typeof DashboardQueriesRoute
   '/vehicles/$slug': typeof VehiclesSlugRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -286,12 +304,14 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin/bookings'
     | '/admin/overview'
+    | '/admin/queries'
     | '/admin/users'
     | '/admin/vehicles'
     | '/booking/$slug'
     | '/dashboard/bookings'
     | '/dashboard/overview'
     | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
     | '/admin/'
     | '/dashboard/'
@@ -314,12 +334,14 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin/bookings'
     | '/admin/overview'
+    | '/admin/queries'
     | '/admin/users'
     | '/admin/vehicles'
     | '/booking/$slug'
     | '/dashboard/bookings'
     | '/dashboard/overview'
     | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
     | '/admin'
     | '/dashboard'
@@ -344,12 +366,14 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin/bookings'
     | '/admin/overview'
+    | '/admin/queries'
     | '/admin/users'
     | '/admin/vehicles'
     | '/booking/$slug'
     | '/dashboard/bookings'
     | '/dashboard/overview'
     | '/dashboard/profile'
+    | '/dashboard/queries'
     | '/vehicles/$slug'
     | '/admin/'
     | '/dashboard/'
@@ -495,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VehiclesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/queries': {
+      id: '/dashboard/queries'
+      path: '/queries'
+      fullPath: '/dashboard/queries'
+      preLoaderRoute: typeof DashboardQueriesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/profile': {
       id: '/dashboard/profile'
       path: '/profile'
@@ -535,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/queries': {
+      id: '/admin/queries'
+      path: '/queries'
+      fullPath: '/admin/queries'
+      preLoaderRoute: typeof AdminQueriesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/overview': {
@@ -585,6 +623,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminBookingsRoute: typeof AdminBookingsRoute
   AdminOverviewRoute: typeof AdminOverviewRoute
+  AdminQueriesRoute: typeof AdminQueriesRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminVehiclesRoute: typeof AdminVehiclesRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -593,6 +632,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminBookingsRoute: AdminBookingsRoute,
   AdminOverviewRoute: AdminOverviewRoute,
+  AdminQueriesRoute: AdminQueriesRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminVehiclesRoute: AdminVehiclesRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -604,6 +644,7 @@ interface DashboardRouteChildren {
   DashboardBookingsRoute: typeof DashboardBookingsRoute
   DashboardOverviewRoute: typeof DashboardOverviewRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardQueriesRoute: typeof DashboardQueriesRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
@@ -611,6 +652,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardBookingsRoute: DashboardBookingsRoute,
   DashboardOverviewRoute: DashboardOverviewRoute,
   DashboardProfileRoute: DashboardProfileRoute,
+  DashboardQueriesRoute: DashboardQueriesRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 

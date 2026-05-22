@@ -49,3 +49,29 @@ export const protect = async (
     res.status(401).json({ success: false, message: 'Invalid or expired token.' });
   }
 };
+
+export const optionalProtect = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const token =
+      req.cookies?.token ||
+      (req.headers.authorization?.startsWith('Bearer ')
+        ? req.headers.authorization.split(' ')[1]
+        : null);
+
+    if (token) {
+      const secret = process.env.JWT_SECRET || 'fallback_secret';
+      const decoded = jwt.verify(token, secret) as JwtPayload;
+      const user = await User.findById(decoded.id);
+      if (user && user.isActive) {
+        req.user = user;
+      }
+    }
+  } catch {
+    // Gracefully ignore error and proceed as anonymous
+  }
+  next();
+};

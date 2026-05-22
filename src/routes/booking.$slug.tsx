@@ -1,16 +1,32 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
 import {
-  Check, ChevronRight, ArrowLeft, Wallet, Smartphone, Banknote, Sparkles,
+  Check, ChevronRight, ArrowLeft, Banknote, Sparkles,
   Shield, ShieldCheck, ShieldPlus, Baby, Navigation, HardHat, UserPlus, MapPin, Calendar, Clock, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getVehicle, createBooking, ApiError, type Vehicle } from "@/lib/api";
+import { getVehicle, createBooking, ApiError, type Vehicle, initiateEsewaPayment, verifyKhaltiPayment, type CreateBookingPayload } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import khaltiLogo from "@/assets/khalti.png";
+import esewaLogo from "@/assets/esewa-icon-large.webp";
+
+type BookingSearch = {
+  pickupDate?: string;
+  returnDate?: string;
+  pickupLocation?: string;
+};
 
 export const Route = createFileRoute("/booking/$slug")({
+  validateSearch: (search: Record<string, unknown>): BookingSearch => {
+    return {
+      pickupDate: search.pickupDate as string | undefined,
+      returnDate: search.returnDate as string | undefined,
+      pickupLocation: search.pickupLocation as string | undefined,
+    };
+  },
   loader: async ({ params }) => {
     try {
       const res = await getVehicle(params.slug);
@@ -62,35 +78,93 @@ type InsuranceId = (typeof insurances)[number]["id"];
 function BookingFlow() {
   const { vehicle: v } = Route.useLoaderData();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const { user } = useAuth();
+  const search = Route.useSearch();
+  const STORAGE_KEY = `booking_draft_${v._id}`;
+
+  const getInit = <T,>(key: string, fallback: T, fromSearch?: any): T => {
+    if (fromSearch) return fromSearch as unknown as T;
+    if (typeof window === "undefined") return fallback;
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed[key] !== undefined) {
+          if (key === 'selectedAddons') return new Set(parsed[key]) as unknown as T;
+          return parsed[key] as T;
+        }
+      } catch {}
+    }
+    return fallback;
+  };
+
+  const [step, setStep] = useState(() => getInit('step', 0));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 0 — Vehicle / extras
-  const [insurance, setInsurance] = useState<InsuranceId>("plus");
-  const [selectedAddons, setSelectedAddons] = useState<Set<AddonId>>(new Set());
+  const [insurance, setInsurance] = useState<InsuranceId>(() => getInit('insurance', 'plus'));
+  const [selectedAddons, setSelectedAddons] = useState<Set<AddonId>>(() => getInit('selectedAddons', new Set()));
 
   // Step 1 — Pickup & return
   const today = new Date().toISOString().split("T")[0];
-  const [pickupDate, setPickupDate] = useState("");
-  const [pickupTime, setPickupTime] = useState("10:00");
-  const [returnDate, setReturnDate] = useState("");
-  const [returnTime, setReturnTime] = useState("10:00");
-  const [pickupLoc, setPickupLoc] = useState(locations[0]);
-  const [returnLoc, setReturnLoc] = useState(locations[0]);
-  const [sameLoc, setSameLoc] = useState(true);
+  const [pickupDate, setPickupDate] = useState(() => getInit('pickupDate', "", search.pickupDate));
+  const [pickupTime, setPickupTime] = useState(() => getInit('pickupTime', "10:00"));
+  const [returnDate, setReturnDate] = useState(() => getInit('returnDate', "", search.returnDate));
+  const [returnTime, setReturnTime] = useState(() => getInit('returnTime', "10:00"));
+  const [pickupLoc, setPickupLoc] = useState(() => getInit('pickupLoc', locations[0], search.pickupLocation));
+  const [returnLoc, setReturnLoc] = useState(() => getInit('returnLoc', locations[0], search.pickupLocation));
+  const [sameLoc, setSameLoc] = useState(() => getInit('sameLoc', true));
 
   // Step 2 — contact (collected on summary)
-  const [details, setDetails] = useState({ fullName: "", email: "", phone: "", license: "" });
+  const [details, setDetails] = useState(() => getInit('details', { fullName: "", email: "", phone: "", license: "" }));
   const [detailsErr, setDetailsErr] = useState<Partial<Record<keyof typeof details, string>>>({});
-  const [agree, setAgree] = useState(false);
+  const [agree, setAgree] = useState(() => getInit('agree', false));
 
   // Step 3 — payment
-  const [payment, setPayment] = useState<"Khalti" | "eSewa" | "Cash">("Cash");
+  const [payment, setPayment] = useState<"Khalti" | "eSewa" | "Cash">(() => getInit('payment', "Cash"));
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
 
   // Step 4 — confirmation
   const [bookingId, setBookingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setDetails((prev) => ({
+        fullName: prev.fullName || user.name || "",
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+        license: prev.license || user.license || "",
+      }));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const scriptId = "khalti-checkout-script";
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iff.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (step === 4) {
+      sessionStorage.removeItem(STORAGE_KEY);
+      return;
+    }
+    const stateToSave = {
+      step, insurance, selectedAddons: Array.from(selectedAddons),
+      pickupDate, pickupTime, returnDate, returnTime,
+      pickupLoc, returnLoc, sameLoc,
+      details, agree, payment
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+  }, [step, insurance, selectedAddons, pickupDate, pickupTime, returnDate, returnTime, pickupLoc, returnLoc, sameLoc, details, agree, payment, STORAGE_KEY]);
 
   // Pricing
   const days = useMemo(() => {
@@ -132,28 +206,127 @@ function BookingFlow() {
       setDetailsErr({});
     }
     if (step === 3) {
-      if (payment === "Khalti" || payment === "eSewa") {
-        // Prepare for frontend payment integration (will receive code from user in next chat)
-        toast.info(`${payment} integration is coming in the next step! Please select Cash for now.`);
+      const bookingPayload: CreateBookingPayload = {
+        vehicleSlug: v.slug,
+        startDate: `${pickupDate}T${pickupTime}:00`,
+        endDate: `${returnDate}T${returnTime}:00`,
+        pickup: pickupLoc,
+        dropoff: returnLoc,
+        payment: payment,
+        customerName: details.fullName,
+        customerEmail: details.email,
+        customerPhone: details.phone,
+        license: details.license,
+        couponCode: couponApplied ? coupon : undefined,
+        insurance: insurance,
+        addons: Array.from(selectedAddons),
+      };
+
+      if (payment === "eSewa") {
+        try {
+          setIsSubmitting(true);
+          const res = await initiateEsewaPayment(bookingPayload);
+          if (res.success && res.data) {
+            const data = res.data;
+            // Create dynamic form and submit to eSewa
+            const form = document.createElement("form");
+            form.setAttribute("method", "POST");
+            form.setAttribute("action", data.ESEWA_URL);
+
+            const fields = [
+              "amount",
+              "tax_amount",
+              "total_amount",
+              "transaction_uuid",
+              "product_code",
+              "product_service_charge",
+              "product_delivery_charge",
+              "success_url",
+              "failure_url",
+              "signed_field_names",
+              "signature",
+            ];
+
+            fields.forEach((field) => {
+              const input = document.createElement("input");
+              input.setAttribute("type", "hidden");
+              input.setAttribute("name", field);
+              input.setAttribute("value", (data as any)[field] ?? "0");
+              form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+          } else {
+            toast.error("Failed to initiate eSewa payment.");
+          }
+        } catch (err: any) {
+          toast.error(err.message || "eSewa initiation failed.");
+        } finally {
+          setIsSubmitting(false);
+        }
+        return;
+      }
+
+      if (payment === "Khalti") {
+        const KhaltiCheckout = (window as any).KhaltiCheckout;
+        if (!KhaltiCheckout) {
+          toast.error("Khalti payment gateway is still loading. Please try again in a few seconds.");
+          return;
+        }
+
+        const khaltiConfig = {
+          publicKey: import.meta.env.VITE_KHALTI_PUBLIC_KEY || "test_public_key_3f78fb6364ef4bd1b5fc670ce33a06f5",
+          productIdentity: v.slug,
+          productName: v.name,
+          productUrl: window.location.href,
+          paymentPreference: ["KHALTI", "EBANKING", "MOBILE_BANKING", "CONNECT_IPS", "SCT"],
+          eventHandler: {
+            onSuccess: async (payload: { token: string; amount: number }) => {
+              try {
+                setIsSubmitting(true);
+                toast.loading("Verifying Khalti payment...", { id: "khalti-verify" });
+                const verifyRes = await verifyKhaltiPayment(payload.token, payload.amount, bookingPayload);
+                toast.dismiss("khalti-verify");
+                if (verifyRes.success && verifyRes.data) {
+                  toast.success("Payment verified successfully!");
+                  navigate({
+                    to: "/payment/khalti/success",
+                    search: { bookingId: verifyRes.data._id },
+                  });
+                } else {
+                  toast.error("Khalti verification failed.");
+                  navigate({ to: "/payment/khalti/failure" });
+                }
+              } catch (err: any) {
+                toast.dismiss("khalti-verify");
+                toast.error(err.message || "Payment verification failed.");
+                navigate({ to: "/payment/khalti/failure" });
+              } finally {
+                setIsSubmitting(false);
+              }
+            },
+            onError: (error: any) => {
+              console.error("Khalti error:", error);
+              toast.error("Khalti payment failed or cancelled.");
+              navigate({ to: "/payment/khalti/failure" });
+            },
+            onClose: () => {
+              console.log("Khalti widget closed");
+            },
+          },
+        };
+
+        const checkout = new KhaltiCheckout(khaltiConfig);
+        // Khalti expects amount in paisa (NPR * 100)
+        checkout.show({ amount: total * 100 });
         return;
       }
 
       // COD / Cash Flow
       try {
         setIsSubmitting(true);
-        const res = await createBooking({
-          vehicleSlug: v.slug,
-          startDate: `${pickupDate}T${pickupTime}:00`,
-          endDate: `${returnDate}T${returnTime}:00`,
-          pickup: pickupLoc,
-          dropoff: returnLoc,
-          payment: payment,
-          customerName: details.fullName,
-          customerEmail: details.email,
-          customerPhone: details.phone,
-          license: details.license,
-          couponCode: couponApplied ? coupon : undefined,
-        });
+        const res = await createBooking(bookingPayload);
         setBookingId(res.data._id); // Assuming _id is returned.
         setStep(4);
       } catch (err: any) {
@@ -339,10 +512,31 @@ function BookingFlow() {
               <motion.div key="pay" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                 <h2 className="font-display text-2xl font-bold">Choose payment method</h2>
                 <p className="text-sm text-muted-foreground mt-1">Secure checkout. Cancel free up to 24h before pickup.</p>
-                <div className="mt-8 grid sm:grid-cols-2 gap-3">
-                  <PayOption active={payment === "Khalti"} onClick={() => setPayment("Khalti")} icon={<Smartphone className="h-5 w-5" />} title="Khalti" subtitle="Wallet · QR" />
-                  <PayOption active={payment === "eSewa"} onClick={() => setPayment("eSewa")} icon={<Wallet className="h-5 w-5" />} title="eSewa" subtitle="Mobile wallet" />
-                  <PayOption active={payment === "Cash"} onClick={() => setPayment("Cash")} icon={<Banknote className="h-5 w-5" />} title="Cash" subtitle="On pickup" />
+                <div className="mt-8 grid sm:grid-cols-3 gap-3">
+                  <PayOption
+                    active={payment === "Khalti"}
+                    onClick={() => setPayment("Khalti")}
+                    logoSrc={khaltiLogo}
+                    title="Khalti"
+                    subtitle="Wallet · QR"
+                    brand="khalti"
+                  />
+                  <PayOption
+                    active={payment === "eSewa"}
+                    onClick={() => setPayment("eSewa")}
+                    logoSrc={esewaLogo}
+                    title="eSewa"
+                    subtitle="Mobile wallet"
+                    brand="esewa"
+                  />
+                  <PayOption
+                    active={payment === "Cash"}
+                    onClick={() => setPayment("Cash")}
+                    icon={<Banknote className="h-5 w-5" />}
+                    title="Cash"
+                    subtitle="On pickup"
+                    brand="cash"
+                  />
                 </div>
 
                 <div className="mt-8 rounded-2xl bg-surface p-5 border border-border/60">
@@ -533,21 +727,72 @@ function SummaryCard({ title, lines }: { title: string; lines: string[] }) {
   );
 }
 
-function PayOption({ active, onClick, icon, title, subtitle }: { active: boolean; onClick: () => void; icon: React.ReactNode; title: string; subtitle: string }) {
+const brandStyles = {
+  khalti: {
+    border: "border-[#5C2D91]",
+    bg: "bg-[#5C2D91]/5",
+    shadow: "shadow-[0_0_20px_rgba(92,45,145,0.25)]",
+    hoverBorder: "hover:border-[#5C2D91]/40",
+    logoBg: "bg-[#5C2D91]",
+    checkBg: "bg-[#5C2D91]",
+  },
+  esewa: {
+    border: "border-[#60BB46]",
+    bg: "bg-[#60BB46]/5",
+    shadow: "shadow-[0_0_20px_rgba(96,187,70,0.25)]",
+    hoverBorder: "hover:border-[#60BB46]/40",
+    logoBg: "bg-white",
+    checkBg: "bg-[#60BB46]",
+  },
+  cash: {
+    border: "border-primary",
+    bg: "bg-primary/5",
+    shadow: "shadow-[var(--shadow-glow)]",
+    hoverBorder: "hover:border-primary/40",
+    logoBg: "gradient-brand",
+    checkBg: "gradient-brand",
+  },
+};
+
+function PayOption({
+  active, onClick, icon, logoSrc, title, subtitle, brand,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon?: React.ReactNode;
+  logoSrc?: string;
+  title: string;
+  subtitle: string;
+  brand: "khalti" | "esewa" | "cash";
+}) {
+  const s = brandStyles[brand];
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
         "relative text-left rounded-2xl border-2 p-5 transition-all",
-        active ? "border-primary bg-primary/5 shadow-[var(--shadow-glow)]" : "border-border bg-surface hover:border-primary/40",
+        active
+          ? `${s.border} ${s.bg} ${s.shadow}`
+          : `border-border bg-surface ${s.hoverBorder}`,
       )}
     >
-      <div className={cn("h-10 w-10 rounded-full inline-flex items-center justify-center", active ? "gradient-brand text-white" : "bg-muted text-foreground")}>{icon}</div>
+      <div
+        className={cn(
+          "h-12 w-12 rounded-2xl inline-flex items-center justify-center overflow-hidden",
+          logoSrc ? (brand === "esewa" ? "bg-white border border-border/40" : brand === "khalti" ? "bg-[#5C2D91]" : "") : (active ? s.logoBg : "bg-muted text-foreground"),
+        )}
+      >
+        {logoSrc ? (
+          <img src={logoSrc} alt={title} className="h-8 w-8 object-contain" />
+        ) : (
+          icon
+        )}
+      </div>
       <p className="mt-3 font-semibold text-ink">{title}</p>
       <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
       {active && (
-        <span className="absolute top-3 right-3 h-5 w-5 rounded-full gradient-brand inline-flex items-center justify-center text-white">
+        <span className={cn("absolute top-3 right-3 h-5 w-5 rounded-full inline-flex items-center justify-center text-white", s.checkBg)}>
           <Check className="h-3 w-3" />
         </span>
       )}
