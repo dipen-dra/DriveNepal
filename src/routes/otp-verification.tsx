@@ -147,7 +147,7 @@ function OtpPage() {
                   value={d}
                   onChange={(e) => setAt(i, e.target.value)}
                   onKeyDown={(e) => onKeyDown(i, e)}
-                  className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold rounded-xl bg-muted border-2 border-transparent focus:border-primary focus:bg-background focus:outline-none transition-colors"
+                  className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold rounded-xl bg-muted border-2 border-border focus:border-primary focus:bg-background focus:outline-none transition-colors text-ink"
                 />
               ))}
             </div>
