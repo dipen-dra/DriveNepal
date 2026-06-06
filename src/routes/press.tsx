@@ -5,8 +5,8 @@ import { Sparkles, Newspaper, Download, Mail, Phone, ArrowRight, ExternalLink, C
 export const Route = createFileRoute("/press")({
   head: () => ({
     meta: [
-      { title: "Press & Media Kit — DriveNepal" },
-      { name: "description", content: "Latest press releases, media kits, and brand assets for DriveNepal." },
+      { title: "Press & Media Kit — RentalSphere" },
+      { name: "description", content: "Latest press releases, media kits, and brand assets for RentalSphere." },
     ],
   }),
   component: PressPage,
@@ -14,15 +14,15 @@ export const Route = createFileRoute("/press")({
 
 const articles = [
   {
-    title: "DriveNepal Expands Premium SUV Rental Fleet to Pokhara & Mustang",
+    title: "RentalSphere Expands Premium SUV Rental Fleet to Edinburgh & Highlands",
     date: "April 15, 2026",
-    outlet: "Kathmandu Post",
-    summary: "Introducing comprehensive overland solutions with professional support for remote Himalayan routes to improve adventure travel experiences in Nepal.",
+    outlet: "The Guardian",
+    summary: "Introducing comprehensive overland solutions with professional support for remote Highlands routes to improve adventure travel experiences in the UK.",
   },
   {
-    title: "DriveNepal launches Nepal's first fully digital luxury vehicle rental service",
+    title: "RentalSphere launches the UK's first fully digital luxury vehicle rental service",
     date: "January 20, 2026",
-    outlet: "TechNepal",
+    outlet: "TechCrunch UK",
     summary: "A seamless booking application featuring instant validation, live availability trackers, and flexible digital checkouts.",
   },
 ];
@@ -60,7 +60,7 @@ function PressPage() {
             transition={{ delay: 0.2 }}
             className="text-base text-muted-foreground leading-relaxed"
           >
-            Welcome to the DriveNepal press room. Find our latest announcements, news coverages, and download high-quality, approved brand assets.
+            Welcome to the RentalSphere press room. Find our latest announcements, news coverages, and download high-quality, approved brand assets.
           </motion.p>
         </div>
 
@@ -137,14 +137,14 @@ function PressPage() {
                 <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground"><Mail className="h-4 w-4" /></div>
                 <div>
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="font-semibold text-ink">press@drivenepal.com</p>
+                  <p className="font-semibold text-ink">press@rentalsphere.com</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center text-muted-foreground"><Phone className="h-4 w-4" /></div>
                 <div>
                   <p className="text-xs text-muted-foreground">Phone</p>
-                  <p className="font-semibold text-ink">+977 1 4444 555 (Ext. 402)</p>
+                  <p className="font-semibold text-ink">+44 20 7946 0958 (Ext. 402)</p>
                 </div>
               </div>
             </div>

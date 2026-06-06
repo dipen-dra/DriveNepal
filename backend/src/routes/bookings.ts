@@ -30,7 +30,7 @@ router.post(
     body('startDate').notEmpty().withMessage('Start date required'),
     body('endDate').notEmpty().withMessage('End date required'),
     body('pickup').notEmpty().withMessage('Pickup location required'),
-    body('payment').isIn(['Khalti', 'eSewa', 'Cash']).withMessage('Invalid payment method'),
+    body('payment').isIn(['Card', 'PayPal', 'Cash', 'Khalti', 'eSewa']).withMessage('Invalid payment method'),
     body('customerName').notEmpty().withMessage('Name required'),
     body('customerEmail').isEmail().withMessage('Valid email required'),
     body('customerPhone').notEmpty().withMessage('Phone required'),
@@ -106,11 +106,11 @@ router.post(
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h2>Booking Confirmed!</h2>
           <p>Hi ${customerName},</p>
-          <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully reserved with <strong>Cash on Delivery/Pickup</strong>.</p>
+          <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully reserved with <strong>${payment}</strong>.</p>
           <p><strong>Pickup:</strong> ${new Date(startDate).toLocaleDateString()} at ${pickup}</p>
-          <p><strong>Total Due:</strong> NPR ${total.toLocaleString()}</p>
-          <p>Please have the exact amount ready upon pickup.</p>
-          <p>Thank you for choosing DriveNepal!</p>
+          <p><strong>Total Due:</strong> £${total.toLocaleString()}</p>
+          <p>Please have the payment ready or confirmed upon pickup.</p>
+          <p>Thank you for choosing RentalSphere!</p>
         </div>
       `,
     }).catch(console.error);

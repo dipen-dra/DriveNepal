@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "Admin — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "Admin — RentalSphere" }] }),
   beforeLoad: requireAdmin,
   component: AdminLayout,
 });

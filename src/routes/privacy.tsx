@@ -5,7 +5,7 @@ import { Shield, Eye, Lock, Globe, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — DriveNepal" },
+      { title: "Privacy Policy — RentalSphere" },
       { name: "description", content: "Learn about how we securely store and verify your driver's licenses, booking info, and profile details." },
     ],
   }),

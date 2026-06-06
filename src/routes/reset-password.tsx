@@ -15,8 +15,8 @@ export const Route = createFileRoute("/reset-password")({
   }),
   head: () => ({
     meta: [
-      { title: "Reset password — DriveNepal" },
-      { name: "description", content: "Choose a new password for your DriveNepal account." },
+      { title: "Reset password — RentalSphere" },
+      { name: "description", content: "Choose a new password for your RentalSphere account." },
     ],
   }),
   component: ResetPasswordPage,

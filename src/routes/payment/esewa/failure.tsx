@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/payment/esewa/failure")({
-  head: () => ({ meta: [{ title: "eSewa Payment Failed — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "eSewa Payment Failed — RentalSphere" }] }),
   component: EsewaFailure,
 });
 

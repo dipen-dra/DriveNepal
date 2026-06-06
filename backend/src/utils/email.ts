@@ -27,7 +27,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"DriveNepal" <${process.env.EMAIL_USER}>`,
+    from: `"RentalSphere" <${process.env.EMAIL_USER}>`,
     to: options.to,
     subject: options.subject,
     text: options.text,

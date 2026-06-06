@@ -35,7 +35,7 @@ export function VehicleCard({ v, index = 0 }: { v: Vehicle; index?: number }) {
               <h3 className="font-display text-lg font-semibold text-ink mt-0.5">{v.name}</h3>
             </div>
             <div className="text-right">
-              <p className="font-display text-lg font-bold text-primary">NPR {v.pricePerDay.toLocaleString()}</p>
+              <p className="font-display text-lg font-bold text-primary">£{v.pricePerDay.toLocaleString()}</p>
               <p className="text-[11px] text-muted-foreground">/ day</p>
             </div>
           </div>

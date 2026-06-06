@@ -12,8 +12,8 @@ import mustangImg from "@/assets/mustang.png";
 export const Route = createFileRoute("/locations")({
   head: () => ({
     meta: [
-      { title: "Locations — DriveNepal" },
-      { name: "description", content: "Rent cars and bikes across Nepal. Premium pickups in Kathmandu, Pokhara, Mustang, and more." },
+      { title: "Locations — RentalSphere" },
+      { name: "description", content: "Rent cars and bikes across the UK. Premium pickups in London, Edinburgh, Highlands, and more." },
     ],
   }),
   component: LocationsPage,
@@ -27,23 +27,23 @@ interface LocationDetails {
 }
 
 const locationMeta: Record<string, LocationDetails> = {
-  kathmandu: {
+  london: {
     image: kathmanduImg,
-    tagline: "The Historic Valley Hub",
-    description: "Navigate ancient streets, historic temples, and bustling city centers. Perfect starting point for valley touring or business trips.",
-    highlights: ["Boudhanath Stupa", "Patan Durbar Square", "Easy Airport Pickup"],
+    tagline: "The UK's Bustling Capital",
+    description: "Navigate London's iconic landmarks, historic streets, and bustling city centers. Perfect starting point for city touring or business trips.",
+    highlights: ["Westminster Abbey", "Tower Bridge", "Easy Airport Pickup"],
   },
-  pokhara: {
+  edinburgh: {
     image: pokharaImg,
-    tagline: "The Ultimate Adventure Gateway",
-    description: "Cruise around the peaceful lake under the massive Annapurna mountain peaks. Ideal for travelers, trekkers, and lakeside riders.",
-    highlights: ["Phewa Lake Reflection", "Annapurna Basecamp Portal", "Scenic Highway Drives"],
+    tagline: "The Historic Scottish Gateway",
+    description: "Cruise around Edinburgh's cobblestone streets and stunning castle views. Ideal for travelers, hikers, and city explorers.",
+    highlights: ["Edinburgh Castle", "Royal Mile", "Scenic Highlands Portal"],
   },
-  mustang: {
+  highlands: {
     image: mustangImg,
-    tagline: "The Rugged Mountain Canyons",
-    description: "Explore the wild, arid landscapes of the forbidden kingdom. Requires heavy duty 4x4 SUVs or off-road adventure bikes.",
-    highlights: ["Muktinath Pilgrimage", "Deep River Canyons", "Off-Road Terrain"],
+    tagline: "The Wild Mountain Landscapes",
+    description: "Explore the raw, dramatic scenery of the Scottish Highlands. Ideal for premium 4x4 SUVs or adventure bikes.",
+    highlights: ["Loch Ness", "Glen Coe Valley", "Scenic Coastal Drives"],
   },
 };
 
@@ -59,7 +59,7 @@ function LocationsPage() {
 
   const locationCounts = useMemo(() => {
     return vehicles.reduce((acc, v) => {
-      const loc = v.location || "Kathmandu";
+      const loc = v.location || "London";
       acc[loc] = (acc[loc] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -70,7 +70,7 @@ function LocationsPage() {
       const slug = name.toLowerCase();
       const meta = locationMeta[slug] || {
         image: kathmanduImg, // Fallback
-        tagline: "Scenic Nepal Pickup Point",
+        tagline: "Scenic UK Pickup Point",
         description: `Explore and rent premium cars or bikes in ${name}. Safe routes, flexible dropoffs, and complete support.`,
         highlights: ["Flexible pick-ups", "Local safety guide", "All-day assistance"],
       };
@@ -107,7 +107,7 @@ function LocationsPage() {
             transition={{ delay: 0.1 }}
             className="font-display text-4xl md:text-6xl font-bold tracking-tight text-white"
           >
-            Pick Up Across <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Nepal</span>
+            Pick Up Across <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">the UK</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 25 }}
@@ -115,7 +115,7 @@ function LocationsPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-white/70 max-w-2xl mx-auto"
           >
-            From the bustling valley hub of Kathmandu to the lakeside city of Pokhara and the high-altitude trails of Mustang. Start your drive where it fits your travel plans.
+            From the bustling capital of London to the historic city of Edinburgh and the dramatic roads of the Highlands. Start your drive where it fits your travel plans.
           </motion.p>
 
           {/* Search bar inside hero */}
@@ -151,7 +151,7 @@ function LocationsPage() {
           <div className="text-center py-24 rounded-[2.5rem] border border-dashed border-border bg-card">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
             <h3 className="font-display text-lg font-bold text-ink">No pickup hubs match your search</h3>
-            <p className="text-sm text-muted-foreground mt-2">Try clearing your filters or search for Kathmandu or Pokhara.</p>
+            <p className="text-sm text-muted-foreground mt-2">Try clearing your filters or search for London or Edinburgh.</p>
           </div>
         )}
 
@@ -231,7 +231,7 @@ function LocationsPage() {
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <h2 className="font-display text-3xl font-bold text-ink">Our Pick up & Drop off Standards</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              We make picking up your rental vehicle smooth and secure, anywhere in Nepal.
+              We make picking up your rental vehicle smooth and secure, anywhere in the UK.
             </p>
           </div>
 
@@ -240,7 +240,7 @@ function LocationsPage() {
               {
                 icon: ShieldCheck,
                 title: "Flexible Drop-offs",
-                desc: "Pick up in Kathmandu and drop off in Pokhara or other major hubs. One-way options are fully customizable.",
+                desc: "Pick up in London and drop off in Edinburgh or other major hubs. One-way options are fully customizable.",
               },
               {
                 icon: Clock,

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
-      { title: "Help Center & FAQs — DriveNepal" },
-      { name: "description", content: "Frequently asked questions and support for renting cars and bikes in Nepal." },
+      { title: "Help Center & FAQs — RentalSphere" },
+      { name: "description", content: "Frequently asked questions and support for renting cars and bikes in the UK." },
     ],
   }),
   component: HelpPage,
@@ -23,7 +23,7 @@ const faqs = [
   {
     category: "payments",
     q: "How does the security deposit work?",
-    a: "A refundable security deposit (NPR 15,000 for bikes, NPR 30,000 for standard SUVs) is pre-authorized on your card or paid via digital wallets during checkouts. It is fully refunded within 24 hours of returning the vehicle safely.",
+    a: "A refundable security deposit (£50 for bikes, £250 for standard SUVs) is pre-authorized on your card or paid via digital wallets during checkouts. It is fully refunded within 24 hours of returning the vehicle safely.",
   },
   {
     category: "insurance",
@@ -33,14 +33,14 @@ const faqs = [
   {
     category: "roadside",
     q: "What should I do in case of an accident or breakdown?",
-    a: "Safety first! Ensure everyone is safe. Then, immediately call our 24/7 Roadside Assistance hotline at +977 1 4444 555. We partner with support mechanics across 15 cities to dispatch roadside support or replacements.",
+    a: "Safety first! Ensure everyone is safe. Then, immediately call our 24/7 Roadside Assistance hotline at +44 20 7946 0958. We partner with support mechanics across major UK cities to dispatch roadside support or replacements.",
   },
 ];
 
 const guides = [
   { icon: ShieldCheck, title: "Insurance & Coverage", desc: "Understand your deductible limits, damage wavers, and emergency liability." },
   { icon: CreditCard, title: "Refunds & Deposits", desc: "Learn about transaction timelines for refundable security locks." },
-  { icon: Compass, title: "Off-road Driving Guide", desc: "Best safety guidelines for navigating challenging mountain tracks and river passes." },
+  { icon: Compass, title: "Off-road Driving Guide", desc: "Best safety guidelines for navigating country lanes and Highlands passes." },
 ];
 
 function HelpPage() {
@@ -155,7 +155,7 @@ function HelpPage() {
               Submit Inquiry <MessageSquare className="ml-2 h-4 w-4" />
             </Link>
             <a
-              href="tel:+97714444555"
+              href="tel:+442079460958"
               className="h-12 px-6 rounded-full border border-border text-ink hover:bg-muted font-semibold text-xs uppercase tracking-wider inline-flex items-center justify-center transition-all"
             >
               Call Hotline <Phone className="ml-2 h-4 w-4" />

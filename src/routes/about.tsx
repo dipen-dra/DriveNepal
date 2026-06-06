@@ -5,8 +5,8 @@ import aboutHero from "@/assets/about-hero.png";
 
 export const Route = createFileRoute("/about")({
   head: () => ({ meta: [
-    { title: "About Us — DriveNepal" },
-    { name: "description", content: "Why we built DriveNepal — premium car and bike rentals built for travelers who care." },
+    { title: "About Us — RentalSphere" },
+    { name: "description", content: "Why we built RentalSphere — premium car and bike rentals built for travelers who care." },
   ] }),
   component: AboutPage,
 });
@@ -24,7 +24,7 @@ function AboutPage() {
         >
           <img 
             src={aboutHero} 
-            alt="Driving in the Himalayas" 
+            alt="Driving in the UK" 
             className="w-full h-full object-cover object-center brightness-75"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-black/30" />
@@ -40,7 +40,7 @@ function AboutPage() {
               <span className="text-white/80">we'd drive ourselves.</span>
             </h1>
             <p className="mt-8 text-lg md:text-xl text-white/90 leading-relaxed max-w-2xl mx-auto font-medium">
-              DriveNepal started with a simple idea: renting a vehicle in Nepal should feel as good as the trip itself. No paperwork chaos, no surprise fees, no compromises on quality.
+              RentalSphere started with a simple idea: renting a vehicle in the UK should feel as good as the trip itself. No paperwork chaos, no surprise fees, no compromises on quality.
             </p>
           </motion.div>
         </div>
@@ -81,10 +81,10 @@ function AboutPage() {
           {[
             { icon: Sparkles, title: "Premium by default", text: "Every vehicle in our fleet is meticulously detailed, regularly serviced, and thoroughly inspected before each and every trip." },
             { icon: Heart, title: "Built with care", text: "We believe in honest pricing, real human support, and a flexible cancellation policy that understands travel plans change." },
-            { icon: Map, title: "Local at heart", text: "We're from Nepal. We know the challenging mountain roads, the monsoon seasons, and the hidden routes truly worth taking." },
+            { icon: Map, title: "Local at heart", text: "We're from the UK. We know the challenging country lanes, the rainy seasons, and the scenic routes truly worth taking." },
             { icon: ShieldCheck, title: "Fully insured", text: "Drive with absolute peace of mind. Comprehensive insurance coverage comes standard with every rental, no hidden upsells." },
             { icon: Users, title: "Community first", text: "We partner with local guides and mechanics across all our locations to support the beautiful communities we operate in." },
-            { icon: Globe2, title: "Sustainable vision", text: "We are actively transitioning our fleet to hybrid and fully electric vehicles to preserve Nepal's pristine environments." },
+            { icon: Globe2, title: "Sustainable vision", text: "We are actively transitioning our fleet to hybrid and fully electric vehicles to preserve the UK's pristine environments." },
           ].map((v, i) => (
             <motion.div
               key={v.title}
@@ -116,7 +116,7 @@ function AboutPage() {
           <div className="relative z-10 max-w-2xl mx-auto">
             <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">Ready for your next adventure?</h2>
             <p className="text-white/80 text-lg mb-10">
-              Join thousands of happy travelers who have explored the beauty of Nepal with our premium vehicles.
+              Join thousands of happy travelers who have explored the beauty of the UK with our premium vehicles.
             </p>
             <Link 
               to="/cars" 

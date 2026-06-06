@@ -25,7 +25,7 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
 
   const all: Vehicle[] = data?.data ?? [];
   const categories = ["All", ...Array.from(new Set(all.map((v) => v.category)))];
-  const locationsList = ["All", ...Array.from(new Set(all.map((v) => v.location || "Kathmandu")))];
+  const locationsList = ["All", ...Array.from(new Set(all.map((v) => v.location || "London")))];
   const maxPrice = all.length ? Math.max(...all.map((v) => v.pricePerDay)) : 99999;
 
   const list = useMemo(() => {
@@ -132,13 +132,13 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             {all.length > 0 && (
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
-                  Max price <span className="text-ink font-semibold ml-1">NPR {(priceMax === 99999 ? maxPrice : priceMax).toLocaleString()}</span>
+                  Max price <span className="text-ink font-semibold ml-1">£{(priceMax === 99999 ? maxPrice : priceMax).toLocaleString()}</span>
                 </p>
                 <input
                   type="range"
                   min={Math.min(...all.map((v) => v.pricePerDay))}
                   max={maxPrice}
-                  step={500}
+                  step={5}
                   value={priceMax === 99999 ? maxPrice : priceMax}
                   onChange={(e) => setPriceMax(Number(e.target.value))}
                   className="w-full accent-primary"

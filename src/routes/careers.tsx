@@ -5,8 +5,8 @@ import { Sparkles, Briefcase, MapPin, DollarSign, Calendar, ArrowRight, Star, He
 export const Route = createFileRoute("/careers")({
   head: () => ({
     meta: [
-      { title: "Careers — DriveNepal" },
-      { name: "description", content: "Join our team at DriveNepal. Build the future of premium car and bike rentals." },
+      { title: "Careers — RentalSphere" },
+      { name: "description", content: "Join our team at RentalSphere. Build the future of premium car and bike rentals." },
     ],
   }),
   component: CareersPage,
@@ -14,29 +14,29 @@ export const Route = createFileRoute("/careers")({
 
 const jobs = [
   {
-    title: "Mountain Fleet Manager",
+    title: "Highlands Fleet Manager",
     department: "Operations",
-    location: "Pokhara / Manang",
+    location: "Edinburgh / Highlands",
     type: "Full-Time",
-    salary: "NPR 90k - 130k / month",
+    salary: "£2,500 - £3,500 / month",
     icon: Compass,
-    description: "Lead the inspection, maintenance, and staging of premium SUVs and adventure bikes for off-road Himalayan expeditions.",
+    description: "Lead the inspection, maintenance, and staging of premium SUVs and adventure bikes for off-road Scottish Highlands expeditions.",
   },
   {
     title: "Full Stack Software Engineer",
     department: "Engineering",
-    location: "Kathmandu (Hybrid)",
+    location: "London (Hybrid)",
     type: "Full-Time",
-    salary: "NPR 150k - 220k / month",
+    salary: "£4,500 - £6,000 / month",
     icon: Sparkles,
     description: "Scale our booking system, enhance the admin dashboard tools, and build intelligent routing logic for vehicle deliveries.",
   },
   {
     title: "Customer Success Lead",
     department: "Support",
-    location: "Kathmandu (Thamel)",
+    location: "London (Soho)",
     type: "Full-Time",
-    salary: "NPR 70k - 95k / month",
+    salary: "£2,000 - £2,800 / month",
     icon: Heart,
     description: "Provide exceptional, premium booking coordination and emergency road assistance support to international and local travelers.",
   },
@@ -44,7 +44,7 @@ const jobs = [
 
 const perks = [
   { icon: Heart, title: "Health & Wellbeing", desc: "Comprehensive medical insurance and mental wellness allowances for you and your family." },
-  { icon: Compass, title: "Road Trips & Rentals", desc: "Free quarterly luxury vehicle rentals and sponsored team road-trips across Nepal." },
+  { icon: Compass, title: "Road Trips & Rentals", desc: "Free quarterly luxury vehicle rentals and sponsored team road-trips across the UK." },
   { icon: Star, title: "Equity & Performance", desc: "Annual performance bonuses, stock options, and ongoing learning stipends." },
 ];
 
@@ -69,7 +69,7 @@ function CareersPage() {
             className="font-display text-4xl md:text-6xl font-bold tracking-tight text-ink"
           >
             Build the future of travel <br />
-            <span className="bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">in the Himalayas</span>
+            <span className="bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">in the UK</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 25 }}
@@ -77,7 +77,7 @@ function CareersPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-muted-foreground leading-relaxed"
           >
-            We are looking for builders, adventure seekers, and problem solvers to help us redefine premium transportation and travel experiences in Nepal.
+            We are looking for builders, adventure seekers, and problem solvers to help us redefine premium transportation and travel experiences in the UK.
           </motion.p>
         </div>
 
@@ -85,7 +85,7 @@ function CareersPage() {
         <div className="space-y-12">
           <div className="text-center max-w-xl mx-auto">
             <h2 className="font-display text-3xl font-bold text-ink">Perks of the Road</h2>
-            <p className="text-sm text-muted-foreground mt-2">What you receive when you join the DriveNepal family.</p>
+            <p className="text-sm text-muted-foreground mt-2">What you receive when you join the RentalSphere family.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {perks.map((p, i) => {

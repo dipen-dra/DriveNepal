@@ -8,11 +8,11 @@ export function Footer() {
       <div className="container-page py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="DriveNepal Logo" className="h-9 w-9 object-contain" />
-            <span className="font-display text-xl font-semibold text-white">DriveNepal</span>
+            <img src={logo} alt="RentalSphere Logo" className="h-9 w-9 object-contain" />
+            <span className="font-display text-xl font-semibold text-white">RentalSphere</span>
           </div>
           <p className="text-sm leading-relaxed text-white/60">
-            Premium car and bike rentals across Nepal. Drive luxury, ride freedom.
+            Premium car and bike rentals across the UK. Drive luxury, ride freedom.
           </p>
           <div className="flex gap-2">
             {[
@@ -68,16 +68,16 @@ export function Footer() {
             </button>
           </form>
           <div className="mt-6 space-y-2 text-xs text-white/60">
-            <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" /> +977 1 4444 555</div>
-            <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> hello@drivenepal.com</div>
-            <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> Thamel, Kathmandu</div>
+            <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5" /> +44 20 7946 0958</div>
+            <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5" /> hello@rentalsphere.com</div>
+            <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5" /> Soho, London, UK</div>
           </div>
         </div>
       </div>
 
       <div className="border-t border-white/10">
         <div className="container-page py-5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <span>© {new Date().getFullYear()} DriveNepal. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} RentalSphere. All rights reserved.</span>
           <div className="flex gap-5">
             <Link to="/terms" className="hover:text-white">Terms</Link>
             <Link to="/privacy" className="hover:text-white">Privacy</Link>

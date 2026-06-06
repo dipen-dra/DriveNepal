@@ -1,5 +1,5 @@
 /**
- * Centralized API client for DriveNepal.
+ * Centralized API client for RentalSphere.
  * All requests go through /api (proxied to localhost:5000 in dev).
  */
 
@@ -115,12 +115,14 @@ export interface Booking {
   discount: number;
   total: number;
   status: BookingStatus;
-  payment: 'Khalti' | 'eSewa' | 'Cash';
+  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
   customerName: string;
   customerEmail: string;
   customerPhone: string;
   license: string;
   couponCode?: string;
+  insurance?: string;
+  addons?: string[];
   createdAt: string;
   user?: { name: string; email: string };
 }
@@ -245,7 +247,7 @@ export interface CreateBookingPayload {
   endDate: string;
   pickup: string;
   dropoff?: string;
-  payment: 'Khalti' | 'eSewa' | 'Cash';
+  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
   customerName: string;
   customerEmail: string;
   customerPhone: string;

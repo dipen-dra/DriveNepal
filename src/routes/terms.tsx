@@ -5,8 +5,8 @@ import { Scale, ShieldAlert, CheckCircle2, AlertTriangle, ArrowRight } from "luc
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms of Service — DriveNepal" },
-      { name: "description", content: "Terms, rental conditions, renter liability, and safety guidelines for renting with DriveNepal." },
+      { title: "Terms of Service — RentalSphere" },
+      { name: "description", content: "Terms, rental conditions, renter liability, and safety guidelines for renting with RentalSphere." },
     ],
   }),
   component: TermsPage,
@@ -33,7 +33,7 @@ const sections = [
     title: "3. Driving Rules & Restrictions",
     items: [
       "Speed Limits: Standard speed limits are strictly monitored via active GPS tracking. Exceeding 80 km/h will trigger safe driving alerts.",
-      "Cross-Border Restriction: Vehicles must not leave the geographical boundaries of Nepal.",
+      "Cross-Border Restriction: Vehicles must not leave the geographical boundaries of the UK.",
       "Prohibited Use: Off-road racing, towing other vehicles, or driving under the influence will void all insurance coverages immediately.",
     ],
   },
@@ -114,7 +114,7 @@ function TermsPage() {
             <AlertTriangle className="h-5 w-5" /> Off-road Driving Warning
           </h4>
           <p className="text-xs text-amber-900/80 dark:text-amber-300/80 leading-relaxed">
-            Driving premium sedans on off-road terrain or routes beyond standard highways (such as dirt paths or river basins) is strictly prohibited. For high-altitude remote trips like Upper Mustang, Jomsom, or Manang, you must book 4x4 SUVs or adventure off-road bikes.
+            Driving premium sedans on off-road terrain or routes beyond standard highways (such as dirt paths or river basins) is strictly prohibited. For high-altitude remote trips like the Scottish Highlands or rural tracks, you must book 4x4 SUVs or adventure off-road bikes.
           </p>
         </motion.div>
 

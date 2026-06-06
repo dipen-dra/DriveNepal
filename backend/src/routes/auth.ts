@@ -279,11 +279,11 @@ router.post(
     try {
       await sendEmail({
         to: user.email,
-        subject: 'Your Password Reset OTP — DriveNepal',
+        subject: 'Your Password Reset OTP — RentalSphere',
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Password Reset</h2>
-            <p>You requested a password reset for your DriveNepal account.</p>
+            <p>You requested a password reset for your RentalSphere account.</p>
             <p>Here is your 6-digit verification code:</p>
             <h1 style="background: #f4f4f5; padding: 12px; text-align: center; letter-spacing: 5px; border-radius: 8px;">
               ${otp}

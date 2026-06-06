@@ -32,7 +32,7 @@ function DashboardOverviewTab() {
         <StatCard label="Total bookings" value={stats.total} icon={Car} />
         <StatCard label="Active now" value={stats.active} icon={Clock} accent />
         <StatCard label="Upcoming" value={stats.upcoming} icon={Calendar} />
-        <StatCard label="Lifetime spend" value={`NPR ${stats.spend.toLocaleString()}`} icon={CreditCard} />
+        <StatCard label="Lifetime spend" value={`£${stats.spend.toLocaleString()}`} icon={CreditCard} />
       </div>
       <div>
         <div className="flex items-center justify-between mb-4">
