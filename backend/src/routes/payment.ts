@@ -222,8 +222,8 @@ router.post('/esewa/initiate', protect, async (req: AuthRequest, res: Response):
       data: {
         ESEWA_URL,
         amount: amountToPay,
-        success_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payment/esewa/success`,
-        failure_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payment/esewa/failure`,
+        success_url: `${(process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')}/payment/esewa/success`,
+        failure_url: `${(process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')}/payment/esewa/failure`,
         product_delivery_charge: '0',
         product_service_charge: '0',
         product_code: ESEWA_SCD,

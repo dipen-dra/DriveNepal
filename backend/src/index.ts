@@ -18,13 +18,20 @@ import queriesRoutes from './routes/queries.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+const clientOrigin = CLIENT_URL.replace(/\/$/, '');
 
 // ── Security Setup ─────────────────────────────────────────
 setupSecurityMiddleware(app);
 
 // ── Middleware ─────────────────────────────────────────────
 app.use(cors({
-  origin: [CLIENT_URL, 'http://localhost:3000', 'http://localhost:5173'],
+  origin: [
+    clientOrigin,
+    'https://drive-nepal.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://localhost:5174'
+  ],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
