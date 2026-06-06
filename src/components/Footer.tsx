@@ -15,8 +15,19 @@ export function Footer() {
             Premium car and bike rentals across Nepal. Drive luxury, ride freedom.
           </p>
           <div className="flex gap-2">
-            {[Facebook, Instagram, Twitter, Youtube].map((Icon, i) => (
-              <a key={i} href="#" className="h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors">
+            {[
+              { Icon: Facebook, href: "https://facebook.com" },
+              { Icon: Instagram, href: "https://instagram.com" },
+              { Icon: Twitter, href: "https://twitter.com" },
+              { Icon: Youtube, href: "https://youtube.com" },
+            ].map(({ Icon, href }, i) => (
+              <a
+                key={i}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 w-9 inline-flex items-center justify-center rounded-full bg-white/5 hover:bg-primary hover:text-white transition-colors"
+              >
                 <Icon className="h-4 w-4" />
               </a>
             ))}
