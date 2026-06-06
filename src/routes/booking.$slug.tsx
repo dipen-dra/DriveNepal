@@ -4,14 +4,13 @@ import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
 import {
   Check, ChevronRight, ArrowLeft, Banknote, Sparkles,
-  Shield, ShieldCheck, ShieldPlus, Baby, Navigation, HardHat, UserPlus, MapPin, Calendar, Clock, Loader2,
+  Shield, ShieldCheck, ShieldPlus, Baby, Navigation, HardHat, UserPlus, MapPin, Calendar, Clock, Loader2, CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getVehicle, createBooking, ApiError, type Vehicle, initiateEsewaPayment, verifyKhaltiPayment, type CreateBookingPayload } from "@/lib/api";
+import { getVehicle, createBooking, ApiError, type Vehicle, type CreateBookingPayload } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
-import khaltiLogo from "@/assets/khalti.png";
-import esewaLogo from "@/assets/esewa-icon-large.webp";
+import { useQueryClient } from "@tanstack/react-query";
 
 type BookingSearch = {
   pickupDate?: string;
@@ -36,7 +35,7 @@ export const Route = createFileRoute("/booking/$slug")({
     }
   },
   head: ({ loaderData }) => ({
-    meta: loaderData ? [{ title: `Book ${loaderData.vehicle.name} — DriveNepal` }] : [],
+    meta: loaderData ? [{ title: `Book ${loaderData.vehicle.name} — RentalSphere` }] : [],
   }),
   component: BookingFlow,
 });
@@ -45,24 +44,24 @@ const steps = ["Vehicle", "Pickup & Return", "Summary", "Payment", "Confirmed"] 
 
 const insurances = [
   { id: "basic", name: "Basic Cover", price: 0, desc: "Third-party liability included", icon: Shield },
-  { id: "plus", name: "Plus Protection", price: 450, desc: "Covers minor damage & theft", icon: ShieldCheck },
-  { id: "max", name: "Max Shield", price: 850, desc: "Zero deductible, full coverage", icon: ShieldPlus },
+  { id: "plus", name: "Plus Protection", price: 5, desc: "Covers minor damage & theft", icon: ShieldCheck },
+  { id: "max", name: "Max Shield", price: 10, desc: "Zero deductible, full coverage", icon: ShieldPlus },
 ] as const;
 
 const addons = [
-  { id: "driver", name: "Professional driver", price: 1800, desc: "Local, English-speaking driver", icon: UserPlus },
-  { id: "gps", name: "GPS navigator", price: 200, desc: "Offline Nepal maps", icon: Navigation },
-  { id: "child", name: "Child seat", price: 250, desc: "0–4 years, certified", icon: Baby },
-  { id: "helmet", name: "Extra helmet", price: 100, desc: "Premium full-face", icon: HardHat },
+  { id: "driver", name: "Professional driver", price: 20, desc: "Local driver", icon: UserPlus },
+  { id: "gps", name: "GPS navigator", price: 2, desc: "Offline UK maps", icon: Navigation },
+  { id: "child", name: "Child seat", price: 3, desc: "0–4 years, certified", icon: Baby },
+  { id: "helmet", name: "Extra helmet", price: 1.5, desc: "Premium full-face", icon: HardHat },
 ] as const;
 
 const locations = [
-  "Kathmandu — Thamel hub",
-  "Kathmandu — Tribhuvan Intl Airport",
-  "Pokhara — Lakeside",
-  "Pokhara — Airport",
-  "Chitwan — Sauraha",
-  "Biratnagar — City center",
+  "London — Soho hub",
+  "London — Heathrow Airport",
+  "Edinburgh — Lakeside",
+  "Edinburgh — Airport",
+  "Manchester — City center",
+  "Birmingham — City center",
 ];
 
 const detailsSchema = z.object({
@@ -79,6 +78,7 @@ function BookingFlow() {
   const { vehicle: v } = Route.useLoaderData();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const search = Route.useSearch();
   const STORAGE_KEY = `booking_draft_${v._id}`;
 
@@ -121,7 +121,10 @@ function BookingFlow() {
   const [agree, setAgree] = useState(() => getInit('agree', false));
 
   // Step 3 — payment
-  const [payment, setPayment] = useState<"Khalti" | "eSewa" | "Cash">(() => getInit('payment', "Cash"));
+  const [payment, setPayment] = useState<"Card" | "PayPal" | "Cash">(() => getInit('payment', "Cash"));
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
+  const [cardCvc, setCardCvc] = useState("");
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
 
@@ -139,18 +142,7 @@ function BookingFlow() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const scriptId = "khalti-checkout-script";
-      if (!document.getElementById(scriptId)) {
-        const script = document.createElement("script");
-        script.id = scriptId;
-        script.src = "https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iff.js";
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    }
-  }, []);
+  // Script loading removed since Khalti is not used
 
   useEffect(() => {
     if (step === 4) {
@@ -173,13 +165,13 @@ function BookingFlow() {
     return Math.max(1, Math.ceil(ms / 86400000));
   }, [pickupDate, returnDate]);
 
-  const insurancePrice = insurances.find((i) => i.id === insurance)!.price;
+  const insurancePrice = insurances.find((i) => i.id === insurance)?.price ?? 0;
   const addonsPrice = addons.filter((a) => selectedAddons.has(a.id)).reduce((s, a) => s + a.price, 0);
-  const dropOffFee = !sameLoc && pickupLoc !== returnLoc ? 800 : 0;
+  const dropOffFee = !sameLoc && pickupLoc !== returnLoc ? 10 : 0;
 
   const subtotal = v.pricePerDay * days + (insurancePrice + addonsPrice) * days;
   const service = Math.round(subtotal * 0.05);
-  const vat = Math.round((subtotal + dropOffFee) * 0.13);
+  const vat = Math.round((subtotal + dropOffFee) * 0.20);
   const discount = couponApplied ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + service + vat + dropOffFee - discount;
 
@@ -222,113 +214,23 @@ function BookingFlow() {
         addons: Array.from(selectedAddons),
       };
 
-      if (payment === "eSewa") {
-        try {
-          setIsSubmitting(true);
-          const res = await initiateEsewaPayment(bookingPayload);
-          if (res.success && res.data) {
-            const data = res.data;
-            // Create dynamic form and submit to eSewa
-            const form = document.createElement("form");
-            form.setAttribute("method", "POST");
-            form.setAttribute("action", data.ESEWA_URL);
-
-            const fields = [
-              "amount",
-              "tax_amount",
-              "total_amount",
-              "transaction_uuid",
-              "product_code",
-              "product_service_charge",
-              "product_delivery_charge",
-              "success_url",
-              "failure_url",
-              "signed_field_names",
-              "signature",
-            ];
-
-            fields.forEach((field) => {
-              const input = document.createElement("input");
-              input.setAttribute("type", "hidden");
-              input.setAttribute("name", field);
-              input.setAttribute("value", (data as any)[field] ?? "0");
-              form.appendChild(input);
-            });
-
-            document.body.appendChild(form);
-            form.submit();
-          } else {
-            toast.error("Failed to initiate eSewa payment.");
-          }
-        } catch (err: any) {
-          toast.error(err.message || "eSewa initiation failed.");
-        } finally {
-          setIsSubmitting(false);
-        }
-        return;
-      }
-
-      if (payment === "Khalti") {
-        const KhaltiCheckout = (window as any).KhaltiCheckout;
-        if (!KhaltiCheckout) {
-          toast.error("Khalti payment gateway is still loading. Please try again in a few seconds.");
+      if (payment === "Card") {
+        if (!cardNumber.trim() || !cardExpiry.trim() || !cardCvc.trim()) {
+          toast.error("Please fill in all card details.");
           return;
         }
-
-        const khaltiConfig = {
-          publicKey: import.meta.env.VITE_KHALTI_PUBLIC_KEY || "test_public_key_3f78fb6364ef4bd1b5fc670ce33a06f5",
-          productIdentity: v.slug,
-          productName: v.name,
-          productUrl: window.location.href,
-          paymentPreference: ["KHALTI", "EBANKING", "MOBILE_BANKING", "CONNECT_IPS", "SCT"],
-          eventHandler: {
-            onSuccess: async (payload: { token: string; amount: number }) => {
-              try {
-                setIsSubmitting(true);
-                toast.loading("Verifying Khalti payment...", { id: "khalti-verify" });
-                const verifyRes = await verifyKhaltiPayment(payload.token, payload.amount, bookingPayload);
-                toast.dismiss("khalti-verify");
-                if (verifyRes.success && verifyRes.data) {
-                  toast.success("Payment verified successfully!");
-                  navigate({
-                    to: "/payment/khalti/success",
-                    search: { bookingId: verifyRes.data._id },
-                  });
-                } else {
-                  toast.error("Khalti verification failed.");
-                  navigate({ to: "/payment/khalti/failure" });
-                }
-              } catch (err: any) {
-                toast.dismiss("khalti-verify");
-                toast.error(err.message || "Payment verification failed.");
-                navigate({ to: "/payment/khalti/failure" });
-              } finally {
-                setIsSubmitting(false);
-              }
-            },
-            onError: (error: any) => {
-              console.error("Khalti error:", error);
-              toast.error("Khalti payment failed or cancelled.");
-              navigate({ to: "/payment/khalti/failure" });
-            },
-            onClose: () => {
-              console.log("Khalti widget closed");
-            },
-          },
-        };
-
-        const checkout = new KhaltiCheckout(khaltiConfig);
-        // Khalti expects amount in paisa (NPR * 100)
-        checkout.show({ amount: total * 100 });
-        return;
       }
 
-      // COD / Cash Flow
       try {
         setIsSubmitting(true);
+        if (payment === "Card" || payment === "PayPal") {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
         const res = await createBooking(bookingPayload);
-        setBookingId(res.data._id); // Assuming _id is returned.
-        setStep(4);
+        sessionStorage.removeItem(STORAGE_KEY);
+        queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+        toast.success("Booking successfully confirmed!");
+        void navigate({ to: "/dashboard/bookings" });
       } catch (err: any) {
         if (err instanceof ApiError) {
           toast.error(err.message);
@@ -371,7 +273,7 @@ function BookingFlow() {
                     <p className="text-xs uppercase tracking-wider text-muted-foreground">{v.brand}</p>
                     <p className="font-display text-lg font-semibold text-ink">{v.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{v.category} · {v.transmission ?? "Auto"} · {v.seats ?? 5} seats</p>
-                    <p className="mt-2 font-semibold text-primary">NPR {v.pricePerDay.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">/ day</span></p>
+                    <p className="mt-2 font-semibold text-primary">£{v.pricePerDay.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">/ day</span></p>
                   </div>
                 </div>
 
@@ -396,7 +298,7 @@ function BookingFlow() {
                         <p className="mt-3 font-semibold text-ink">{opt.name}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
                         <p className="mt-2 text-xs font-semibold text-primary">
-                          {opt.price === 0 ? "Included" : `+ NPR ${opt.price.toLocaleString()}/day`}
+                          {opt.price === 0 ? "Included" : `+ £${opt.price.toLocaleString()}/day`}
                         </p>
                       </button>
                     );
@@ -425,7 +327,7 @@ function BookingFlow() {
                           <p className="text-sm font-semibold text-ink">{a.name}</p>
                           <p className="text-xs text-muted-foreground">{a.desc}</p>
                         </div>
-                        <span className="text-xs font-semibold text-primary whitespace-nowrap">+ NPR {a.price}/day</span>
+                        <span className="text-xs font-semibold text-primary whitespace-nowrap">+ £{a.price}/day</span>
                       </button>
                     );
                   })}
@@ -462,7 +364,7 @@ function BookingFlow() {
                     <Select label="Return location" value={returnLoc} onChange={setReturnLoc} options={locations} icon={<MapPin className="h-4 w-4" />} />
                   )}
                   {!sameLoc && pickupLoc !== returnLoc && (
-                    <p className="text-xs text-muted-foreground">One-way drop-off fee of NPR 800 applies.</p>
+                    <p className="text-xs text-muted-foreground">One-way drop-off fee of £10 applies.</p>
                   )}
                 </div>
               </motion.div>
@@ -477,7 +379,7 @@ function BookingFlow() {
                 <div className="mt-6 grid sm:grid-cols-2 gap-3">
                   <SummaryCard title="Pickup" lines={[pickupLoc, `${pickupDate || "—"} · ${pickupTime}`]} />
                   <SummaryCard title="Return" lines={[returnLoc, `${returnDate || "—"} · ${returnTime}`]} />
-                  <SummaryCard title="Insurance" lines={[insurances.find((i) => i.id === insurance)!.name]} />
+                  <SummaryCard title="Insurance" lines={[insurances.find((i) => i.id === insurance)?.name ?? "Plus Protection"]} />
                   <SummaryCard
                     title="Add-ons"
                     lines={
@@ -499,7 +401,7 @@ function BookingFlow() {
 
                 <label className="mt-6 flex items-start gap-2 text-xs text-muted-foreground">
                   <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary shrink-0" />
-                  I agree to DriveNepal's <span className="text-primary font-medium">rental terms</span> and confirm that the driver will hold a valid license at pickup.
+                  I agree to RentalSphere's <span className="text-primary font-medium">rental terms</span> and confirm that the driver will hold a valid license at pickup.
                 </label>
                 {!agree && step === 2 && (
                   <p className="mt-1 ml-6 text-xs text-muted-foreground/70">Please accept the terms to continue.</p>
@@ -514,20 +416,20 @@ function BookingFlow() {
                 <p className="text-sm text-muted-foreground mt-1">Secure checkout. Cancel free up to 24h before pickup.</p>
                 <div className="mt-8 grid sm:grid-cols-3 gap-3">
                   <PayOption
-                    active={payment === "Khalti"}
-                    onClick={() => setPayment("Khalti")}
-                    logoSrc={khaltiLogo}
-                    title="Khalti"
-                    subtitle="Wallet · QR"
-                    brand="khalti"
+                    active={payment === "Card"}
+                    onClick={() => setPayment("Card")}
+                    icon={<CreditCard className="h-5 w-5" />}
+                    title="Credit/Debit Card"
+                    subtitle="Instant checkout"
+                    brand="card"
                   />
                   <PayOption
-                    active={payment === "eSewa"}
-                    onClick={() => setPayment("eSewa")}
-                    logoSrc={esewaLogo}
-                    title="eSewa"
-                    subtitle="Mobile wallet"
-                    brand="esewa"
+                    active={payment === "PayPal"}
+                    onClick={() => setPayment("PayPal")}
+                    icon={<span className="font-bold italic text-blue-600 text-lg">PayPal</span>}
+                    title="PayPal"
+                    subtitle="Fast checkout"
+                    brand="paypal"
                   />
                   <PayOption
                     active={payment === "Cash"}
@@ -538,6 +440,74 @@ function BookingFlow() {
                     brand="cash"
                   />
                 </div>
+
+                {payment === "Card" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-5 rounded-2xl bg-surface border border-border/60 space-y-4"
+                  >
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Card Details</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="sm:col-span-3">
+                        <Input
+                          label="Card Number"
+                          value={cardNumber}
+                          onChange={(val) => {
+                            const clean = val.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                            const matches = clean.match(/\d{4,16}/g);
+                            const match = (matches && matches[0]) || '';
+                            const parts = [];
+                            for (let i = 0, len = match.length; i < len; i += 4) {
+                              parts.push(match.substring(i, i + 4));
+                            }
+                            if (parts.length > 0) {
+                              setCardNumber(parts.join(' '));
+                            } else {
+                              setCardNumber(clean);
+                            }
+                          }}
+                          placeholder="4111 2222 3333 4444"
+                          icon={<CreditCard className="h-4 w-4" />}
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <Input
+                          label="Expiry Date"
+                          value={cardExpiry}
+                          onChange={(val) => {
+                            const clean = val.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                            if (clean.length >= 2) {
+                              setCardExpiry(`${clean.slice(0,2)}/${clean.slice(2,4)}`);
+                            } else {
+                              setCardExpiry(clean);
+                            }
+                          }}
+                          placeholder="MM/YY"
+                        />
+                      </div>
+                      <div>
+                        <Input
+                          label="CVC"
+                          value={cardCvc}
+                          onChange={(val) => setCardCvc(val.replace(/[^0-9]/g, '').slice(0, 3))}
+                          placeholder="123"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {payment === "PayPal" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-5 rounded-2xl bg-[#0070ba]/5 border border-[#0070ba]/20 flex items-center gap-3 text-sm text-[#0070ba] font-medium"
+                  >
+                    <span className="font-bold italic text-lg">PayPal</span>
+                    <span>You will be prompted to log in to PayPal to complete the checkout safely.</span>
+                  </motion.div>
+                )}
 
                 <div className="mt-8 rounded-2xl bg-surface p-5 border border-border/60">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">Have a coupon?</p>
@@ -585,7 +555,7 @@ function BookingFlow() {
                   <span className="font-mono font-semibold text-ink">{bookingId?.slice(-6).toUpperCase()}</span>
                 </div>
                 <div className="mt-8 flex gap-3 justify-center flex-wrap">
-                  <Link to="/dashboard" className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">My bookings</Link>
+                  <Link to="/dashboard/bookings" className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">My bookings</Link>
                   <button onClick={() => navigate({ to: "/cars" })} className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
                     Browse more vehicles
                   </button>
@@ -611,7 +581,7 @@ function BookingFlow() {
                 {isSubmitting ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
                 ) : (
-                  <>{step === 3 ? `Pay NPR ${total.toLocaleString()}` : "Continue"} <ChevronRight className="ml-1 h-4 w-4" /></>
+                  <>{step === 3 ? `Confirm & Pay £${total.toLocaleString()}` : "Continue"} <ChevronRight className="ml-1 h-4 w-4" /></>
                 )}
               </button>
             </div>
@@ -629,20 +599,20 @@ function BookingFlow() {
           </div>
 
           <div className="mt-6 space-y-2 text-sm">
-            <Row k={`NPR ${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`NPR ${(v.pricePerDay * days).toLocaleString()}`} />
+            <Row k={`£${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`£${(v.pricePerDay * days).toLocaleString()}`} />
             {insurancePrice > 0 && (
-              <Row k={`Insurance × ${days}`} v={`NPR ${(insurancePrice * days).toLocaleString()}`} />
+              <Row k={`Insurance × ${days}`} v={`£${(insurancePrice * days).toLocaleString()}`} />
             )}
             {addonsPrice > 0 && (
-              <Row k={`Add-ons × ${days}`} v={`NPR ${(addonsPrice * days).toLocaleString()}`} />
+              <Row k={`Add-ons × ${days}`} v={`£${(addonsPrice * days).toLocaleString()}`} />
             )}
-            {dropOffFee > 0 && <Row k="One-way drop-off" v={`NPR ${dropOffFee.toLocaleString()}`} />}
-            <Row k="Service fee" v={`NPR ${service.toLocaleString()}`} />
-            <Row k="VAT (13%)" v={`NPR ${vat.toLocaleString()}`} />
-            {couponApplied && <Row k="Discount (DRIVE10)" v={`− NPR ${discount.toLocaleString()}`} accent />}
+            {dropOffFee > 0 && <Row k="One-way drop-off" v={`£${dropOffFee.toLocaleString()}`} />}
+            <Row k="Service fee" v={`£${service.toLocaleString()}`} />
+            <Row k="VAT (20%)" v={`£${vat.toLocaleString()}`} />
+            {couponApplied && <Row k="Discount (DRIVE10)" v={`− £${discount.toLocaleString()}`} accent />}
             <div className="pt-3 border-t border-border flex items-baseline justify-between">
               <span className="font-semibold">Total</span>
-              <span className="font-display text-2xl font-bold text-ink">NPR {total.toLocaleString()}</span>
+              <span className="font-display text-2xl font-bold text-ink">£{total.toLocaleString()}</span>
             </div>
           </div>
 
@@ -678,8 +648,8 @@ function Stepper({ step }: { step: number }) {
 }
 
 function Input({
-  label, type = "text", value, onChange, error, icon, min,
-}: { label: string; type?: string; value: string; onChange: (v: string) => void; error?: string; icon?: React.ReactNode; min?: string }) {
+  label, type = "text", value, onChange, error, icon, min, placeholder,
+}: { label: string; type?: string; value: string; onChange: (v: string) => void; error?: string; icon?: React.ReactNode; min?: string; placeholder?: string }) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
@@ -689,7 +659,7 @@ function Input({
       )}>
         {icon && <span className="text-muted-foreground">{icon}</span>}
         <input
-          type={type} value={value} onChange={(e) => onChange(e.target.value)} min={min}
+          type={type} value={value} onChange={(e) => onChange(e.target.value)} min={min} placeholder={placeholder}
           className="w-full bg-transparent text-sm font-medium focus:outline-none"
         />
       </span>
@@ -728,21 +698,21 @@ function SummaryCard({ title, lines }: { title: string; lines: string[] }) {
 }
 
 const brandStyles = {
-  khalti: {
-    border: "border-[#5C2D91]",
-    bg: "bg-[#5C2D91]/5",
-    shadow: "shadow-[0_0_20px_rgba(92,45,145,0.25)]",
-    hoverBorder: "hover:border-[#5C2D91]/40",
-    logoBg: "bg-[#5C2D91]",
-    checkBg: "bg-[#5C2D91]",
+  card: {
+    border: "border-primary",
+    bg: "bg-primary/5",
+    shadow: "shadow-[var(--shadow-glow)]",
+    hoverBorder: "hover:border-primary/40",
+    logoBg: "gradient-brand",
+    checkBg: "gradient-brand",
   },
-  esewa: {
-    border: "border-[#60BB46]",
-    bg: "bg-[#60BB46]/5",
-    shadow: "shadow-[0_0_20px_rgba(96,187,70,0.25)]",
-    hoverBorder: "hover:border-[#60BB46]/40",
+  paypal: {
+    border: "border-[#0070ba]",
+    bg: "bg-[#0070ba]/5",
+    shadow: "shadow-[0_0_20px_rgba(0,112,186,0.25)]",
+    hoverBorder: "hover:border-[#0070ba]/40",
     logoBg: "bg-white",
-    checkBg: "bg-[#60BB46]",
+    checkBg: "bg-[#0070ba]",
   },
   cash: {
     border: "border-primary",
@@ -763,7 +733,7 @@ function PayOption({
   logoSrc?: string;
   title: string;
   subtitle: string;
-  brand: "khalti" | "esewa" | "cash";
+  brand: "card" | "paypal" | "cash";
 }) {
   const s = brandStyles[brand];
   return (
@@ -780,7 +750,7 @@ function PayOption({
       <div
         className={cn(
           "h-12 w-12 rounded-2xl inline-flex items-center justify-center overflow-hidden",
-          logoSrc ? (brand === "esewa" ? "bg-white border border-border/40" : brand === "khalti" ? "bg-[#5C2D91]" : "") : (active ? s.logoBg : "bg-muted text-foreground"),
+          active ? s.logoBg : "bg-muted text-foreground",
         )}
       >
         {logoSrc ? (

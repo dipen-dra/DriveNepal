@@ -21,7 +21,7 @@ export interface IBooking extends Document {
   discount: number;
   total: number;
   status: BookingStatus;
-  payment: 'Khalti' | 'eSewa' | 'Cash';
+  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -64,7 +64,7 @@ const BookingSchema = new Schema<IBooking>(
       enum: ['upcoming', 'active', 'completed', 'cancelled'],
       default: 'upcoming',
     },
-    payment: { type: String, enum: ['Khalti', 'eSewa', 'Cash'], required: true },
+    payment: { type: String, enum: ['Card', 'PayPal', 'Cash', 'Khalti', 'eSewa'], required: true },
     customerName: { type: String },
     customerEmail: { type: String },
     customerPhone: { type: String },

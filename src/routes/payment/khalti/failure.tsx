@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/payment/khalti/failure")({
-  head: () => ({ meta: [{ title: "Khalti Payment Failed — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "Khalti Payment Failed — RentalSphere" }] }),
   component: KhaltiFailure,
 });
 

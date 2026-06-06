@@ -13,18 +13,18 @@ import { VehicleCard } from "@/components/VehicleCard";
 
 // Keep testimonials & FAQs as static marketing content
 const testimonials = [
-  { name: "John Doe", role: "Traveler, Kathmandu", text: "Booked a Himalayan for a Mustang trip — flawless from start to finish. The bike was spotless.", rating: 5 },
-  { name: "Sneha Maharjan", role: "Designer, Pokhara", text: "Rented a Tesla for a weekend. The handover was 5 minutes. Felt like Apple-level service.", rating: 5 },
-  { name: "Bikash Thapa", role: "Founder, Lalitpur", text: "Used DriveNepal twice for client visits. Professional, on-time, and the pricing is honest.", rating: 5 },
-  { name: "Priya Shrestha", role: "Photographer", text: "Loved the booking flow. Picked the SUV, paid via Khalti, done. Zero friction.", rating: 5 },
+  { name: "John Doe", role: "Traveler, London", text: "Booked a Land Rover for a Highlands trip — flawless from start to finish. The vehicle was spotless.", rating: 5 },
+  { name: "Sarah Jenkins", role: "Designer, Edinburgh", text: "Rented a Tesla for a weekend. The handover was 5 minutes. Felt like Apple-level service.", rating: 5 },
+  { name: "Brian Thomas", role: "Founder, Manchester", text: "Used RentalSphere twice for client visits. Professional, on-time, and the pricing is honest.", rating: 5 },
+  { name: "Patricia Smith", role: "Photographer, Birmingham", text: "Loved the booking flow. Picked the SUV, paid via Card, done. Zero friction.", rating: 5 },
 ];
 
 const faqs = [
-  { q: "What documents do I need to rent?", a: "A valid driving license, citizenship or passport, and one of: Khalti, eSewa, or cash deposit at pickup." },
-  { q: "Is there a security deposit?", a: "Yes. Refundable deposits range from NPR 5,000 to 25,000 depending on the vehicle category, returned within 24 hours of drop-off." },
+  { q: "What documents do I need to rent?", a: "A valid driving license, passport or ID card, and one of: Credit/Debit Card, PayPal, or cash deposit at pickup." },
+  { q: "Is there a security deposit?", a: "Yes. Refundable deposits range from £50 to £250 depending on the vehicle category, returned within 24 hours of drop-off." },
   { q: "Can I cancel my booking?", a: "Free cancellation up to 24 hours before pickup. After that, a 20% fee applies." },
-  { q: "Do you offer delivery?", a: "Inside Kathmandu Valley and Pokhara, we deliver free for bookings of 3+ days." },
-  { q: "What if the vehicle breaks down?", a: "Our 24/7 roadside team will reach you within 90 minutes anywhere on a paved highway in Nepal." },
+  { q: "Do you offer delivery?", a: "Inside London and Edinburgh, we deliver free for bookings of 3+ days." },
+  { q: "What if the vehicle breaks down?", a: "Our 24/7 roadside team will reach you within 90 minutes anywhere on a main highway in the UK." },
 ];
 
 export const Route = createFileRoute("/")({ component: Landing });
@@ -68,14 +68,14 @@ function Hero() {
             className="inline-flex items-center gap-2 rounded-full glass px-4 py-1.5 text-xs font-medium text-ink"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            Now serving 6 cities across Nepal
+            Now serving 6 cities across the UK
           </motion.span>
 
           <motion.h1
             initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="mt-6 text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight"
           >
-            Premium <span className="text-gradient">Car & Bike</span> Rentals Across Nepal
+            Premium <span className="text-gradient">Car & Bike</span> Rentals Across the UK
           </motion.h1>
 
           <motion.p
@@ -128,7 +128,7 @@ function Hero() {
           >
             <p className="text-xs text-muted-foreground">Today's pick</p>
             <p className="font-display font-semibold text-ink mt-1">Tesla Model 3</p>
-            <p className="text-primary font-bold mt-1">NPR 12,500 <span className="text-xs font-normal text-muted-foreground">/day</span></p>
+            <p className="text-primary font-bold mt-1">£125 <span className="text-xs font-normal text-muted-foreground">/day</span></p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}
@@ -160,7 +160,7 @@ function SearchBar() {
       >
         <Field icon={<MapPin className="h-4 w-4" />} label="Pickup">
           <select className="bg-transparent text-sm font-medium text-ink focus:outline-none w-full">
-            <option>Kathmandu</option><option>Pokhara</option><option>Chitwan</option><option>Lumbini</option>
+            <option>London</option><option>Edinburgh</option><option>Manchester</option><option>Birmingham</option><option>Leeds</option><option>Bristol</option>
           </select>
         </Field>
         <Field icon={<Calendar className="h-4 w-4" />} label="Pickup date">
@@ -274,15 +274,15 @@ function WhyUs() {
     { icon: Clock, title: "24/7 support", text: "Our team is one call away, day or night." },
     { icon: Calendar, title: "Flexible booking", text: "Free cancellation up to 24 hours." },
     { icon: Zap, title: "Instant booking", text: "From browse to keys in under 3 minutes." },
-    { icon: CreditCard, title: "Safe payments", text: "Khalti, eSewa, or cash on pickup." },
+    { icon: CreditCard, title: "Safe payments", text: "Credit/Debit Card, PayPal, or cash on pickup." },
   ];
   return (
     <section className="bg-surface py-24 md:py-32">
       <div className="container-page">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-sm font-semibold text-primary uppercase tracking-wider">Why DriveNepal</p>
+          <p className="text-sm font-semibold text-primary uppercase tracking-wider">Why RentalSphere</p>
           <h2 className="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Built for travelers who care</h2>
-          <p className="mt-4 text-muted-foreground">From the valley to the Himalayas, we sweat the details so your trip is effortless.</p>
+          <p className="mt-4 text-muted-foreground">From the lowlands to the Scottish Highlands, we sweat the details so your trip is effortless.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((it, i) => (
@@ -310,7 +310,7 @@ function Testimonials() {
   return (
     <section className="container-page py-24 md:py-32">
       <div className="text-center max-w-2xl mx-auto mb-16">
-        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Loved across Nepal</p>
+        <p className="text-sm font-semibold text-primary uppercase tracking-wider">Loved across the UK</p>
         <h2 className="mt-3 text-4xl md:text-5xl font-bold tracking-tight">What our drivers say</h2>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">

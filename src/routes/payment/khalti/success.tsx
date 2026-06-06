@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Search = { bookingId?: string };
 
@@ -9,12 +10,17 @@ export const Route = createFileRoute("/payment/khalti/success")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     bookingId: typeof s.bookingId === "string" ? s.bookingId : undefined,
   }),
-  head: () => ({ meta: [{ title: "Khalti Payment Success — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "Card Payment Success — RentalSphere" }] }),
   component: KhaltiSuccess,
 });
 
 function KhaltiSuccess() {
   const { bookingId } = Route.useSearch();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+  }, [queryClient]);
   
   return (
     <div className="min-h-[80vh] flex items-center justify-center container-page py-12">
@@ -27,7 +33,7 @@ function KhaltiSuccess() {
         </div>
         <h2 className="mt-6 font-display text-2xl font-bold text-ink">Payment Successful!</h2>
         <p className="mt-2 text-muted-foreground text-sm">
-          Your booking has been confirmed and paid via Khalti.
+          Your booking has been confirmed and paid.
         </p>
         
         {bookingId && (
@@ -38,8 +44,8 @@ function KhaltiSuccess() {
         )}
 
         <div className="mt-8 flex gap-3 justify-center">
-          <Link to="/dashboard" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
-            Go to Dashboard
+          <Link to="/dashboard/bookings" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
+            View My Bookings
           </Link>
         </div>
       </motion.div>

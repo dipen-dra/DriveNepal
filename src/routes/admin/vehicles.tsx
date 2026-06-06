@@ -81,7 +81,7 @@ function VehiclesTab() {
                     </div>
                   </td>
                   <td className="px-5 py-3 capitalize">{v.type} · {v.category}</td>
-                  <td className="px-5 py-3 font-medium text-ink">NPR {v.pricePerDay.toLocaleString()}</td>
+                  <td className="px-5 py-3 font-medium text-ink">£{v.pricePerDay.toLocaleString()}</td>
                   <td className="px-5 py-3">{v.location}</td>
                   <td className="px-5 py-3">{v.rating} ★ <span className="text-xs text-muted-foreground">({v.reviews})</span></td>
                   <td className="px-5 py-3 text-right">
@@ -119,7 +119,7 @@ function VehicleModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle | null; 
     fuel: vehicle?.fuel ?? "Petrol",
     transmission: vehicle?.transmission ?? "Automatic",
     seats: vehicle?.seats ?? 5,
-    location: vehicle?.location ?? "Kathmandu",
+    location: vehicle?.location ?? "London",
     description: vehicle?.description ?? "",
     features: vehicle?.features?.join(", ") ?? "",
     isAvailable: vehicle?.isAvailable ?? true,
@@ -184,7 +184,7 @@ function VehicleModal({ vehicle, onClose, onSaved }: { vehicle: Vehicle | null; 
             </select>
           </label>
           <F label="Category" k="category" />
-          <F label="Price per day (NPR)" k="pricePerDay" type="number" />
+          <F label="Price per day (GBP)" k="pricePerDay" type="number" />
           <label className="block">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">Fuel</span>
             <select value={form.fuel} onChange={(e) => setForm((d) => ({ ...d, fuel: e.target.value as Vehicle["fuel"] }))} className="mt-1 w-full h-10 px-3 rounded-xl bg-muted border-2 border-transparent focus:border-primary focus:outline-none text-sm">

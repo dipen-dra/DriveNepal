@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { ConfirmModal } from "@/components/ConfirmModal";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — RentalSphere" }] }),
   beforeLoad: requireAuth,
   component: DashboardLayout,
 });

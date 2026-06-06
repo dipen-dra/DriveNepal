@@ -1,7 +1,7 @@
 {
-  "name": "drive-nepal-backend",
+  "name": "rentalsphere-backend",
   "version": "1.0.0",
-  "description": "DriveNepal REST API — Express + MongoDB",
+  "description": "RentalSphere REST API — Express + MongoDB",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {

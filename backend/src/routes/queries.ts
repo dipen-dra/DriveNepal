@@ -101,7 +101,7 @@ router.post(
       subject: `Reply to your query: ${query.subject}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 24px; background-color: #ffffff;">
-          <h2 style="color: #3b82f6; font-size: 20px; font-weight: 700; margin-top: 0;">DriveNepal Support Reply</h2>
+          <h2 style="color: #3b82f6; font-size: 20px; font-weight: 700; margin-top: 0;">RentalSphere Support Reply</h2>
           <p>Hi <strong>${query.name}</strong>,</p>
           <p>Thank you for reaching out to us. We have reviewed your query and here is our reply:</p>
           
@@ -116,7 +116,7 @@ router.post(
           </div>
           
           <p style="margin-bottom: 0;">If you have any further questions, feel free to reply directly to this email or submit a new inquiry on our contact page.</p>
-          <p style="margin-top: 32px; font-size: 13px; color: #94a3b8; line-height: 1.5;">Best regards,<br><strong>The DriveNepal Team</strong></p>
+          <p style="margin-top: 32px; font-size: 13px; color: #94a3b8; line-height: 1.5;">Best regards,<br><strong>The RentalSphere Team</strong></p>
         </div>
       `,
     }).catch((err) => console.error('Error sending query reply email:', err));

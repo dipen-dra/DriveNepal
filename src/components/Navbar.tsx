@@ -59,9 +59,9 @@ export function Navbar() {
     >
       <div className="container-page flex h-16 md:h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <img src={logo} alt="DriveNepal Logo" className="h-9 w-9 object-contain transition-transform group-hover:scale-105" />
+          <img src={logo} alt="RentalSphere Logo" className="h-9 w-9 object-contain transition-transform group-hover:scale-105" />
           <span className="font-display text-xl font-semibold tracking-tight text-ink">
-            Drive<span className="text-gradient">Nepal</span>
+            RentalSphere
           </span>
         </Link>
 

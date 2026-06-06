@@ -5,8 +5,8 @@ import { Sparkles, Cookie, Check, ShieldAlert, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
-      { title: "Cookies Policy — DriveNepal" },
-      { name: "description", content: "Details on how DriveNepal uses cookies to manage booking checkouts, security sessions, and preferences." },
+      { title: "Cookies Policy — RentalSphere" },
+      { name: "description", content: "Details on how RentalSphere uses cookies to manage booking checkouts, security sessions, and preferences." },
     ],
   }),
   component: CookiesPage,

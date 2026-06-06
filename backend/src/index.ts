@@ -27,7 +27,7 @@ setupSecurityMiddleware(app);
 app.use(cors({
   origin: [
     clientOrigin,
-    'https://drive-nepal.vercel.app',
+    'https://rentalsphere.vercel.app',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5174'
@@ -75,7 +75,7 @@ app.use('/api/queries', queriesRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
-  res.json({ success: true, message: 'DriveNepal API is running 🚗', timestamp: new Date() });
+  res.json({ success: true, message: 'RentalSphere API is running 🚗', timestamp: new Date() });
 });
 
 // 404 handler
@@ -92,7 +92,7 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 // ── Start ──────────────────────────────────────────────────
 connectDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 DriveNepal API running on http://localhost:${PORT}`);
+    console.log(`🚀 RentalSphere API running on http://localhost:${PORT}`);
     console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
   });
 });

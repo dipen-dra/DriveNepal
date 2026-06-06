@@ -33,15 +33,15 @@ export const calculateBookingTotalLegacy = async (
 
   const insurancePrices: Record<string, number> = {
     basic: 0,
-    plus: 450,
-    max: 850,
+    plus: 5,
+    max: 10,
   };
 
   const addonPrices: Record<string, number> = {
-    driver: 1800,
-    gps: 200,
-    child: 250,
-    helmet: 100,
+    driver: 20,
+    gps: 2,
+    child: 3,
+    helmet: 1.5,
   };
 
   const insurancePrice = insurancePrices[insurance || 'basic'] ?? 0;
@@ -52,8 +52,8 @@ export const calculateBookingTotalLegacy = async (
   
   const subtotal = vehicle.pricePerDay * days + (insurancePrice + addonsPrice) * days;
   const serviceFee = Math.round(subtotal * 0.05);
-  const dropOffFee = (dropoff && pickup && dropoff !== pickup) ? 800 : 0;
-  const vat = Math.round((subtotal + dropOffFee) * 0.13);
+  const dropOffFee = (dropoff && pickup && dropoff !== pickup) ? 10 : 0;
+  const vat = Math.round((subtotal + dropOffFee) * 0.20);
   const discount = couponCode === 'DRIVE10' ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + serviceFee + vat + dropOffFee - discount;
 
@@ -167,10 +167,10 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Booking Confirmed!</h2>
             <p>Hi ${bookingData.customerName},</p>
-            <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully confirmed and paid via Khalti.</p>
+            <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully confirmed and paid.</p>
             <p><strong>Pickup:</strong> ${new Date(bookingData.startDate).toLocaleDateString()} at ${bookingData.pickup}</p>
-            <p><strong>Total Paid:</strong> NPR ${total.toLocaleString()}</p>
-            <p>Thank you for choosing DriveNepal!</p>
+            <p><strong>Total Paid:</strong> £${total.toLocaleString()}</p>
+            <p>Thank you for choosing RentalSphere!</p>
           </div>
         `,
       }).catch(console.error);
@@ -352,10 +352,10 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Booking Confirmed!</h2>
             <p>Hi ${bookingData.customerName},</p>
-            <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully confirmed and paid via eSewa.</p>
+            <p>Your booking for the <strong>${vehicle.name}</strong> has been successfully confirmed and paid.</p>
             <p><strong>Pickup:</strong> ${new Date(bookingData.startDate).toLocaleDateString()} at ${bookingData.pickup}</p>
-            <p><strong>Total Paid:</strong> NPR ${total.toLocaleString()}</p>
-            <p>Thank you for choosing DriveNepal!</p>
+            <p><strong>Total Paid:</strong> £${total.toLocaleString()}</p>
+            <p>Thank you for choosing RentalSphere!</p>
           </div>
         `,
       }).catch(console.error);

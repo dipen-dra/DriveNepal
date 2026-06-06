@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Check, XCircle, Loader2, ArrowRight } from "lucide-react";
 import { verifyEsewaPayment } from "@/lib/api";
@@ -10,11 +11,12 @@ export const Route = createFileRoute("/payment/esewa/success")({
   validateSearch: (s: Record<string, unknown>): Search => ({
     data: typeof s.data === "string" ? s.data : undefined,
   }),
-  head: () => ({ meta: [{ title: "eSewa Payment Success — DriveNepal" }] }),
+  head: () => ({ meta: [{ title: "PayPal Payment Success — RentalSphere" }] }),
   component: EsewaSuccess,
 });
 
 function EsewaSuccess() {
+  const queryClient = useQueryClient();
   const { data } = Route.useSearch();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState("");
@@ -31,6 +33,7 @@ function EsewaSuccess() {
       .then((res: any) => {
         setStatus("success");
         setBookingId(res.data._id); // Assuming backend returns the MongoDB _id
+        queryClient.invalidateQueries({ queryKey: ["myBookings"] });
       })
       .catch((err: any) => {
         setStatus("error");
@@ -48,7 +51,7 @@ function EsewaSuccess() {
           <>
             <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto" />
             <h2 className="mt-6 font-display text-2xl font-bold">Verifying Payment...</h2>
-            <p className="mt-2 text-muted-foreground text-sm">Please wait while we confirm your transaction with eSewa.</p>
+            <p className="mt-2 text-muted-foreground text-sm">Please wait while we confirm your transaction with PayPal.</p>
           </>
         )}
 
@@ -59,7 +62,7 @@ function EsewaSuccess() {
             </div>
             <h2 className="mt-6 font-display text-2xl font-bold text-ink">Payment Successful!</h2>
             <p className="mt-2 text-muted-foreground text-sm">
-              Your booking has been confirmed and paid via eSewa.
+              Your booking has been confirmed and paid.
             </p>
             {bookingId && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface border border-border px-4 py-2 text-sm">
@@ -68,8 +71,8 @@ function EsewaSuccess() {
               </div>
             )}
             <div className="mt-8 flex gap-3 justify-center">
-              <Link to="/dashboard" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
-                Go to Dashboard
+              <Link to="/dashboard/bookings" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
+                View My Bookings
               </Link>
             </div>
           </>

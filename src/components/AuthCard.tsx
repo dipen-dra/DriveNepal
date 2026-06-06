@@ -86,10 +86,10 @@ export function AuthCard({
         <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-white/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="relative text-white max-w-md">
-          <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center font-bold text-2xl mb-8">D</span>
+          <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center font-bold text-2xl mb-8">R</span>
           <h2 className="font-display text-4xl font-bold leading-tight text-white">Drive luxury.<br />Ride freedom.</h2>
           <p className="mt-6 text-white/85 leading-relaxed">
-            From the lakes of Pokhara to the streets of Thamel, your next adventure starts with the right ride.
+            From the Highlands of Scotland to the streets of London, your next adventure starts with the right ride.
           </p>
           <div className="mt-12 flex gap-6">
             <Stat k="120+" v="Vehicles" />
@@ -103,7 +103,7 @@ export function AuthCard({
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
           <div className="text-center mb-6">
             <Link to="/" className="inline-block">
-              <img src={logo} alt="DriveNepal" className="h-8 md:h-10 w-auto" />
+              <img src={logo} alt="RentalSphere" className="h-8 md:h-10 w-auto" />
             </Link>
             <h1 className="mt-6 font-display text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
             <p className="mt-2 text-muted-foreground">{subtitle}</p>

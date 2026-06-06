@@ -8,8 +8,8 @@ import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({ meta: [
-    { title: "Contact — DriveNepal" },
-    { name: "description", content: "Get in touch with the DriveNepal team. We respond within an hour." },
+    { title: "Contact — RentalSphere" },
+    { name: "description", content: "Get in touch with the RentalSphere team. We respond within an hour." },
   ] }),
   component: ContactPage,
 });
@@ -64,9 +64,9 @@ function ContactPage() {
 
         <div className="mt-10 space-y-4">
           {[
-            { icon: Phone, k: "Call us", v: "+977 1 4444 555" },
-            { icon: Mail, k: "Email", v: "hello@drivenepal.com" },
-            { icon: MapPin, k: "Headquarters", v: "Thamel, Kathmandu, Nepal" },
+            { icon: Phone, k: "Call us", v: "+44 20 7946 0958" },
+            { icon: Mail, k: "Email", v: "hello@rentalsphere.com" },
+            { icon: MapPin, k: "Headquarters", v: "Soho, London, UK" },
           ].map((c) => (
             <div key={c.k} className="flex items-center gap-4 p-5 rounded-2xl bg-surface border border-border/60">
               <div className="h-11 w-11 rounded-full gradient-brand text-white inline-flex items-center justify-center"><c.icon className="h-4 w-4" /></div>

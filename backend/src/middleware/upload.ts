@@ -19,7 +19,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     // Generate a unique folder or use a default one based on route
-    const folder = req.baseUrl.includes('admin') ? 'drivenepal/vehicles' : 'drivenepal/users';
+    const folder = req.baseUrl.includes('admin') ? 'rentalsphere/vehicles' : 'rentalsphere/users';
     
     // Set allowed formats
     const allowedFormats = ['jpeg', 'png', 'jpg', 'webp'];

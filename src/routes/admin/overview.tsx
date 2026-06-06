@@ -26,7 +26,7 @@ function OverviewTab() {
   if (isLoading) return <div className="animate-pulse space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-24 rounded-2xl bg-muted" />)}</div>;
 
   const kpis = [
-    { label: "Revenue (NPR)", value: (stats?.revenue ?? 0).toLocaleString(), icon: DollarSign, accent: true },
+    { label: "Revenue (GBP)", value: (stats?.revenue ?? 0).toLocaleString(), icon: DollarSign, accent: true },
     { label: "Active rentals", value: stats?.activeBookings ?? 0, icon: Activity },
     { label: "Total bookings", value: stats?.totalBookings ?? 0, icon: Calendar },
     { label: "Fleet size", value: stats?.totalVehicles ?? 0, icon: Car },
@@ -57,7 +57,7 @@ function OverviewTab() {
         <div className="lg:col-span-2 rounded-2xl border border-border bg-card p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display text-lg font-semibold text-ink">Revenue · last 7 days</h3>
-            <span className="text-xs text-muted-foreground">NPR</span>
+            <span className="text-xs text-muted-foreground">GBP</span>
           </div>
           <SparkBars data={sparkData} />
         </div>

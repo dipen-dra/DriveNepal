@@ -18,7 +18,7 @@ export const Route = createFileRoute("/vehicles/$slug")({
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.vehicle.name} — DriveNepal` },
+          { title: `${loaderData.vehicle.name} — RentalSphere` },
           { name: "description", content: loaderData.vehicle.description },
           { property: "og:image", content: loaderData.vehicle.image },
         ]
@@ -39,7 +39,7 @@ function VehicleDetail() {
 
   const [pickupDate, setPickupDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
-  const [pickupLocation, setPickupLocation] = useState("Kathmandu — Thamel hub");
+  const [pickupLocation, setPickupLocation] = useState("London — Soho hub");
 
   const days = useMemo(() => {
     if (!pickupDate || !returnDate) return 1;
@@ -133,7 +133,7 @@ function VehicleDetail() {
             className="lg:sticky lg:top-28 self-start rounded-3xl border border-border/60 bg-card p-7 shadow-[var(--shadow-card)]"
           >
             <div className="flex items-baseline justify-between">
-              <span className="font-display text-3xl font-bold text-primary">NPR {v.pricePerDay.toLocaleString()}</span>
+              <span className="font-display text-3xl font-bold text-primary">£{v.pricePerDay.toLocaleString()}</span>
               <span className="text-sm text-muted-foreground">/ day</span>
             </div>
 
@@ -147,21 +147,21 @@ function VehicleDetail() {
                   onChange={(e) => setPickupLocation(e.target.value)}
                   className="mt-1 w-full h-11 px-3 rounded-xl bg-muted border border-transparent focus:border-primary focus:outline-none text-sm font-medium"
                 >
-                  <option value="Kathmandu — Thamel hub">Kathmandu (Thamel hub)</option>
-                  <option value="Pokhara — Lakeside">Pokhara (Lakeside)</option>
-                  <option value="Kathmandu — Tribhuvan Intl Airport">Tribhuvan Intl Airport</option>
+                  <option value="London — Soho hub">London (Soho hub)</option>
+                  <option value="Edinburgh — Lakeside">Edinburgh (Lakeside)</option>
+                  <option value="London — Heathrow Airport">London (Heathrow Airport)</option>
                 </select>
               </label>
             </div>
 
             <div className="mt-6 space-y-2 text-sm">
-              <Row k={`NPR ${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`NPR ${(v.pricePerDay * days).toLocaleString()}`} />
-              <Row k="Service fee" v={`NPR ${Math.round(v.pricePerDay * days * 0.05).toLocaleString()}`} />
-              <Row k="VAT (13%)" v={`NPR ${Math.round(v.pricePerDay * days * 0.13).toLocaleString()}`} />
+              <Row k={`£${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`£${(v.pricePerDay * days).toLocaleString()}`} />
+              <Row k="Service fee" v={`£${Math.round(v.pricePerDay * days * 0.05).toLocaleString()}`} />
+              <Row k="VAT (20%)" v={`£${Math.round(v.pricePerDay * days * 0.20).toLocaleString()}`} />
               <div className="pt-3 border-t border-border flex items-baseline justify-between">
                 <span className="font-semibold">Total</span>
                 <span className="font-display text-2xl font-bold text-ink">
-                  NPR {Math.round(v.pricePerDay * days * 1.18).toLocaleString()}
+                  £{Math.round(v.pricePerDay * days * 1.25).toLocaleString()}
                 </span>
               </div>
             </div>

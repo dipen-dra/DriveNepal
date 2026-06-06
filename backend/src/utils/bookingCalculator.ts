@@ -16,22 +16,22 @@ interface BookingCalculationResult {
   days: number;
 }
 
-const PICKUP_FEE = 500;
-const DROPOFF_FEE = 500;
-const TAX_RATE = 0.13; // 13% VAT
+const PICKUP_FEE = 0;
+const DROPOFF_FEE = 10;
+const TAX_RATE = 0.20; // 20% VAT
 const SERVICE_FEE_RATE = 0.05; // 5% service fee
 
 const INSURANCE_PRICES: Record<string, number> = {
   basic: 0,
-  plus: 450,
-  max: 850,
+  plus: 5,
+  max: 10,
 };
 
 const ADDON_PRICES: Record<string, number> = {
-  driver: 1800,
-  gps: 200,
-  child: 250,
-  helmet: 100,
+  driver: 20,
+  gps: 2,
+  child: 3,
+  helmet: 1.5,
 };
 
 /**
@@ -82,7 +82,7 @@ export const calculateBookingTotal = async (
   // Calculate subtotal with fees
   const subtotalWithFees = subtotal + pickupFeeAmount + dropoffFeeAmount + insuranceCost + addonsCost;
 
-  // Calculate tax (13% VAT in Nepal)
+  // Calculate tax (20% VAT in UK)
   const tax = Math.round(subtotalWithFees * TAX_RATE);
 
   // Final total

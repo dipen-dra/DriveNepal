@@ -13,7 +13,7 @@ export const Route = createFileRoute("/otp-verification")({
   }),
   head: () => ({
     meta: [
-      { title: "Verify OTP — DriveNepal" },
+      { title: "Verify OTP — RentalSphere" },
       { name: "description", content: "Enter the 6-digit verification code sent to your email." },
     ],
   }),

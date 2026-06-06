@@ -8,8 +8,8 @@ import { forgotPassword, ApiError } from "@/lib/api";
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
     meta: [
-      { title: "Forgot password — DriveNepal" },
-      { name: "description", content: "Reset your DriveNepal account password securely." },
+      { title: "Forgot password — RentalSphere" },
+      { name: "description", content: "Reset your RentalSphere account password securely." },
     ],
   }),
   component: ForgotPasswordPage,
