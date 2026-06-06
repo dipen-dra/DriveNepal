@@ -3,7 +3,7 @@
  * All requests go through /api (proxied to localhost:5000 in dev).
  */
 
-const BASE = import.meta.env.VITE_API_URL || (typeof window === 'undefined' ? 'http://localhost:5001/api' : '/api');
+const BASE = import.meta.env.VITE_API_URL || (typeof process !== 'undefined' ? process.env.VITE_API_URL || process.env.API_URL : undefined) || (typeof window === 'undefined' ? 'http://localhost:5001/api' : '/api');
 
 export class ApiError extends Error {
   constructor(
