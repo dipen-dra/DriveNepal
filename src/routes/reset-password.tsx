@@ -72,7 +72,7 @@ function ResetPasswordPage() {
           <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center mb-8">
             <ShieldCheck className="h-6 w-6" />
           </span>
-          <h2 className="font-display text-4xl font-bold leading-tight">Create a new password</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight text-white">Create a new password</h2>
           <p className="mt-6 text-white/85 leading-relaxed">
             Pick something strong and unique. We'll sign you out from all devices for safety.
           </p>

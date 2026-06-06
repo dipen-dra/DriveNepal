@@ -398,7 +398,7 @@ function CTA() {
         <div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <div className="relative grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight">Your next adventure is one tap away.</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight text-white">Your next adventure is one tap away.</h2>
             <p className="mt-4 text-white/85 max-w-md">Browse 120+ vehicles, lock in pickup, and hit the road today.</p>
           </div>
           <div className="md:justify-self-end flex flex-wrap gap-3">

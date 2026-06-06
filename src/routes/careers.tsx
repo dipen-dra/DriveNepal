@@ -173,7 +173,7 @@ function CareersPage() {
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.15),transparent_70%)]" />
           <div className="relative z-10 max-w-xl mx-auto space-y-6">
-            <h3 className="font-display text-2xl md:text-3xl font-bold">Don't see the perfect role?</h3>
+            <h3 className="font-display text-2xl md:text-3xl font-bold text-white">Don't see the perfect role?</h3>
             <p className="text-white/80 text-sm leading-relaxed">
               We are always looking for exceptional talent who love cars, bikes, and hospitality. Drop us an open application query via our contact center!
             </p>

@@ -118,7 +118,7 @@ function OtpPage() {
           <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center mb-8">
             <KeyRound className="h-6 w-6" />
           </span>
-          <h2 className="font-display text-4xl font-bold leading-tight">Check your inbox</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight text-white">Check your inbox</h2>
           <p className="mt-6 text-white/85 leading-relaxed">
             We sent a 6-digit code to {email ? <strong>{email}</strong> : "your email"}. It expires in 10 minutes.
           </p>
