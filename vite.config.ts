@@ -22,7 +22,7 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "src/server.ts" },
     }),
-    nitro(),
+    process.env.VERCEL === "1" && nitro(),
     react(),
     tailwindcss(),
     process.env.VERCEL !== "1" && cloudflare(),
