@@ -96,11 +96,13 @@ export function AuthCard({
 
       <div className="flex items-center justify-center p-6 md:p-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <Link to="/" className="inline-block mb-6">
-            <img src={logo} alt="DriveNepal" className="h-8 md:h-10 w-auto" />
-          </Link>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
-          <p className="mt-2 text-muted-foreground">{subtitle}</p>
+          <div className="text-center mb-6">
+            <Link to="/" className="inline-block">
+              <img src={logo} alt="DriveNepal" className="h-8 md:h-10 w-auto" />
+            </Link>
+            <h1 className="mt-6 font-display text-3xl md:text-4xl font-bold tracking-tight">{title}</h1>
+            <p className="mt-2 text-muted-foreground">{subtitle}</p>
+          </div>
 
           {error && (
             <motion.div
