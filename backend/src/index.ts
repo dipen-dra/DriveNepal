@@ -4,6 +4,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { connectDB } from './config/db.js';
+import { setupSecurityMiddleware, requestValidationMiddleware } from './middleware/security.js';
+import { sanitizeInputs, validateInputTypes } from './middleware/inputSanitization.js';
 import authRoutes from './routes/auth.js';
 import vehicleRoutes from './routes/vehicles.js';
 import bookingRoutes from './routes/bookings.js';
@@ -17,6 +19,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 
+// ── Security Setup ─────────────────────────────────────────
+setupSecurityMiddleware(app);
+
 // ── Middleware ─────────────────────────────────────────────
 app.use(cors({
   origin: [CLIENT_URL, 'http://localhost:3000', 'http://localhost:5173'],
@@ -26,20 +31,30 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Rate limiting (Disabled for now as requested)
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 min
-//   max: 200,
-//   message: { success: false, message: 'Too many requests, please try again later.' },
-// });
-// app.use('/api/', limiter);
+// Input sanitization and validation
+app.use(sanitizeInputs);
+app.use(validateInputTypes);
+app.use(requestValidationMiddleware);
 
-// const authLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 20,
-//   message: { success: false, message: 'Too many auth attempts, please try again later.' },
-// });
-// app.use('/api/auth/', authLimiter);
+// Rate limiting - ENABLED for security
+const generalLimiter = rateLimit({
+  windowMs: 5 * 1000, // 5 seconds (temporary for testing)
+  max: 500,
+  message: { success: false, message: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', generalLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 5 * 1000, // 5 seconds (temporary for testing)
+  max: 100, // Stricter limit for auth endpoints, but generous for testing
+  message: { success: false, message: 'Too many auth attempts, please try again later.' },
+  skipSuccessfulRequests: false,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/auth/', authLimiter);
 
 // ── Routes ─────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);

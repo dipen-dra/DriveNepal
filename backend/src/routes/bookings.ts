@@ -6,7 +6,8 @@ import { Notification } from '../models/Notification.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
 import { sendEmail } from '../utils/email.js';
-import { calculateBookingTotal } from './payment.js';
+import { calculateBookingTotalLegacy } from './payment.js';
+import { logIdorAttempt, logAdminAction } from '../utils/securityLogger.js';
 
 const router = Router();
 
@@ -55,7 +56,7 @@ router.post(
 
     const {
       total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount
-    } = await calculateBookingTotal(
+    } = await calculateBookingTotalLegacy(
       vehicleSlug, startDate, endDate, couponCode, dropoff, pickup, insurance, addons
     );
 
@@ -84,6 +85,8 @@ router.post(
       customerPhone,
       license,
       couponCode,
+      calculatedTotal: total,
+      serverValidated: true,
     });
 
     // Fire & forget notification creation
@@ -119,14 +122,25 @@ router.post(
 /* ── PATCH /api/bookings/:id/cancel ─────────────────────── */
 router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const booking = await Booking.findOne({ _id: req.params.id, user: req.user!._id });
+  
   if (!booking) {
+    // Log potential IDOR attempt
+    logIdorAttempt(
+      req.user!._id.toString(),
+      'Booking',
+      req.params.id as string,
+      req.ip,
+      req.headers['user-agent']
+    );
     res.status(404).json({ success: false, message: 'Booking not found.' });
     return;
   }
+
   if (booking.status !== 'upcoming') {
     res.status(400).json({ success: false, message: 'Only upcoming bookings can be cancelled.' });
     return;
   }
+
   booking.status = 'cancelled';
   await booking.save();
 
@@ -162,15 +176,27 @@ router.patch(
       res.status(400).json({ success: false, message: 'Invalid status.' });
       return;
     }
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
       { status },
       { new: true },
     );
+    
     if (!booking) {
       res.status(404).json({ success: false, message: 'Booking not found.' });
       return;
     }
+
+    // Log admin action
+    logAdminAction(
+      req.user!._id.toString(),
+      'update_booking_status',
+      req.params.id as string,
+      { newStatus: status },
+      req.ip,
+      req.headers['user-agent']
+    );
 
     // Notify user of status change
     Notification.create({
@@ -192,6 +218,17 @@ router.delete('/admin/:id', protect, adminOnly, async (req: AuthRequest, res: Re
     res.status(404).json({ success: false, message: 'Booking not found.' });
     return;
   }
+
+  // Log admin action
+  logAdminAction(
+    req.user!._id.toString(),
+    'delete_booking',
+    req.params.id as string,
+    { vehicleName: booking.vehicleName, customerId: booking.user },
+    req.ip,
+    req.headers['user-agent']
+  );
+
   res.json({ success: true, message: 'Booking deleted.' });
 });
 

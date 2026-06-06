@@ -29,6 +29,14 @@ export interface IBooking extends Document {
   couponCode?: string;
   insurance?: string;
   addons?: string[];
+  calculatedTotal?: number;
+  serverValidated: boolean;
+  priceRecalculationLog?: Array<{
+    timestamp: Date;
+    originalTotal: number;
+    recalculatedTotal: number;
+    difference: number;
+  }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -64,6 +72,16 @@ const BookingSchema = new Schema<IBooking>(
     couponCode: { type: String },
     insurance: { type: String, default: 'basic' },
     addons: { type: [String], default: [] },
+    calculatedTotal: { type: Number, select: false },
+    serverValidated: { type: Boolean, default: false },
+    priceRecalculationLog: [
+      {
+        timestamp: { type: Date, default: Date.now },
+        originalTotal: Number,
+        recalculatedTotal: Number,
+        difference: Number,
+      },
+    ],
   },
   { timestamps: true },
 );

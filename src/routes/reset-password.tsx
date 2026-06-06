@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Check } from "lucide-react";
 import { toast } from "sonner";
 import { resetPassword, ApiError } from "@/lib/api";
+import { PasswordStrength, validatePasswordStrength } from "@/components/PasswordStrength";
 
 type Search = { token?: string; email?: string };
 
@@ -21,15 +22,6 @@ export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
 });
 
-function score(pw: string) {
-  let s = 0;
-  if (pw.length >= 8) s++;
-  if (/[A-Z]/.test(pw)) s++;
-  if (/[0-9]/.test(pw)) s++;
-  if (/[^A-Za-z0-9]/.test(pw)) s++;
-  return s;
-}
-
 function ResetPasswordPage() {
   const { email, token } = Route.useSearch();
   const navigate = useNavigate();
@@ -38,13 +30,7 @@ function ResetPasswordPage() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const strength = useMemo(() => score(pw), [pw]);
-  const checks = [
-    { ok: pw.length >= 8, label: "At least 8 characters" },
-    { ok: /[A-Z]/.test(pw), label: "One uppercase letter" },
-    { ok: /[0-9]/.test(pw), label: "One number" },
-    { ok: /[^A-Za-z0-9]/.test(pw), label: "One symbol" },
-  ];
+  const validation = useMemo(() => validatePasswordStrength(pw), [pw]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,8 +38,8 @@ function ResetPasswordPage() {
       toast.error("Missing verification token or email. Please restart the reset process.");
       return;
     }
-    if (strength < 3) {
-      toast.error("Choose a stronger password.");
+    if (!validation.isValid) {
+      toast.error("Password does not meet security requirements.");
       return;
     }
     if (pw !== confirm) {
@@ -76,9 +62,6 @@ function ResetPasswordPage() {
       setLoading(false);
     }
   };
-
-  const labels = ["Too weak", "Weak", "Okay", "Strong", "Excellent"];
-  const colors = ["bg-destructive", "bg-destructive", "bg-yellow-500", "bg-primary", "bg-emerald-500"];
 
   return (
     <section className="min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 noise-bg">
@@ -109,6 +92,7 @@ function ResetPasswordPage() {
               <input
                 type={show ? "text" : "password"}
                 required
+                minLength={10}
                 value={pw}
                 onChange={(e) => setPw(e.target.value)}
                 placeholder="••••••••"
@@ -119,16 +103,7 @@ function ResetPasswordPage() {
               </button>
             </Field>
 
-            <div className="space-y-2">
-              <div className="flex gap-1.5">
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className={`h-1.5 flex-1 rounded-full ${i < strength ? colors[strength] : "bg-muted"}`} />
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Strength: <span className="font-medium text-foreground">{labels[strength]}</span>
-              </p>
-            </div>
+            <PasswordStrength password={pw} showRequirements={true} />
 
             <Field label="Confirm password">
               <Lock className="h-4 w-4 text-muted-foreground" />
@@ -142,19 +117,12 @@ function ResetPasswordPage() {
               />
             </Field>
 
-            <ul className="grid grid-cols-2 gap-2 pt-2">
-              {checks.map((c) => (
-                <li key={c.label} className={`flex items-center gap-2 text-xs ${c.ok ? "text-foreground" : "text-muted-foreground"}`}>
-                  <span className={`inline-flex h-4 w-4 items-center justify-center rounded-full ${c.ok ? "bg-primary text-white" : "bg-muted"}`}>
-                    <Check className="h-3 w-3" />
-                  </span>
-                  {c.label}
-                </li>
-              ))}
-            </ul>
+            {confirm && pw !== confirm && (
+              <p className="text-xs text-destructive">Passwords don't match</p>
+            )}
 
             <button
-              disabled={loading}
+              disabled={loading || !validation.isValid || pw !== confirm || !pw}
               className="mt-4 w-full h-12 rounded-full gradient-brand text-white font-semibold shadow-[var(--shadow-glow)] inline-flex items-center justify-center hover:-translate-y-0.5 transition-transform disabled:opacity-70 disabled:hover:translate-y-0"
             >
               {loading ? "Updating..." : "Update password"} <ArrowRight className="ml-2 h-4 w-4" />

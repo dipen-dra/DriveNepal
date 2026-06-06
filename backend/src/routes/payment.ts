@@ -6,6 +6,9 @@ import { Vehicle } from '../models/Vehicle.js';
 import { Notification } from '../models/Notification.js';
 import { generateBookingId, storePendingBooking, getPendingBooking, deletePendingBooking } from '../utils/pendingBookings.js';
 import { sendEmail } from '../utils/email.js';
+import { calculateBookingTotal, verifyBookingAmount } from '../utils/bookingCalculator.js';
+import { validatePaymentAmount, logPaymentValidationAttempt } from '../utils/paymentValidator.js';
+import { logPaymentTampering } from '../utils/securityLogger.js';
 
 const router = Router();
 
@@ -15,7 +18,7 @@ const ESEWA_SCD = 'EPAYTEST';
 const ESEWA_SECRET = process.env.ESEWA_SECRET || '8gBm/:&EnhH.1/q';
 
 // Helper to calculate total for verification
-export const calculateBookingTotal = async (
+export const calculateBookingTotalLegacy = async (
   vehicleSlug: string,
   startDate: string,
   endDate: string,
@@ -83,11 +86,39 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
     const verificationData = await response.json();
 
     if (verificationData.idx) {
-      // Re-calculate to verify amount matches
-      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotal(
+      // Re-calculate to verify amount matches (CRITICAL SECURITY CHECK)
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotalLegacy(
         bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
         bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
         bookingData.insurance, bookingData.addons
+      );
+
+      // SECURITY: Verify that the amount paid matches the calculated total
+      const paymentValidation = validatePaymentAmount(amount, total, 1); // 1 rupee tolerance
+      
+      if (!paymentValidation.valid) {
+        logPaymentTampering(
+          req.user!._id.toString(),
+          amount,
+          total,
+          req.ip,
+          req.headers['user-agent']
+        );
+        console.warn(`[SECURITY] Amount tampering detected! Paid: ${amount}, Calculated: ${total}`);
+        res.status(400).json({
+          success: false,
+          message: 'Payment amount does not match booking total. Please try again.',
+        });
+        return;
+      }
+
+      logPaymentValidationAttempt(
+        req.user!._id.toString(),
+        req.ip || 'unknown',
+        true,
+        amount,
+        total,
+        { method: 'khalti', bookingSlug: bookingData.vehicleSlug }
       );
 
       // Create Booking
@@ -116,6 +147,8 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
         customerPhone: bookingData.customerPhone,
         license: bookingData.license,
         couponCode: bookingData.couponCode,
+        calculatedTotal: total,
+        serverValidated: true,
       });
 
       Notification.create({
@@ -162,7 +195,7 @@ router.post('/esewa/initiate', protect, async (req: AuthRequest, res: Response):
       return;
     }
 
-    const { total } = await calculateBookingTotal(
+    const { total } = await calculateBookingTotalLegacy(
       bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
       bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
       bookingData.insurance, bookingData.addons
@@ -236,10 +269,40 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
         return;
       }
 
-      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotal(
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotalLegacy(
         bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
         bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
         bookingData.insurance, bookingData.addons
+      );
+
+      // SECURITY: Verify that the amount paid matches the calculated total
+      const paymentValidation = validatePaymentAmount(parseInt(decodedData.total_amount), total, 1);
+      
+      if (!paymentValidation.valid) {
+        logPaymentTampering(
+          bookingData.userId,
+          parseInt(decodedData.total_amount),
+          total,
+          req.ip,
+          req.headers['user-agent']
+        );
+        console.warn(
+          `[SECURITY] Amount tampering detected on eSewa payment! Paid: ${decodedData.total_amount}, Calculated: ${total}`
+        );
+        res.status(400).json({
+          success: false,
+          message: 'Payment amount does not match booking total. Please try again.',
+        });
+        return;
+      }
+
+      logPaymentValidationAttempt(
+        bookingData.userId,
+        req.ip || 'unknown',
+        true,
+        parseInt(decodedData.total_amount),
+        total,
+        { method: 'esewa', bookingSlug: bookingData.vehicleSlug }
       );
 
       const booking = await Booking.create({
@@ -267,6 +330,8 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
         customerPhone: bookingData.customerPhone,
         license: bookingData.license,
         couponCode: bookingData.couponCode,
+        calculatedTotal: total,
+        serverValidated: true,
       });
 
       deletePendingBooking(bookingId);
