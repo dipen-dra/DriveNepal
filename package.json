@@ -12,7 +12,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "seed": "cd backend && npm run seed"
+    "seed": "cd backend && npm run seed",
+    "seed:history": "cd backend && npm run seed:history"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
