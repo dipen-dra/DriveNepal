@@ -4,6 +4,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import { nitro } from "nitro/vite";
 
 const excludeDeps = [
   "@tanstack/react-start",
@@ -21,6 +22,7 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "src/server.ts" },
     }),
+    nitro(),
     react(),
     tailwindcss(),
     process.env.VERCEL !== "1" && cloudflare(),
