@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
 import { PasswordStrength } from "@/components/PasswordStrength";
 import logo from "@/assets/logo.png";
+import heroVehicles from "@/assets/hero-vehicles.jpg";
 
 export function AuthCard({
   title, subtitle, mode, footer,
@@ -76,13 +77,17 @@ export function AuthCard({
 
   return (
     <section className="min-h-[calc(100vh-5rem)] grid lg:grid-cols-2 noise-bg">
-      <div className="hidden lg:flex relative overflow-hidden items-center justify-center p-12">
-        <div className="absolute inset-0 gradient-brand opacity-95" />
+      <div className="hidden lg:flex relative overflow-hidden items-start justify-center p-12 pt-32">
+        <div className="absolute inset-0">
+          <img src={heroVehicles} alt="Background" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 gradient-brand opacity-90 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-black/35" />
+        </div>
         <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-white/15 blur-3xl" />
         <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
         <div className="relative text-white max-w-md">
           <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center font-bold text-2xl mb-8">D</span>
-          <h2 className="font-display text-4xl font-bold leading-tight">Drive luxury.<br />Ride freedom.</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight text-white">Drive luxury.<br />Ride freedom.</h2>
           <p className="mt-6 text-white/85 leading-relaxed">
             From the lakes of Pokhara to the streets of Thamel, your next adventure starts with the right ride.
           </p>
