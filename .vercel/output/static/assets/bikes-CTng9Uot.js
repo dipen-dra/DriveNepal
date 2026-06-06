@@ -1,0 +1,1 @@
+import{J as t}from"./index-DscvnE7F.js";import{C as o}from"./CatalogPage-DzFiaSp7.js";import"./VehicleCard-BGUcsdjK.js";import"./star-DY4RSTYO.js";import"./users-DR3BL8lg.js";import"./search-D-m8cM4X.js";const s=()=>t.jsx(o,{type:"bike",title:"Rent a Bike",subtitle:"Conquer the Himalayas or weave the city — your ride awaits."});export{s as component};
