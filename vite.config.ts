@@ -23,8 +23,8 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
-    cloudflare(),
-  ],
+    process.env.VERCEL !== "1" && cloudflare(),
+  ].filter(Boolean),
   server: {
     proxy: {
       "/api": {
