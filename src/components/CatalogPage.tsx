@@ -25,6 +25,7 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
 
   const all: Vehicle[] = data?.data ?? [];
   const categories = ["All", ...Array.from(new Set(all.map((v) => v.category)))];
+  const locationsList = ["All", ...Array.from(new Set(all.map((v) => v.location || "Kathmandu")))];
   const maxPrice = all.length ? Math.max(...all.map((v) => v.pricePerDay)) : 99999;
 
   const list = useMemo(() => {
@@ -106,6 +107,25 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
                     {c}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Location Hubs</p>
+              <div className="flex flex-wrap gap-2">
+                {locationsList.map((loc) => {
+                  const isActive = (loc === "All" && !activeLocation) || (activeLocation.toLowerCase() === loc.toLowerCase());
+                  return (
+                    <Link
+                      key={loc}
+                      to="."
+                      search={(prev: any) => ({ ...prev, location: loc === "All" ? undefined : loc })}
+                      className={`h-9 px-4 inline-flex items-center rounded-full text-xs font-medium border transition-all ${isActive ? "gradient-brand text-white border-transparent shadow-[var(--shadow-glow)]" : "bg-background border-border hover:border-primary/40"}`}
+                    >
+                      {loc}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
