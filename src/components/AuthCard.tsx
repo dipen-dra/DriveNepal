@@ -136,7 +136,7 @@ export function AuthCard({
               <Field label="Full name" icon={<User className="h-4 w-4" />}>
                 <input
                   type="text" value={name} onChange={(e) => setName(e.target.value)}
-                  placeholder="Aayush Karki" required
+                  placeholder="John Doe" required
                   className="w-full bg-transparent text-sm font-medium focus:outline-none"
                 />
               </Field>
