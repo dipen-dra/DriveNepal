@@ -13,7 +13,7 @@ import { VehicleCard } from "@/components/VehicleCard";
 
 // Keep testimonials & FAQs as static marketing content
 const testimonials = [
-  { name: "Aayush Karki", role: "Traveler, Kathmandu", text: "Booked a Himalayan for a Mustang trip — flawless from start to finish. The bike was spotless.", rating: 5 },
+  { name: "John Doe", role: "Traveler, Kathmandu", text: "Booked a Himalayan for a Mustang trip — flawless from start to finish. The bike was spotless.", rating: 5 },
   { name: "Sneha Maharjan", role: "Designer, Pokhara", text: "Rented a Tesla for a weekend. The handover was 5 minutes. Felt like Apple-level service.", rating: 5 },
   { name: "Bikash Thapa", role: "Founder, Lalitpur", text: "Used DriveNepal twice for client visits. Professional, on-time, and the pricing is honest.", rating: 5 },
   { name: "Priya Shrestha", role: "Photographer", text: "Loved the booking flow. Picked the SUV, paid via Khalti, done. Zero friction.", rating: 5 },
