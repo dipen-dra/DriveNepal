@@ -50,8 +50,8 @@ function ResetPasswordPage() {
     try {
       setLoading(true);
       await resetPassword(email, token, pw);
-      toast.success("Password updated. You can now explore your account!");
-      void navigate({ to: "/dashboard" });
+      toast.success("Password updated. Please log in with your new password.");
+      void navigate({ to: "/login" });
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
