@@ -5,6 +5,8 @@ import { Booking } from '../models/Booking.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/admin.js';
 import { upload } from '../middleware/upload.js';
+import { validatePasswordStrength, isStrongPassword } from '../utils/passwordValidator.js';
+import { logIdorAttempt, logAdminAction } from '../utils/securityLogger.js';
 
 const router = Router();
 
@@ -49,11 +51,20 @@ router.put(
       return;
     }
 
-    // Don't allow role change through this endpoint
+    // Prevent role escalation
     const { name, email, phone, license, city, avatar } = req.body as {
       name?: string; email?: string; phone?: string;
       license?: string; city?: string; avatar?: string;
     };
+
+    // Never allow role change through this endpoint
+    if ('role' in req.body) {
+      res.status(403).json({
+        success: false,
+        message: 'Role cannot be modified through this endpoint',
+      });
+      return;
+    }
 
     const user = await User.findByIdAndUpdate(
       req.user!._id,
@@ -104,12 +115,33 @@ router.put(
   protect,
   [
     body('currentPassword').notEmpty(),
-    body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
+    body('newPassword')
+      .isLength({ min: 10 })
+      .withMessage('New password must be at least 10 characters')
+      .custom((value) => isStrongPassword(value))
+      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ success: false, errors: errors.array() });
+      return;
+    }
+
     const { currentPassword, newPassword } = req.body as {
       currentPassword: string; newPassword: string;
     };
+
+    // Validate new password strength
+    const passwordValidation = validatePasswordStrength(newPassword);
+    if (!passwordValidation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'New password does not meet security requirements',
+        feedback: passwordValidation.feedback,
+      });
+      return;
+    }
 
     const user = await User.findById(req.user!._id).select('+password');
     if (!user || !(await user.comparePassword(currentPassword))) {
@@ -154,6 +186,17 @@ router.patch(
       res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
+
+    // Log admin action
+    logAdminAction(
+      req.user!._id.toString(),
+      'update_user_status',
+      req.params.id as string,
+      { newStatus: isActive ? 'active' : 'suspended' },
+      req.ip,
+      req.headers['user-agent']
+    );
+
     res.json({ success: true, data: user });
   },
 );
@@ -169,11 +212,23 @@ router.patch(
       res.status(400).json({ success: false, message: 'Invalid role.' });
       return;
     }
+
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
     if (!user) {
       res.status(404).json({ success: false, message: 'User not found.' });
       return;
     }
+
+    // Log admin action
+    logAdminAction(
+      req.user!._id.toString(),
+      'update_user_role',
+      req.params.id as string,
+      { newRole: role },
+      req.ip,
+      req.headers['user-agent']
+    );
+
     res.json({ success: true, data: user });
   },
 );
@@ -184,7 +239,22 @@ router.delete(
   protect,
   adminOnly,
   async (req: AuthRequest, res: Response): Promise<void> => {
-    await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found.' });
+      return;
+    }
+
+    // Log admin action
+    logAdminAction(
+      req.user!._id.toString(),
+      'delete_user',
+      req.params.id as string,
+      { userEmail: user.email, userName: user.name },
+      req.ip,
+      req.headers['user-agent']
+    );
+
     res.json({ success: true, message: 'User deleted.' });
   },
 );

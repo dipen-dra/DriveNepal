@@ -1,13 +1,17 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getVehicles, type VehicleType, type Vehicle } from "@/lib/api";
 import { VehicleCard } from "./VehicleCard";
+import { useSearch, Link } from "@tanstack/react-router";
 
 type Sort = "popular" | "price-asc" | "price-desc" | "rating";
 
 export function CatalogPage({ type, title, subtitle }: { type: VehicleType; title: string; subtitle: string }) {
+  const search = useSearch({ strict: false }) as { location?: string };
+  const activeLocation = search.location || "";
+
   const [q, setQ] = useState("");
   const [cat, setCat] = useState("All");
   const [sort, setSort] = useState<Sort>("popular");
@@ -27,13 +31,14 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
     let r = all.filter((v) =>
       (cat === "All" || v.category === cat) &&
       v.pricePerDay <= (priceMax === 99999 ? maxPrice : priceMax) &&
-      (q === "" || (v.name + v.brand).toLowerCase().includes(q.toLowerCase())),
+      (q === "" || (v.name + v.brand).toLowerCase().includes(q.toLowerCase())) &&
+      (activeLocation === "" || (v.location || "").toLowerCase() === activeLocation.toLowerCase())
     );
     if (sort === "price-asc") r = [...r].sort((a, b) => a.pricePerDay - b.pricePerDay);
     if (sort === "price-desc") r = [...r].sort((a, b) => b.pricePerDay - a.pricePerDay);
     if (sort === "rating") r = [...r].sort((a, b) => b.rating - a.rating);
     return r;
-  }, [all, cat, priceMax, q, sort, maxPrice]);
+  }, [all, cat, priceMax, q, sort, maxPrice, activeLocation]);
 
   return (
     <>
@@ -50,10 +55,34 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
       <section className="container-page pb-24">
         <div className="grid lg:grid-cols-[280px_1fr] gap-8">
           <aside className="lg:sticky lg:top-28 self-start rounded-3xl border border-border/60 bg-card p-6 space-y-6">
-            <div className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4 text-primary" />
-              <h3 className="font-display font-semibold text-ink">Filters</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="h-4 w-4 text-primary" />
+                <h3 className="font-display font-semibold text-ink">Filters</h3>
+              </div>
+              {activeLocation && (
+                <Link
+                  to="."
+                  search={(prev: any) => ({ ...prev, location: undefined })}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+                >
+                  Clear location
+                </Link>
+              )}
             </div>
+
+            {activeLocation && (
+              <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/15 text-xs text-primary font-medium">
+                <span className="flex-1 truncate">Location: <span className="font-bold">{activeLocation}</span></span>
+                <Link
+                  to="."
+                  search={(prev: any) => ({ ...prev, location: undefined })}
+                  className="p-1 rounded-full hover:bg-primary/10 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </Link>
+              </div>
+            )}
 
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -32,21 +32,40 @@ export const protect = async (
     const secret = process.env.JWT_SECRET || 'fallback_secret';
     const decoded = jwt.verify(token, secret) as JwtPayload;
 
-    const user = await User.findById(decoded.id).select('+password');
+    const user = await User.findById(decoded.id).select('+password +lastLogin');
     if (!user) {
       res.status(401).json({ success: false, message: 'User no longer exists.' });
       return;
     }
 
+    // Check if user is active
     if (!user.isActive) {
       res.status(403).json({ success: false, message: 'Account is suspended.' });
       return;
     }
 
+    // Verify token hasn't been tampered with by checking role matches
+    if (decoded.role !== user.role) {
+      res.status(401).json({ success: false, message: 'Token verification failed.' });
+      return;
+    }
+
+    // Update last login timestamp
+    user.lastLogin = new Date();
+    user.failedLoginAttempts = 0; // Reset failed login attempts
+    await user.save();
+
     req.user = user;
     next();
-  } catch {
-    res.status(401).json({ success: false, message: 'Invalid or expired token.' });
+  } catch (error) {
+    const err = error as any;
+    if (err.name === 'JsonWebTokenError') {
+      res.status(401).json({ success: false, message: 'Invalid token.' });
+    } else if (err.name === 'TokenExpiredError') {
+      res.status(401).json({ success: false, message: 'Token has expired.' });
+    } else {
+      res.status(401).json({ success: false, message: 'Authentication failed.' });
+    }
   }
 };
 

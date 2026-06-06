@@ -6,6 +6,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api";
+import { PasswordStrength } from "@/components/PasswordStrength";
 import logo from "@/assets/logo.png";
 
 export function AuthCard({
@@ -143,13 +144,14 @@ export function AuthCard({
             <Field label="Password" icon={<Lock className="h-4 w-4" />}>
               <input
                 type={show ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••" required minLength={6}
+                placeholder="••••••••" required minLength={10}
                 className="w-full bg-transparent text-sm font-medium focus:outline-none"
               />
               <button type="button" onClick={() => setShow((s) => !s)} className="text-muted-foreground hover:text-foreground">
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </Field>
+            {mode === "signup" && <PasswordStrength password={password} showRequirements={true} />}
 
             {mode === "login" && (
               <div className="flex items-center justify-between text-xs">

@@ -6,6 +6,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User.js';
 import { protect, AuthRequest } from '../middleware/auth.js';
 import { sendEmail } from '../utils/email.js';
+import { validatePasswordStrength, isStrongPassword } from '../utils/passwordValidator.js';
+import { logPasswordChange } from '../utils/securityLogger.js';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -34,7 +36,11 @@ router.post(
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('password')
+      .isLength({ min: 10 })
+      .withMessage('Password must be at least 10 characters')
+      .custom((value) => isStrongPassword(value))
+      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -44,6 +50,17 @@ router.post(
     }
 
     const { name, email, password } = req.body as { name: string; email: string; password: string };
+
+    // Validate password strength with detailed feedback
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Password does not meet security requirements',
+        feedback: passwordValidation.feedback,
+      });
+      return;
+    }
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -85,8 +102,31 @@ router.post(
 
     const { email, password } = req.body as { email: string; password: string };
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password +failedLoginAttempts +lastFailedLogin');
+    
+    // Check for brute force attempts
+    if (user && user.failedLoginAttempts >= 5) {
+      const lastFailed = user.lastFailedLogin ? new Date(user.lastFailedLogin).getTime() : 0;
+      const timeSinceLastFailed = Date.now() - lastFailed;
+      const lockoutDuration = 15 * 60 * 1000; // 15 minutes
+
+      if (timeSinceLastFailed < lockoutDuration) {
+        console.warn(`[SECURITY] Brute force attempt detected for ${email}`);
+        res.status(429).json({
+          success: false,
+          message: 'Account temporarily locked due to multiple failed attempts. Try again in 15 minutes.',
+        });
+        return;
+      }
+    }
+
     if (!user || !(await user.comparePassword(password))) {
+      // Increment failed login attempts
+      if (user) {
+        user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1;
+        user.lastFailedLogin = new Date();
+        await user.save();
+      }
       res.status(401).json({ success: false, message: 'Invalid email or password.' });
       return;
     }
@@ -95,6 +135,10 @@ router.post(
       res.status(403).json({ success: false, message: 'Account is suspended.' });
       return;
     }
+
+    // Reset failed login attempts on successful login
+    user.failedLoginAttempts = 0;
+    await user.save();
 
     const token = signToken(user._id.toString(), user.role);
     sendTokenCookie(res, token);
@@ -291,20 +335,53 @@ router.post(
   [
     body('email').isEmail().withMessage('Valid email required'),
     body('otp').isLength({ min: 6, max: 6 }).withMessage('Valid OTP required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('password')
+      .isLength({ min: 10 })
+      .withMessage('Password must be at least 10 characters')
+      .custom((value) => isStrongPassword(value))
+      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
   ],
   async (req: Request, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ success: false, errors: errors.array() });
+      return;
+    }
+
     const { email, otp, password } = req.body as { email: string; otp: string; password: string };
+
+    // Validate password strength
+    const passwordValidation = validatePasswordStrength(password);
+    if (!passwordValidation.isValid) {
+      res.status(400).json({
+        success: false,
+        message: 'Password does not meet security requirements',
+        feedback: passwordValidation.feedback,
+      });
+      return;
+    }
+
+    // Check if password was previously used
     const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
 
     const user = await User.findOne({
       email,
       resetPasswordToken: hashedOtp,
       resetPasswordExpires: { $gt: new Date() },
-    }).select('+resetPasswordToken +resetPasswordExpires');
+    }).select('+resetPasswordToken +resetPasswordExpires +passwordHistory');
 
     if (!user) {
       res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+      return;
+    }
+
+    // Check if new password was previously used
+    const passwordWasPreviouslyUsed = await user.checkPasswordHistory(password);
+    if (passwordWasPreviouslyUsed) {
+      res.status(400).json({
+        success: false,
+        message: 'Password was previously used. Please choose a different password.',
+      });
       return;
     }
 
@@ -312,6 +389,8 @@ router.post(
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
     await user.save();
+
+    logPasswordChange(user._id.toString(), req.ip);
 
     const jwtToken = signToken(user._id.toString(), user.role);
     sendTokenCookie(res, jwtToken);
