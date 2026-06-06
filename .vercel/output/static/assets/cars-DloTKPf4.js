@@ -1,1 +1,0 @@
-import{J as t}from"./index-DscvnE7F.js";import{C as o}from"./CatalogPage-DzFiaSp7.js";import"./VehicleCard-BGUcsdjK.js";import"./star-DY4RSTYO.js";import"./users-DR3BL8lg.js";import"./search-D-m8cM4X.js";const a=()=>t.jsx(o,{type:"car",title:"Rent a Car",subtitle:"From efficient economy to electric and exotic — find your perfect drive."});export{a as component};
