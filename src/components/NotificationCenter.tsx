@@ -2,7 +2,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
-  Bell, Check, CheckCheck, CalendarCheck, CreditCard, Tag, AlertTriangle, MessageSquare, Settings2,
+  Bell,
+  Check,
+  CheckCheck,
+  CalendarCheck,
+  CreditCard,
+  Tag,
+  AlertTriangle,
+  MessageSquare,
+  Settings2,
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
@@ -14,13 +22,14 @@ import {
   type NotifType,
 } from "@/lib/api";
 
-const meta: Record<NotifType, { icon: React.ComponentType<{ className?: string }>; tint: string }> = {
-  booking: { icon: CalendarCheck, tint: "bg-primary/10 text-primary" },
-  payment: { icon: CreditCard, tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  promo: { icon: Tag, tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
-  alert: { icon: AlertTriangle, tint: "bg-destructive/10 text-destructive" },
-  message: { icon: MessageSquare, tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
-};
+const meta: Record<NotifType, { icon: React.ComponentType<{ className?: string }>; tint: string }> =
+  {
+    booking: { icon: CalendarCheck, tint: "bg-primary/10 text-primary" },
+    payment: { icon: CreditCard, tint: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+    promo: { icon: Tag, tint: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+    alert: { icon: AlertTriangle, tint: "bg-destructive/10 text-destructive" },
+    message: { icon: MessageSquare, tint: "bg-sky-500/10 text-sky-600 dark:text-sky-400" },
+  };
 
 function formatTime(dateString: string) {
   const diff = Date.now() - new Date(dateString).getTime();
@@ -56,7 +65,7 @@ export function NotificationCenter() {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
       const prev = queryClient.getQueryData<AppNotification[]>(["notifications"]);
       queryClient.setQueryData<AppNotification[]>(["notifications"], (old) =>
-        old?.map((n) => (n._id === id ? { ...n, read: true } : n))
+        old?.map((n) => (n._id === id ? { ...n, read: true } : n)),
       );
       return { prev };
     },
@@ -72,7 +81,7 @@ export function NotificationCenter() {
       await queryClient.cancelQueries({ queryKey: ["notifications"] });
       const prev = queryClient.getQueryData<AppNotification[]>(["notifications"]);
       queryClient.setQueryData<AppNotification[]>(["notifications"], (old) =>
-        old?.map((n) => ({ ...n, read: true }))
+        old?.map((n) => ({ ...n, read: true })),
       );
       return { prev };
     },
@@ -90,7 +99,9 @@ export function NotificationCenter() {
     const onClick = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -152,10 +163,13 @@ export function NotificationCenter() {
                   onClick={() => setFilter(f)}
                   className={cn(
                     "px-3 h-7 rounded-full text-xs font-medium transition-colors capitalize",
-                    filter === f ? "bg-primary text-primary-foreground" : "bg-muted text-foreground/70 hover:bg-muted/70",
+                    filter === f
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-foreground/70 hover:bg-muted/70",
                   )}
                 >
-                  {f}{f === "unread" && unread > 0 ? ` · ${unread}` : ""}
+                  {f}
+                  {f === "unread" && unread > 0 ? ` · ${unread}` : ""}
                 </button>
               ))}
             </div>
@@ -170,20 +184,36 @@ export function NotificationCenter() {
               {visible.map((n) => {
                 const Icon = meta[n.type].icon;
                 const content = (
-                  <div className={cn("group flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60", !n.read && "bg-primary/5")}>
-                    <span className={cn("inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl", meta[n.type].tint)}>
+                  <div
+                    className={cn(
+                      "group flex gap-3 px-4 py-3 transition-colors hover:bg-muted/60",
+                      !n.read && "bg-primary/5",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
+                        meta[n.type].tint,
+                      )}
+                    >
                       <Icon className="h-4 w-4" />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-2">
                         <p className="text-sm font-semibold leading-tight truncate">{n.title}</p>
-                        <span className="text-[11px] text-muted-foreground shrink-0">{formatTime(n.createdAt)}</span>
+                        <span className="text-[11px] text-muted-foreground shrink-0">
+                          {formatTime(n.createdAt)}
+                        </span>
                       </div>
                       <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{n.body}</p>
                     </div>
                     {!n.read && (
                       <button
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); markOne(n._id); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          markOne(n._id);
+                        }}
                         aria-label="Mark as read"
                         className="self-center inline-flex h-6 w-6 items-center justify-center rounded-full opacity-0 group-hover:opacity-100 hover:bg-background border border-border transition-opacity"
                       >
@@ -191,18 +221,33 @@ export function NotificationCenter() {
                       </button>
                     )}
                     {!n.read && (
-                      <span className="self-center h-2 w-2 rounded-full bg-primary shrink-0 group-hover:hidden" aria-hidden />
+                      <span
+                        className="self-center h-2 w-2 rounded-full bg-primary shrink-0 group-hover:hidden"
+                        aria-hidden
+                      />
                     )}
                   </div>
                 );
                 return (
                   <li key={n._id}>
                     {n.href ? (
-                      <Link to={n.href} onClick={() => { if (!n.read) markOne(n._id); setOpen(false); }} className="block">
+                      <Link
+                        to={n.href}
+                        onClick={() => {
+                          if (!n.read) markOne(n._id);
+                          setOpen(false);
+                        }}
+                        className="block"
+                      >
                         {content}
                       </Link>
                     ) : (
-                      <div onClick={() => { if (!n.read) markOne(n._id); }} className="cursor-pointer">
+                      <div
+                        onClick={() => {
+                          if (!n.read) markOne(n._id);
+                        }}
+                        className="cursor-pointer"
+                      >
                         {content}
                       </div>
                     )}
@@ -212,10 +257,18 @@ export function NotificationCenter() {
             </ul>
 
             <div className="flex items-center justify-between border-t border-border bg-muted/30 px-4 py-2.5">
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="text-xs font-medium text-primary hover:underline">
+              <Link
+                to="/dashboard"
+                onClick={() => setOpen(false)}
+                className="text-xs font-medium text-primary hover:underline"
+              >
                 View all
               </Link>
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <Link
+                to="/dashboard"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+              >
                 <Settings2 className="h-3.5 w-3.5" /> Preferences
               </Link>
             </div>

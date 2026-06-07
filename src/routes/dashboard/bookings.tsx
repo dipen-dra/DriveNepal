@@ -18,14 +18,14 @@ function DashboardBookingsTab() {
 
   const bookings = bookingsData?.data ?? [];
   const [filter, setFilter] = useState<"all" | BookingStatus>("all");
-  
+
   const filtered = filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
-  
+
   const filters: { id: typeof filter; label: string }[] = [
-    { id: "all", label: "All" }, 
-    { id: "upcoming", label: "Upcoming" }, 
-    { id: "active", label: "Active" }, 
-    { id: "completed", label: "Completed" }, 
+    { id: "all", label: "All" },
+    { id: "upcoming", label: "Upcoming" },
+    { id: "active", label: "Active" },
+    { id: "completed", label: "Completed" },
     { id: "cancelled", label: "Cancelled" },
   ];
 
@@ -34,22 +34,39 @@ function DashboardBookingsTab() {
       <h2 className="font-display text-2xl font-bold text-ink mb-4">My bookings</h2>
       <div className="flex flex-wrap gap-2 mb-6">
         {filters.map((f) => (
-          <button 
-            key={f.id} 
-            onClick={() => setFilter(f.id)} 
-            className={cn("h-9 px-4 rounded-full text-sm font-medium transition-colors", filter === f.id ? "bg-primary text-primary-foreground" : "bg-muted text-foreground/70 hover:bg-muted/70")}
+          <button
+            key={f.id}
+            onClick={() => setFilter(f.id)}
+            className={cn(
+              "h-9 px-4 rounded-full text-sm font-medium transition-colors",
+              filter === f.id
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-foreground/70 hover:bg-muted/70",
+            )}
           >
             {f.label}
           </button>
         ))}
       </div>
-      
+
       {loading ? (
-        <div className="space-y-3">{[1, 2, 3].map((i) => <SkeletonCard key={i} />)}</div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
-        <EmptyState icon={Calendar} title="No bookings here" desc="Try another filter or book a new ride." />
+        <EmptyState
+          icon={Calendar}
+          title="No bookings here"
+          desc="Try another filter or book a new ride."
+        />
       ) : (
-        <div className="space-y-3">{filtered.map((b) => <BookingRow key={b._id} b={b} />)}</div>
+        <div className="space-y-3">
+          {filtered.map((b) => (
+            <BookingRow key={b._id} b={b} />
+          ))}
+        </div>
       )}
     </div>
   );

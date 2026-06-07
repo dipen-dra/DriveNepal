@@ -5,7 +5,7 @@ interface PendingBooking {
   endDate: string;
   pickup: string;
   dropoff?: string;
-  payment: 'Khalti' | 'eSewa' | 'Cash';
+  payment: "Khalti" | "eSewa" | "Cash";
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -26,9 +26,12 @@ export const generateBookingId = () => {
 export const storePendingBooking = (id: string, data: PendingBooking) => {
   pendingBookings.set(id, data);
   // Auto-expire after 30 minutes
-  setTimeout(() => {
-    pendingBookings.delete(id);
-  }, 30 * 60 * 1000);
+  setTimeout(
+    () => {
+      pendingBookings.delete(id);
+    },
+    30 * 60 * 1000,
+  );
 };
 
 export const getPendingBooking = (id: string): PendingBooking | undefined => {

@@ -1,14 +1,27 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { HelpCircle, ChevronDown, Phone, Mail, ArrowRight, MessageSquare, ShieldCheck, CreditCard, Compass } from "lucide-react";
+import {
+  HelpCircle,
+  ChevronDown,
+  Phone,
+  Mail,
+  ArrowRight,
+  MessageSquare,
+  ShieldCheck,
+  CreditCard,
+  Compass,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/help")({
   head: () => ({
     meta: [
       { title: "Help Center & FAQs — RentalSphere" },
-      { name: "description", content: "Frequently asked questions and support for renting cars and bikes in the UK." },
+      {
+        name: "description",
+        content: "Frequently asked questions and support for renting cars and bikes in the UK.",
+      },
     ],
   }),
   component: HelpPage,
@@ -38,9 +51,21 @@ const faqs = [
 ];
 
 const guides = [
-  { icon: ShieldCheck, title: "Insurance & Coverage", desc: "Understand your deductible limits, damage wavers, and emergency liability." },
-  { icon: CreditCard, title: "Refunds & Deposits", desc: "Learn about transaction timelines for refundable security locks." },
-  { icon: Compass, title: "Off-road Driving Guide", desc: "Best safety guidelines for navigating country lanes and Highlands passes." },
+  {
+    icon: ShieldCheck,
+    title: "Insurance & Coverage",
+    desc: "Understand your deductible limits, damage wavers, and emergency liability.",
+  },
+  {
+    icon: CreditCard,
+    title: "Refunds & Deposits",
+    desc: "Learn about transaction timelines for refundable security locks.",
+  },
+  {
+    icon: Compass,
+    title: "Off-road Driving Guide",
+    desc: "Best safety guidelines for navigating country lanes and Highlands passes.",
+  },
 ];
 
 function HelpPage() {
@@ -53,7 +78,6 @@ function HelpPage() {
   return (
     <div className="py-20 md:py-28 bg-surface/30">
       <div className="container-page max-w-5xl space-y-20">
-        
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto space-y-6">
           <motion.span
@@ -69,7 +93,10 @@ function HelpPage() {
             transition={{ delay: 0.1 }}
             className="font-display text-4xl md:text-5xl font-bold tracking-tight text-ink"
           >
-            How can we <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">help you?</span>
+            How can we{" "}
+            <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">
+              help you?
+            </span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 25 }}
@@ -77,7 +104,8 @@ function HelpPage() {
             transition={{ delay: 0.2 }}
             className="text-base text-muted-foreground leading-relaxed"
           >
-            Find answers to frequently asked questions about bookings, insurance policies, refunds, and mountain safety guides.
+            Find answers to frequently asked questions about bookings, insurance policies, refunds,
+            and mountain safety guides.
           </motion.p>
         </div>
 
@@ -113,7 +141,9 @@ function HelpPage() {
         <div className="space-y-6">
           <div>
             <h2 className="font-display text-2xl font-bold text-ink">Frequently Asked Questions</h2>
-            <p className="text-xs text-muted-foreground mt-1">Get instant answers to general inquiries.</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Get instant answers to general inquiries.
+            </p>
           </div>
 
           <div className="border border-border rounded-3xl bg-card overflow-hidden">
@@ -126,7 +156,12 @@ function HelpPage() {
                     className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-muted/35 transition-colors"
                   >
                     <span className="text-sm font-semibold text-ink">{faq.q}</span>
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", isOpen && "rotate-180")} />
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                        isOpen && "rotate-180",
+                      )}
+                    />
                   </button>
                   {isOpen && (
                     <div className="px-6 pb-5 pt-1 text-xs text-muted-foreground leading-relaxed border-t border-border/20 bg-muted/10">
@@ -144,7 +179,8 @@ function HelpPage() {
           <div className="space-y-2 max-w-md">
             <h3 className="font-display text-2xl font-bold text-ink">Still have questions?</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              We are ready to guide you on your journey. Reach out directly to our live support channels or submit an query.
+              We are ready to guide you on your journey. Reach out directly to our live support
+              channels or submit an query.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
@@ -162,7 +198,6 @@ function HelpPage() {
             </a>
           </div>
         </div>
-
       </div>
     </div>
   );

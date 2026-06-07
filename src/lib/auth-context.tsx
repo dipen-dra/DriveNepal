@@ -1,8 +1,5 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
-import {
-  getMe, loginUser, registerUser, logoutUser, googleLogin,
-  type UserProfile,
-} from './api';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { getMe, loginUser, registerUser, logoutUser, googleLogin, type UserProfile } from "./api";
 
 interface AuthState {
   user: UserProfile | null;
@@ -47,11 +44,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return res.user;
   }, []);
 
-  const signup = useCallback(async (name: string, email: string, password: string): Promise<UserProfile> => {
-    const res = await registerUser(name, email, password);
-    setUser(res.user);
-    return res.user;
-  }, []);
+  const signup = useCallback(
+    async (name: string, email: string, password: string): Promise<UserProfile> => {
+      const res = await registerUser(name, email, password);
+      setUser(res.user);
+      return res.user;
+    },
+    [],
+  );
 
   const googleSignIn = useCallback(async (credential: string): Promise<UserProfile> => {
     const res = await googleLogin(credential);
@@ -85,6 +85,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
   return ctx;
 }

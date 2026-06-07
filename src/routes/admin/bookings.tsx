@@ -12,7 +12,11 @@ function BookingsTab() {
   const bookings = data?.data ?? [];
   return (
     <div className="rounded-2xl border border-border bg-card shadow-soft overflow-hidden">
-      {isLoading ? <div className="p-8 text-center text-muted-foreground">Loading…</div> : <BookingTable rows={bookings} showActions />}
+      {isLoading ? (
+        <div className="p-8 text-center text-muted-foreground">Loading…</div>
+      ) : (
+        <BookingTable rows={bookings} showActions />
+      )}
     </div>
   );
 }

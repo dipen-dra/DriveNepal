@@ -16,7 +16,8 @@ function UsersTab() {
   const users = data?.data ?? [];
 
   const { mutate: toggleStatus } = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) => updateUserStatus(id, isActive),
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      updateUserStatus(id, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
       toast.success("User status updated successfully");
@@ -51,14 +52,27 @@ function UsersTab() {
           </thead>
           <tbody>
             {users.map((u: UserProfile) => (
-              <tr key={u._id} className="border-t border-border hover:bg-muted/30 transition-colors">
+              <tr
+                key={u._id}
+                className="border-t border-border hover:bg-muted/30 transition-colors"
+              >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
-                    <span className={cn("h-9 w-9 rounded-full inline-flex items-center justify-center text-xs font-semibold overflow-hidden shrink-0", u.avatar ? "bg-background" : "gradient-brand text-white")}>
+                    <span
+                      className={cn(
+                        "h-9 w-9 rounded-full inline-flex items-center justify-center text-xs font-semibold overflow-hidden shrink-0",
+                        u.avatar ? "bg-background" : "gradient-brand text-white",
+                      )}
+                    >
                       {u.avatar ? (
                         <img src={u.avatar} alt={u.name} className="h-full w-full object-cover" />
                       ) : (
-                        u.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+                        u.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .slice(0, 2)
+                          .join("")
+                          .toUpperCase()
                       )}
                     </span>
                     <div className="font-medium text-ink">{u.name}</div>
@@ -67,13 +81,29 @@ function UsersTab() {
                 <td className="px-5 py-3 text-muted-foreground">{u.email}</td>
                 <td className="px-5 py-3">{u.bookingsCount ?? 0}</td>
                 <td className="px-5 py-3 capitalize">
-                  <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full", u.role === "admin" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>
+                  <span
+                    className={cn(
+                      "text-xs font-semibold px-2.5 py-1 rounded-full",
+                      u.role === "admin"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
                     {u.role}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-xs text-muted-foreground">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+                <td className="px-5 py-3 text-xs text-muted-foreground">
+                  {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}
+                </td>
                 <td className="px-5 py-3">
-                  <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full capitalize", u.isActive !== false ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-destructive/10 text-destructive")}>
+                  <span
+                    className={cn(
+                      "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
+                      u.isActive !== false
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-destructive/10 text-destructive",
+                    )}
+                  >
                     {u.isActive !== false ? "Active" : "Suspended"}
                   </span>
                 </td>
@@ -86,8 +116,15 @@ function UsersTab() {
                       confirmText={u.isActive !== false ? "Suspend" : "Activate"}
                       variant={u.isActive !== false ? "destructive" : "default"}
                     >
-                      <button className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted" title={u.isActive !== false ? "Suspend" : "Activate"}>
-                        {u.isActive !== false ? <XCircle className="h-3.5 w-3.5 text-destructive" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
+                      <button
+                        className="h-8 w-8 inline-flex items-center justify-center rounded-full hover:bg-muted"
+                        title={u.isActive !== false ? "Suspend" : "Activate"}
+                      >
+                        {u.isActive !== false ? (
+                          <XCircle className="h-3.5 w-3.5 text-destructive" />
+                        ) : (
+                          <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                        )}
                       </button>
                     </ConfirmModal>
                     <ConfirmModal

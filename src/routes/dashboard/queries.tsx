@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Mail, Clock, MessageSquare, CheckCircle, HelpCircle, ArrowRight, CornerDownRight } from "lucide-react";
+import {
+  Mail,
+  Clock,
+  MessageSquare,
+  CheckCircle,
+  HelpCircle,
+  ArrowRight,
+  CornerDownRight,
+} from "lucide-react";
 import { getUserQueries } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -79,7 +87,7 @@ function UserQueriesTab() {
                     "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider self-start sm:self-center border",
                     q.isReplied
                       ? "bg-emerald-50 text-emerald-700 border-emerald-200/50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
-                      : "bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
+                      : "bg-amber-50 text-amber-700 border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
                   )}
                 >
                   {q.isReplied ? (
@@ -105,7 +113,9 @@ function UserQueriesTab() {
                       <CornerDownRight className="h-3.5 w-3.5" />
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] uppercase tracking-wider text-primary font-bold">Support Response</p>
+                      <p className="text-[10px] uppercase tracking-wider text-primary font-bold">
+                        Support Response
+                      </p>
                       <p className="text-sm text-ink font-medium leading-relaxed whitespace-pre-wrap">
                         "{q.reply}"
                       </p>

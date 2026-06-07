@@ -8,7 +8,15 @@ import { useSearch, Link } from "@tanstack/react-router";
 
 type Sort = "popular" | "price-asc" | "price-desc" | "rating";
 
-export function CatalogPage({ type, title, subtitle }: { type: VehicleType; title: string; subtitle: string }) {
+export function CatalogPage({
+  type,
+  title,
+  subtitle,
+}: {
+  type: VehicleType;
+  title: string;
+  subtitle: string;
+}) {
   const search = useSearch({ strict: false }) as { location?: string };
   const activeLocation = search.location || "";
 
@@ -29,11 +37,13 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
   const maxPrice = all.length ? Math.max(...all.map((v) => v.pricePerDay)) : 99999;
 
   const list = useMemo(() => {
-    let r = all.filter((v) =>
-      (cat === "All" || v.category === cat) &&
-      v.pricePerDay <= (priceMax === 99999 ? maxPrice : priceMax) &&
-      (q === "" || (v.name + v.brand).toLowerCase().includes(q.toLowerCase())) &&
-      (activeLocation === "" || (v.location || "").toLowerCase() === activeLocation.toLowerCase())
+    let r = all.filter(
+      (v) =>
+        (cat === "All" || v.category === cat) &&
+        v.pricePerDay <= (priceMax === 99999 ? maxPrice : priceMax) &&
+        (q === "" || (v.name + v.brand).toLowerCase().includes(q.toLowerCase())) &&
+        (activeLocation === "" ||
+          (v.location || "").toLowerCase() === activeLocation.toLowerCase()),
     );
     if (sort === "price-asc") r = [...r].sort((a, b) => a.pricePerDay - b.pricePerDay);
     if (sort === "price-desc") r = [...r].sort((a, b) => b.pricePerDay - a.pricePerDay);
@@ -46,7 +56,9 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
       <section className="noise-bg">
         <div className="container-page pt-16 pb-12 md:pt-24 md:pb-16">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider">{type === "car" ? "Cars" : "Bikes"}</p>
+            <p className="text-sm font-semibold text-primary uppercase tracking-wider">
+              {type === "car" ? "Cars" : "Bikes"}
+            </p>
             <h1 className="mt-3 text-4xl md:text-6xl font-bold tracking-tight">{title}</h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{subtitle}</p>
           </motion.div>
@@ -74,7 +86,9 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
 
             {activeLocation && (
               <div className="flex items-center gap-2 p-3 rounded-2xl bg-primary/5 border border-primary/15 text-xs text-primary font-medium">
-                <span className="flex-1 truncate">Location: <span className="font-bold">{activeLocation}</span></span>
+                <span className="flex-1 truncate">
+                  Location: <span className="font-bold">{activeLocation}</span>
+                </span>
                 <Link
                   to="."
                   search={(prev: any) => ({ ...prev, location: undefined })}
@@ -96,7 +110,9 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Category</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                Category
+              </p>
               <div className="flex flex-wrap gap-2">
                 {categories.map((c) => (
                   <button
@@ -111,15 +127,22 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Location Hubs</p>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+                Location Hubs
+              </p>
               <div className="flex flex-wrap gap-2">
                 {locationsList.map((loc) => {
-                  const isActive = (loc === "All" && !activeLocation) || (activeLocation.toLowerCase() === loc.toLowerCase());
+                  const isActive =
+                    (loc === "All" && !activeLocation) ||
+                    activeLocation.toLowerCase() === loc.toLowerCase();
                   return (
                     <Link
                       key={loc}
                       to="."
-                      search={(prev: any) => ({ ...prev, location: loc === "All" ? undefined : loc })}
+                      search={(prev: any) => ({
+                        ...prev,
+                        location: loc === "All" ? undefined : loc,
+                      })}
                       className={`h-9 px-4 inline-flex items-center rounded-full text-xs font-medium border transition-all ${isActive ? "gradient-brand text-white border-transparent shadow-[var(--shadow-glow)]" : "bg-background border-border hover:border-primary/40"}`}
                     >
                       {loc}
@@ -132,7 +155,10 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             {all.length > 0 && (
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">
-                  Max price <span className="text-ink font-semibold ml-1">£{(priceMax === 99999 ? maxPrice : priceMax).toLocaleString()}</span>
+                  Max price{" "}
+                  <span className="text-ink font-semibold ml-1">
+                    £{(priceMax === 99999 ? maxPrice : priceMax).toLocaleString()}
+                  </span>
                 </p>
                 <input
                   type="range"
@@ -149,7 +175,9 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
 
           <div>
             <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-muted-foreground">{isLoading ? "Loading…" : `${list.length} vehicles`}</p>
+              <p className="text-sm text-muted-foreground">
+                {isLoading ? "Loading…" : `${list.length} vehicles`}
+              </p>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as Sort)}
@@ -165,7 +193,10 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             {isLoading ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse">
+                  <div
+                    key={i}
+                    className="rounded-3xl border border-border bg-card overflow-hidden animate-pulse"
+                  >
                     <div className="aspect-[4/3] bg-muted" />
                     <div className="p-5 space-y-3">
                       <div className="h-4 w-1/2 bg-muted rounded" />
@@ -178,11 +209,15 @@ export function CatalogPage({ type, title, subtitle }: { type: VehicleType; titl
             ) : list.length === 0 ? (
               <div className="text-center py-24 rounded-3xl bg-surface border border-border/60">
                 <p className="font-display text-lg font-semibold">No vehicles match your filters</p>
-                <p className="text-sm text-muted-foreground mt-2">Try widening the price range or category.</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Try widening the price range or category.
+                </p>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {list.map((v, i) => <VehicleCard key={v._id} v={v} index={i} />)}
+                {list.map((v, i) => (
+                  <VehicleCard key={v._id} v={v} index={i} />
+                ))}
               </div>
             )}
           </div>

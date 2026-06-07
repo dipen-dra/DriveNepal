@@ -1,21 +1,21 @@
-import { Router, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import { Booking } from '../models/Booking.js';
-import { Vehicle } from '../models/Vehicle.js';
-import { Notification } from '../models/Notification.js';
-import { protect, AuthRequest } from '../middleware/auth.js';
-import { adminOnly } from '../middleware/admin.js';
-import { sendEmail } from '../utils/email.js';
-import { calculateBookingTotalLegacy } from './payment.js';
-import { logIdorAttempt, logAdminAction } from '../utils/securityLogger.js';
+import { Router, Response } from "express";
+import { body, validationResult } from "express-validator";
+import { Booking } from "../models/Booking.js";
+import { Vehicle } from "../models/Vehicle.js";
+import { Notification } from "../models/Notification.js";
+import { protect, AuthRequest } from "../middleware/auth.js";
+import { adminOnly } from "../middleware/admin.js";
+import { sendEmail } from "../utils/email.js";
+import { calculateBookingTotalLegacy } from "./payment.js";
+import { logIdorAttempt, logAdminAction } from "../utils/securityLogger.js";
 
 const router = Router();
 
 /* ── GET /api/bookings  (current user's bookings) ───────── */
-router.get('/', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const { status } = req.query as { status?: string };
   const filter: Record<string, unknown> = { user: req.user!._id };
-  if (status && status !== 'all') filter.status = status;
+  if (status && status !== "all") filter.status = status;
 
   const bookings = await Booking.find(filter).sort({ createdAt: -1 }).lean();
   res.json({ success: true, data: bookings });
@@ -23,18 +23,20 @@ router.get('/', protect, async (req: AuthRequest, res: Response): Promise<void> 
 
 /* ── POST /api/bookings  (create booking) ───────────────── */
 router.post(
-  '/',
+  "/",
   protect,
   [
-    body('vehicleSlug').notEmpty().withMessage('Vehicle slug required'),
-    body('startDate').notEmpty().withMessage('Start date required'),
-    body('endDate').notEmpty().withMessage('End date required'),
-    body('pickup').notEmpty().withMessage('Pickup location required'),
-    body('payment').isIn(['Card', 'PayPal', 'Cash', 'Khalti', 'eSewa']).withMessage('Invalid payment method'),
-    body('customerName').notEmpty().withMessage('Name required'),
-    body('customerEmail').isEmail().withMessage('Valid email required'),
-    body('customerPhone').notEmpty().withMessage('Phone required'),
-    body('license').notEmpty().withMessage('License number required'),
+    body("vehicleSlug").notEmpty().withMessage("Vehicle slug required"),
+    body("startDate").notEmpty().withMessage("Start date required"),
+    body("endDate").notEmpty().withMessage("End date required"),
+    body("pickup").notEmpty().withMessage("Pickup location required"),
+    body("payment")
+      .isIn(["Card", "PayPal", "Cash", "Khalti", "eSewa"])
+      .withMessage("Invalid payment method"),
+    body("customerName").notEmpty().withMessage("Name required"),
+    body("customerEmail").isEmail().withMessage("Valid email required"),
+    body("customerPhone").notEmpty().withMessage("Phone required"),
+    body("license").notEmpty().withMessage("License number required"),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -44,21 +46,46 @@ router.post(
     }
 
     const {
-      vehicleSlug, startDate, endDate, pickup, dropoff,
-      payment, customerName, customerEmail, customerPhone,
-      license, couponCode, insurance, addons,
+      vehicleSlug,
+      startDate,
+      endDate,
+      pickup,
+      dropoff,
+      payment,
+      customerName,
+      customerEmail,
+      customerPhone,
+      license,
+      couponCode,
+      insurance,
+      addons,
     } = req.body as {
-      vehicleSlug: string; startDate: string; endDate: string;
-      pickup: string; dropoff?: string; payment: 'Khalti' | 'eSewa' | 'Cash';
-      customerName: string; customerEmail: string; customerPhone: string;
-      license: string; couponCode?: string; insurance?: string; addons?: string[];
+      vehicleSlug: string;
+      startDate: string;
+      endDate: string;
+      pickup: string;
+      dropoff?: string;
+      payment: "Khalti" | "eSewa" | "Cash";
+      customerName: string;
+      customerEmail: string;
+      customerPhone: string;
+      license: string;
+      couponCode?: string;
+      insurance?: string;
+      addons?: string[];
     };
 
-    const {
-      total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount
-    } = await calculateBookingTotalLegacy(
-      vehicleSlug, startDate, endDate, couponCode, dropoff, pickup, insurance, addons
-    );
+    const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } =
+      await calculateBookingTotalLegacy(
+        vehicleSlug,
+        startDate,
+        endDate,
+        couponCode,
+        dropoff,
+        pickup,
+        insurance,
+        addons,
+      );
 
     const booking = await Booking.create({
       user: req.user!._id,
@@ -78,7 +105,7 @@ router.post(
       total,
       insurance,
       addons,
-      status: 'upcoming',
+      status: "upcoming",
       payment,
       customerName,
       customerEmail,
@@ -92,10 +119,10 @@ router.post(
     // Fire & forget notification creation
     Notification.create({
       user: req.user!._id,
-      type: 'booking',
-      title: 'Booking Confirmed!',
+      type: "booking",
+      title: "Booking Confirmed!",
       body: `Your booking for ${vehicle.name} has been reserved with Cash payment.`,
-      href: '/dashboard',
+      href: "/dashboard",
     }).catch(console.error);
 
     // Send confirmation email
@@ -120,91 +147,92 @@ router.post(
 );
 
 /* ── PATCH /api/bookings/:id/cancel ─────────────────────── */
-router.patch('/:id/cancel', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.patch("/:id/cancel", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const booking = await Booking.findOne({ _id: req.params.id, user: req.user!._id });
-  
+
   if (!booking) {
     // Log potential IDOR attempt
     logIdorAttempt(
       req.user!._id.toString(),
-      'Booking',
+      "Booking",
       req.params.id as string,
       req.ip,
-      req.headers['user-agent']
+      req.headers["user-agent"],
     );
-    res.status(404).json({ success: false, message: 'Booking not found.' });
+    res.status(404).json({ success: false, message: "Booking not found." });
     return;
   }
 
-  if (booking.status !== 'upcoming') {
-    res.status(400).json({ success: false, message: 'Only upcoming bookings can be cancelled.' });
+  if (booking.status !== "upcoming") {
+    res.status(400).json({ success: false, message: "Only upcoming bookings can be cancelled." });
     return;
   }
 
-  booking.status = 'cancelled';
+  booking.status = "cancelled";
   await booking.save();
 
   Notification.create({
     user: req.user!._id,
-    type: 'alert',
-    title: 'Booking Cancelled',
+    type: "alert",
+    title: "Booking Cancelled",
     body: `Your booking for ${booking.vehicleName} has been cancelled successfully.`,
-    href: '/dashboard',
+    href: "/dashboard",
   }).catch(console.error);
 
   res.json({ success: true, data: booking });
 });
 
 /* ── GET /api/admin/bookings (admin) ─────────────────────── */
-router.get('/admin/all', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
-  const bookings = await Booking.find()
-    .populate('user', 'name email')
-    .sort({ createdAt: -1 })
-    .lean();
-  res.json({ success: true, data: bookings });
-});
+router.get(
+  "/admin/all",
+  protect,
+  adminOnly,
+  async (_req: AuthRequest, res: Response): Promise<void> => {
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ success: true, data: bookings });
+  },
+);
 
 /* ── PATCH /api/admin/bookings/:id/status (admin) ─────────── */
 router.patch(
-  '/admin/:id/status',
+  "/admin/:id/status",
   protect,
   adminOnly,
   async (req: AuthRequest, res: Response): Promise<void> => {
     const { status } = req.body as { status: string };
-    const validStatuses = ['upcoming', 'active', 'completed', 'cancelled'];
+    const validStatuses = ["upcoming", "active", "completed", "cancelled"];
     if (!validStatuses.includes(status)) {
-      res.status(400).json({ success: false, message: 'Invalid status.' });
+      res.status(400).json({ success: false, message: "Invalid status." });
       return;
     }
 
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true },
-    );
-    
+    const booking = await Booking.findByIdAndUpdate(req.params.id, { status }, { new: true });
+
     if (!booking) {
-      res.status(404).json({ success: false, message: 'Booking not found.' });
+      res.status(404).json({ success: false, message: "Booking not found." });
       return;
     }
 
     // Log admin action
     logAdminAction(
       req.user!._id.toString(),
-      'update_booking_status',
+      "update_booking_status",
       req.params.id as string,
       { newStatus: status },
       req.ip,
-      req.headers['user-agent']
+      req.headers["user-agent"],
     );
 
     // Notify user of status change
     Notification.create({
       user: booking.user,
-      type: status === 'completed' ? 'payment' : 'message',
+      type: status === "completed" ? "payment" : "message",
       title: `Booking ${status}`,
       body: `The status of your booking for ${booking.vehicleName} has been updated to ${status}.`,
-      href: '/dashboard',
+      href: "/dashboard",
     }).catch(console.error);
 
     res.json({ success: true, data: booking });
@@ -212,24 +240,29 @@ router.patch(
 );
 
 /* ── DELETE /api/admin/bookings/:id (admin) ─────────────── */
-router.delete('/admin/:id', protect, adminOnly, async (req: AuthRequest, res: Response): Promise<void> => {
-  const booking = await Booking.findByIdAndDelete(req.params.id);
-  if (!booking) {
-    res.status(404).json({ success: false, message: 'Booking not found.' });
-    return;
-  }
+router.delete(
+  "/admin/:id",
+  protect,
+  adminOnly,
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const booking = await Booking.findByIdAndDelete(req.params.id);
+    if (!booking) {
+      res.status(404).json({ success: false, message: "Booking not found." });
+      return;
+    }
 
-  // Log admin action
-  logAdminAction(
-    req.user!._id.toString(),
-    'delete_booking',
-    req.params.id as string,
-    { vehicleName: booking.vehicleName, customerId: booking.user },
-    req.ip,
-    req.headers['user-agent']
-  );
+    // Log admin action
+    logAdminAction(
+      req.user!._id.toString(),
+      "delete_booking",
+      req.params.id as string,
+      { vehicleName: booking.vehicleName, customerId: booking.user },
+      req.ip,
+      req.headers["user-agent"],
+    );
 
-  res.json({ success: true, message: 'Booking deleted.' });
-});
+    res.json({ success: true, message: "Booking deleted." });
+  },
+);
 
 export default router;

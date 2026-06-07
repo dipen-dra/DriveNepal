@@ -35,15 +35,23 @@ export function VehicleCard({ v, index = 0 }: { v: Vehicle; index?: number }) {
               <h3 className="font-display text-lg font-semibold text-ink mt-0.5">{v.name}</h3>
             </div>
             <div className="text-right">
-              <p className="font-display text-lg font-bold text-primary">£{v.pricePerDay.toLocaleString()}</p>
+              <p className="font-display text-lg font-bold text-primary">
+                £{v.pricePerDay.toLocaleString()}
+              </p>
               <p className="text-[11px] text-muted-foreground">/ day</p>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><Fuel className="h-3.5 w-3.5" /> {v.fuel}</span>
-            <span className="inline-flex items-center gap-1.5"><Gauge className="h-3.5 w-3.5" /> {v.transmission}</span>
-            <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {v.seats}</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Fuel className="h-3.5 w-3.5" /> {v.fuel}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Gauge className="h-3.5 w-3.5" /> {v.transmission}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" /> {v.seats}
+            </span>
           </div>
 
           <div className="mt-5 flex gap-2">

@@ -6,7 +6,11 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — RentalSphere" },
-      { name: "description", content: "Learn about how we securely store and verify your driver's licenses, booking info, and profile details." },
+      {
+        name: "description",
+        content:
+          "Learn about how we securely store and verify your driver's licenses, booking info, and profile details.",
+      },
     ],
   }),
   component: PrivacyPage,
@@ -34,7 +38,6 @@ function PrivacyPage() {
   return (
     <div className="py-20 md:py-28 bg-surface/30">
       <div className="container-page max-w-4xl space-y-16">
-        
         {/* Header */}
         <div className="space-y-4">
           <motion.span
@@ -83,7 +86,8 @@ function PrivacyPage() {
         {/* Contact Footer */}
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-            Have questions regarding how your driver's license data or profile information is handled? Reach out to our privacy officer.
+            Have questions regarding how your driver's license data or profile information is
+            handled? Reach out to our privacy officer.
           </p>
           <Link
             to="/contact"
@@ -92,7 +96,6 @@ function PrivacyPage() {
             Contact Support <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-
       </div>
     </div>
   );

@@ -17,16 +17,31 @@ function OverviewTab() {
     refetchInterval: 30000,
   });
   const { data: bookingsData } = useQuery({ queryKey: ["adminBookings"], queryFn: getAllBookings });
-  const { data: vehiclesData } = useQuery({ queryKey: ["vehicles", "all"], queryFn: () => getVehicles({}) });
+  const { data: vehiclesData } = useQuery({
+    queryKey: ["vehicles", "all"],
+    queryFn: () => getVehicles({}),
+  });
 
   const stats = statsData?.data;
   const recentBookings = (bookingsData?.data ?? []).slice(0, 5);
   const topVehicles = (vehiclesData?.data ?? []).slice(0, 5);
 
-  if (isLoading) return <div className="animate-pulse space-y-4">{[1, 2, 3].map((i) => <div key={i} className="h-24 rounded-2xl bg-muted" />)}</div>;
+  if (isLoading)
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 rounded-2xl bg-muted" />
+        ))}
+      </div>
+    );
 
   const kpis = [
-    { label: "Revenue (GBP)", value: (stats?.revenue ?? 0).toLocaleString(), icon: DollarSign, accent: true },
+    {
+      label: "Revenue (GBP)",
+      value: (stats?.revenue ?? 0).toLocaleString(),
+      icon: DollarSign,
+      accent: true,
+    },
     { label: "Active rentals", value: stats?.activeBookings ?? 0, icon: Activity },
     { label: "Total bookings", value: stats?.totalBookings ?? 0, icon: Calendar },
     { label: "Fleet size", value: stats?.totalVehicles ?? 0, icon: Car },
@@ -40,13 +55,39 @@ function OverviewTab() {
     <div className="space-y-8">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((k) => (
-          <motion.div key={k.label} whileHover={{ y: -2 }} className={cn("rounded-2xl border p-5 shadow-soft", k.accent ? "gradient-brand text-white border-transparent" : "bg-card border-border")}>
+          <motion.div
+            key={k.label}
+            whileHover={{ y: -2 }}
+            className={cn(
+              "rounded-2xl border p-5 shadow-soft",
+              k.accent ? "gradient-brand text-white border-transparent" : "bg-card border-border",
+            )}
+          >
             <div className="flex items-center justify-between">
-              <span className={cn("text-xs uppercase tracking-wider", k.accent ? "text-white/80" : "text-muted-foreground")}>{k.label}</span>
+              <span
+                className={cn(
+                  "text-xs uppercase tracking-wider",
+                  k.accent ? "text-white/80" : "text-muted-foreground",
+                )}
+              >
+                {k.label}
+              </span>
               <k.icon className={cn("h-4 w-4", k.accent ? "text-white" : "text-primary")} />
             </div>
-            <div className={cn("mt-3 font-display text-2xl font-bold", k.accent ? "text-white" : "text-ink")}>{k.value}</div>
-            <div className={cn("mt-1 text-xs inline-flex items-center gap-1", k.accent ? "text-white/90" : "text-emerald-600 dark:text-emerald-400")}>
+            <div
+              className={cn(
+                "mt-3 font-display text-2xl font-bold",
+                k.accent ? "text-white" : "text-ink",
+              )}
+            >
+              {k.value}
+            </div>
+            <div
+              className={cn(
+                "mt-1 text-xs inline-flex items-center gap-1",
+                k.accent ? "text-white/90" : "text-emerald-600 dark:text-emerald-400",
+              )}
+            >
               <TrendingUp className="h-3 w-3" /> Live
             </div>
           </motion.div>

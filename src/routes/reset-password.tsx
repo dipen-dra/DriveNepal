@@ -46,7 +46,7 @@ function ResetPasswordPage() {
       toast.error("Passwords don't match.");
       return;
     }
-    
+
     try {
       setLoading(true);
       await resetPassword(email, token, pw);
@@ -72,7 +72,9 @@ function ResetPasswordPage() {
           <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center mb-8">
             <ShieldCheck className="h-6 w-6" />
           </span>
-          <h2 className="font-display text-4xl font-bold leading-tight text-white">Create a new password</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight text-white">
+            Create a new password
+          </h2>
           <p className="mt-6 text-white/85 leading-relaxed">
             Pick something strong and unique. We'll sign you out from all devices for safety.
           </p>
@@ -80,10 +82,22 @@ function ResetPasswordPage() {
       </div>
 
       <div className="flex items-center justify-center p-6 md:p-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Set a new password</h1>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
+            Set a new password
+          </h1>
           <p className="mt-2 text-muted-foreground">
-            {email ? <>For <span className="font-medium text-foreground">{email}</span></> : "Choose a password you'll remember."}
+            {email ? (
+              <>
+                For <span className="font-medium text-foreground">{email}</span>
+              </>
+            ) : (
+              "Choose a password you'll remember."
+            )}
           </p>
 
           <form className="mt-8 space-y-4" onSubmit={onSubmit}>
@@ -98,7 +112,11 @@ function ResetPasswordPage() {
                 placeholder="••••••••"
                 className="w-full bg-transparent text-sm font-medium focus:outline-none"
               />
-              <button type="button" onClick={() => setShow((s) => !s)} className="text-muted-foreground hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => setShow((s) => !s)}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </Field>
@@ -130,7 +148,10 @@ function ResetPasswordPage() {
           </form>
 
           <p className="mt-8 text-sm text-center text-muted-foreground">
-            Back to <Link to="/login" className="text-primary font-semibold">Log in</Link>
+            Back to{" "}
+            <Link to="/login" className="text-primary font-semibold">
+              Log in
+            </Link>
           </p>
         </motion.div>
       </div>

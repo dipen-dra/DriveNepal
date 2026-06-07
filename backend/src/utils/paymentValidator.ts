@@ -13,12 +13,12 @@ interface PaymentValidationResult {
 export const validatePaymentAmount = (
   clientTotal: number,
   calculatedTotal: number,
-  tolerance: number = 1 // 1 rupee tolerance for rounding
+  tolerance: number = 1, // 1 rupee tolerance for rounding
 ): PaymentValidationResult => {
   if (clientTotal === undefined || calculatedTotal === undefined) {
     return {
       valid: false,
-      error: 'Missing amount data for validation',
+      error: "Missing amount data for validation",
     };
   }
 
@@ -27,7 +27,7 @@ export const validatePaymentAmount = (
   if (difference > tolerance) {
     return {
       valid: false,
-      error: 'Payment amount tampering detected',
+      error: "Payment amount tampering detected",
       clientTotal,
       calculatedTotal,
     };
@@ -45,13 +45,13 @@ export const logPaymentValidationAttempt = (
   valid: boolean,
   clientTotal: number,
   calculatedTotal: number,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
 ): void => {
   const timestamp = new Date().toISOString();
-  const logLevel = valid ? '[INFO]' : '[SECURITY_ALERT]';
-  
+  const logLevel = valid ? "[INFO]" : "[SECURITY_ALERT]";
+
   console.log(
     `${logLevel} Payment validation - User: ${userId}, IP: ${ipAddress}, Valid: ${valid}, Paid: ${clientTotal}, Calculated: ${calculatedTotal}, Time: ${timestamp}`,
-    details ? JSON.stringify(details) : ''
+    details ? JSON.stringify(details) : "",
   );
 };

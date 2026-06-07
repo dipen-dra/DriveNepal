@@ -3,7 +3,9 @@
 ## 🔐 Critical Security Features
 
 ### 1. Payment Amount Tampering Detection
+
 **File**: `backend/src/routes/payment.ts`
+
 ```typescript
 // Before processing payment:
 const paymentValidation = validatePaymentAmount(amount, total, 1);
@@ -14,14 +16,18 @@ if (!paymentValidation.valid) {
 ```
 
 ### 2. Strong Password Enforcement
+
 **File**: `backend/src/utils/passwordValidator.ts`
+
 ```
 Minimum 10 chars + Uppercase + Lowercase + Number + Special Character
 Applied to: register, reset-password, password-change
 ```
 
 ### 3. IDOR Prevention
+
 **File**: `backend/src/routes/bookings.ts`
+
 ```typescript
 // Only users can access their own bookings
 { user: req.user!._id }
@@ -31,7 +37,9 @@ logIdorAttempt(...);
 ```
 
 ### 4. Brute Force Protection
+
 **File**: `backend/src/routes/auth.ts`
+
 ```
 - Failed attempts tracked
 - 5 failed attempts = 15 min lockout
@@ -40,7 +48,9 @@ logIdorAttempt(...);
 ```
 
 ### 5. Admin Authorization Hardening
+
 **File**: `backend/src/middleware/admin.ts`
+
 ```typescript
 // Database verification (not just token)
 const user = await User.findById(req.user._id);
@@ -53,38 +63,42 @@ if (user.role !== 'admin') {
 
 ## 📊 Security Logging Events
 
-| Event | Severity | File | Function |
-|-------|----------|------|----------|
-| AUTH_FAILED | WARNING | auth.ts | logAuthFailure() |
-| AUTH_SUCCESS | INFO | auth.ts | logAuthSuccess() |
-| PASSWORD_CHANGED | INFO | auth.ts | logPasswordChange() |
-| PAYMENT_TAMPERING | CRITICAL | payment.ts | logPaymentTampering() |
-| IDOR_ATTEMPT | CRITICAL | bookings.ts | logIdorAttempt() |
-| UNAUTHORIZED_ACCESS | CRITICAL | admin.ts | logUnauthorizedAccess() |
-| ADMIN_ACTION | WARNING | routes/*.ts | logAdminAction() |
+| Event               | Severity | File         | Function                |
+| ------------------- | -------- | ------------ | ----------------------- |
+| AUTH_FAILED         | WARNING  | auth.ts      | logAuthFailure()        |
+| AUTH_SUCCESS        | INFO     | auth.ts      | logAuthSuccess()        |
+| PASSWORD_CHANGED    | INFO     | auth.ts      | logPasswordChange()     |
+| PAYMENT_TAMPERING   | CRITICAL | payment.ts   | logPaymentTampering()   |
+| IDOR_ATTEMPT        | CRITICAL | bookings.ts  | logIdorAttempt()        |
+| UNAUTHORIZED_ACCESS | CRITICAL | admin.ts     | logUnauthorizedAccess() |
+| ADMIN_ACTION        | WARNING  | routes/\*.ts | logAdminAction()        |
 
 ---
 
 ## 🛡️ Protected Endpoints
 
 ### Authentication
+
 - ✅ `POST /api/auth/register` - Strong password required
 - ✅ `POST /api/auth/login` - Brute force protected
 - ✅ `POST /api/auth/reset-password` - Password history checked
 - ✅ `POST /api/auth/verify-otp` - OTP validation
 
 ### Bookings
+
 - ✅ `GET /api/bookings` - User ownership verified
 - ✅ `POST /api/bookings` - Price recalculated server-side
 - ✅ `PATCH /api/bookings/:id/cancel` - User ownership verified, IDOR logged
 - ✅ `PATCH /api/admin/bookings/:id/status` - Admin only, actions logged
 
 ### Payments
+
 - ✅ `POST /api/payment/khalti/verify` - Amount validated, tampering detected
 - ✅ `POST /api/payment/esewa/initiate` - Amount calculated server-side
 - ✅ `GET /api/payment/esewa/verify` - Amount validated, tampering detected
 
 ### Users
+
 - ✅ `GET /api/users/me` - Self access only
 - ✅ `PUT /api/users/me` - Role escalation prevented
 - ✅ `PUT /api/users/me/password` - Strong password required
@@ -95,32 +109,35 @@ if (user.role !== 'admin') {
 ## 🔑 Key Security Functions
 
 ### Payment Validation
+
 ```typescript
 // bookingCalculator.ts
-calculateBookingTotal(vehicleId, startDate, endDate, pickup, dropoff, insurance, addons)
+calculateBookingTotal(vehicleId, startDate, endDate, pickup, dropoff, insurance, addons);
 // Returns: { subtotal, tax, total, days, ... }
 
 // paymentValidator.ts
-validatePaymentAmount(clientTotal, calculatedTotal, tolerance=1)
+validatePaymentAmount(clientTotal, calculatedTotal, (tolerance = 1));
 // Returns: { valid: boolean, error?: string }
 ```
 
 ### User Password Validation
+
 ```typescript
 // passwordValidator.ts
-validatePasswordStrength(password)
+validatePasswordStrength(password);
 // Returns: { isValid, strength, message, feedback[] }
 
-isStrongPassword(password)
+isStrongPassword(password);
 // Returns: boolean
 ```
 
 ### Security Logging
+
 ```typescript
 // securityLogger.ts
-logPaymentTampering(userId, clientAmount, serverAmount, ip, userAgent)
-logIdorAttempt(userId, resourceType, attemptedResourceId, ip, userAgent)
-logAdminAction(adminId, action, targetId, details, ip, userAgent)
+logPaymentTampering(userId, clientAmount, serverAmount, ip, userAgent);
+logIdorAttempt(userId, resourceType, attemptedResourceId, ip, userAgent);
+logAdminAction(adminId, action, targetId, details, ip, userAgent);
 ```
 
 ---
@@ -154,6 +171,7 @@ The following actions trigger security alerts (CRITICAL level):
 ## 📈 Database Fields Added
 
 ### User Model
+
 ```
 - passwordHistory: [String] - Last 5 hashed passwords
 - failedLoginAttempts: Number - Failed login counter
@@ -163,6 +181,7 @@ The following actions trigger security alerts (CRITICAL level):
 ```
 
 ### Booking Model
+
 ```
 - calculatedTotal: Number - Server-validated total
 - serverValidated: Boolean - Validation flag
@@ -192,6 +211,7 @@ Before deployment, test:
 ## 🔧 Configuration
 
 ### Environment Variables
+
 ```
 JWT_SECRET=<strong_secret_key>
 NODE_ENV=production
@@ -200,6 +220,7 @@ ESEWA_SECRET=<your_key>
 ```
 
 ### Production Settings
+
 ```javascript
 // auth.ts - sendTokenCookie
 {
@@ -215,11 +236,13 @@ ESEWA_SECRET=<your_key>
 ## 📞 Support & Monitoring
 
 ### Key Logs to Monitor
+
 1. `[🚨 SECURITY ALERT - CRITICAL]` - Immediate attention needed
 2. `[⚠️ SECURITY WARNING]` - Monitor for patterns
 3. `[ℹ️ SECURITY INFO]` - Audit trail
 
 ### Alert Thresholds
+
 - Multiple failed logins: `>5 attempts`
 - Payment tampering: `Any attempt`
 - IDOR attempts: `Any attempt`

@@ -6,7 +6,11 @@ export const Route = createFileRoute("/cookies")({
   head: () => ({
     meta: [
       { title: "Cookies Policy — RentalSphere" },
-      { name: "description", content: "Details on how RentalSphere uses cookies to manage booking checkouts, security sessions, and preferences." },
+      {
+        name: "description",
+        content:
+          "Details on how RentalSphere uses cookies to manage booking checkouts, security sessions, and preferences.",
+      },
     ],
   }),
   component: CookiesPage,
@@ -34,7 +38,6 @@ function CookiesPage() {
   return (
     <div className="py-20 md:py-28 bg-surface/30">
       <div className="container-page max-w-4xl space-y-16">
-        
         {/* Header */}
         <div className="space-y-4">
           <motion.span
@@ -62,7 +65,9 @@ function CookiesPage() {
           transition={{ delay: 0.2 }}
           className="text-sm text-muted-foreground leading-relaxed bg-card border border-border p-6 rounded-3xl"
         >
-          We use cookies and active web storage techniques to deliver a faster, personalized, and secure booking experience. This document outlines the types of tracking technologies utilized by our client and backend servers.
+          We use cookies and active web storage techniques to deliver a faster, personalized, and
+          secure booking experience. This document outlines the types of tracking technologies
+          utilized by our client and backend servers.
         </motion.p>
 
         {/* Cookie Table/List */}
@@ -101,14 +106,17 @@ function CookiesPage() {
         >
           <ShieldAlert className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Removing or blocking functional session cookies via browser controls might cause active auth states to reset, booking selections to clear, and dashboard maps to display with errors.
+            Removing or blocking functional session cookies via browser controls might cause active
+            auth states to reset, booking selections to clear, and dashboard maps to display with
+            errors.
           </p>
         </motion.div>
 
         {/* Contact Footer */}
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-            If you wish to opt-out of optional analytics tracking or have questions about local web storage, submit an inquiry.
+            If you wish to opt-out of optional analytics tracking or have questions about local web
+            storage, submit an inquiry.
           </p>
           <Link
             to="/contact"
@@ -117,7 +125,6 @@ function CookiesPage() {
             Contact Support <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-
       </div>
     </div>
   );

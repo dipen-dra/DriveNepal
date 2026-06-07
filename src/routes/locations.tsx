@@ -2,7 +2,16 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Car, Bike, Search, CheckCircle, ShieldCheck, Clock, Navigation } from "lucide-react";
+import {
+  MapPin,
+  Car,
+  Bike,
+  Search,
+  CheckCircle,
+  ShieldCheck,
+  Clock,
+  Navigation,
+} from "lucide-react";
 import { getVehicles } from "@/lib/api";
 
 import kathmanduImg from "@/assets/kathmandu.png";
@@ -13,7 +22,11 @@ export const Route = createFileRoute("/locations")({
   head: () => ({
     meta: [
       { title: "Locations — RentalSphere" },
-      { name: "description", content: "Rent cars and bikes across the UK. Premium pickups in London, Edinburgh, Highlands, and more." },
+      {
+        name: "description",
+        content:
+          "Rent cars and bikes across the UK. Premium pickups in London, Edinburgh, Highlands, and more.",
+      },
     ],
   }),
   component: LocationsPage,
@@ -30,19 +43,22 @@ const locationMeta: Record<string, LocationDetails> = {
   london: {
     image: kathmanduImg,
     tagline: "The UK's Bustling Capital",
-    description: "Navigate London's iconic landmarks, historic streets, and bustling city centers. Perfect starting point for city touring or business trips.",
+    description:
+      "Navigate London's iconic landmarks, historic streets, and bustling city centers. Perfect starting point for city touring or business trips.",
     highlights: ["Westminster Abbey", "Tower Bridge", "Easy Airport Pickup"],
   },
   edinburgh: {
     image: pokharaImg,
     tagline: "The Historic Scottish Gateway",
-    description: "Cruise around Edinburgh's cobblestone streets and stunning castle views. Ideal for travelers, hikers, and city explorers.",
+    description:
+      "Cruise around Edinburgh's cobblestone streets and stunning castle views. Ideal for travelers, hikers, and city explorers.",
     highlights: ["Edinburgh Castle", "Royal Mile", "Scenic Highlands Portal"],
   },
   highlands: {
     image: mustangImg,
     tagline: "The Wild Mountain Landscapes",
-    description: "Explore the raw, dramatic scenery of the Scottish Highlands. Ideal for premium 4x4 SUVs or adventure bikes.",
+    description:
+      "Explore the raw, dramatic scenery of the Scottish Highlands. Ideal for premium 4x4 SUVs or adventure bikes.",
     highlights: ["Loch Ness", "Glen Coe Valley", "Scenic Coastal Drives"],
   },
 };
@@ -58,11 +74,14 @@ function LocationsPage() {
   const vehicles = res?.data || [];
 
   const locationCounts = useMemo(() => {
-    return vehicles.reduce((acc, v) => {
-      const loc = v.location || "London";
-      acc[loc] = (acc[loc] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    return vehicles.reduce(
+      (acc, v) => {
+        const loc = v.location || "London";
+        acc[loc] = (acc[loc] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }, [vehicles]);
 
   const locations = useMemo(() => {
@@ -107,7 +126,10 @@ function LocationsPage() {
             transition={{ delay: 0.1 }}
             className="font-display text-4xl md:text-6xl font-bold tracking-tight text-white"
           >
-            Pick Up Across <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">the UK</span>
+            Pick Up Across{" "}
+            <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
+              the UK
+            </span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 25 }}
@@ -115,7 +137,8 @@ function LocationsPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-white/70 max-w-2xl mx-auto"
           >
-            From the bustling capital of London to the historic city of Edinburgh and the dramatic roads of the Highlands. Start your drive where it fits your travel plans.
+            From the bustling capital of London to the historic city of Edinburgh and the dramatic
+            roads of the Highlands. Start your drive where it fits your travel plans.
           </motion.p>
 
           {/* Search bar inside hero */}
@@ -142,7 +165,10 @@ function LocationsPage() {
         {isLoading && (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-card border border-border animate-pulse" />
+              <div
+                key={i}
+                className="h-96 rounded-[2.5rem] bg-card border border-border animate-pulse"
+              />
             ))}
           </div>
         )}
@@ -150,8 +176,12 @@ function LocationsPage() {
         {!isLoading && filteredLocations.length === 0 && (
           <div className="text-center py-24 rounded-[2.5rem] border border-dashed border-border bg-card">
             <MapPin className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-            <h3 className="font-display text-lg font-bold text-ink">No pickup hubs match your search</h3>
-            <p className="text-sm text-muted-foreground mt-2">Try clearing your filters or search for London or Edinburgh.</p>
+            <h3 className="font-display text-lg font-bold text-ink">
+              No pickup hubs match your search
+            </h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Try clearing your filters or search for London or Edinburgh.
+            </p>
           </div>
         )}
 
@@ -185,16 +215,23 @@ function LocationsPage() {
                 {/* Content Details */}
                 <div className="p-6 md:p-8 space-y-4">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{loc.tagline}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {loc.tagline}
+                    </span>
                     <h3 className="font-display text-2xl font-bold text-ink mt-1">{loc.name}</h3>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{loc.description}</p>
 
                   <div className="pt-2 space-y-2 border-t border-border/60">
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">Local highlights</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider">
+                      Local highlights
+                    </p>
                     <div className="grid gap-2">
                       {loc.highlights.map((h, idx) => (
-                        <span key={idx} className="inline-flex items-center gap-2 text-xs text-foreground/80 font-medium">
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-2 text-xs text-foreground/80 font-medium"
+                        >
                           <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" /> {h}
                         </span>
                       ))}
@@ -229,7 +266,9 @@ function LocationsPage() {
       <section className="container-page max-w-6xl">
         <div className="rounded-[2.5rem] bg-card border border-border/80 p-8 md:p-12 space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-4">
-            <h2 className="font-display text-3xl font-bold text-ink">Our Pick up & Drop off Standards</h2>
+            <h2 className="font-display text-3xl font-bold text-ink">
+              Our Pick up & Drop off Standards
+            </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               We make picking up your rental vehicle smooth and secure, anywhere in the UK.
             </p>

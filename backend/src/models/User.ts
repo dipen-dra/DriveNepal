@@ -1,5 +1,5 @@
-import mongoose, { Document, Schema } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose, { Document, Schema } from "mongoose";
+import bcrypt from "bcryptjs";
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -10,9 +10,9 @@ export interface IUser extends Document {
   license?: string;
   city?: string;
   avatar?: string;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   isActive: boolean;
-  authProvider: 'local' | 'google';
+  authProvider: "local" | "google";
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   passwordHistory?: string[];
@@ -31,13 +31,13 @@ const UserSchema = new Schema<IUser>(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, minlength: 6, select: false },
-    phone: { type: String, default: '' },
-    license: { type: String, default: '' },
-    city: { type: String, default: '' },
-    avatar: { type: String, default: '' },
-    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    phone: { type: String, default: "" },
+    license: { type: String, default: "" },
+    city: { type: String, default: "" },
+    avatar: { type: String, default: "" },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
     isActive: { type: Boolean, default: true },
-    authProvider: { type: String, enum: ['local', 'google'], default: 'local' },
+    authProvider: { type: String, enum: ["local", "google"], default: "local" },
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
     passwordHistory: { type: [String], default: [], select: false },
@@ -50,8 +50,8 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Hash password before save
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
   // Store previous password in history (keep last 5)
   if (!this.passwordHistory) {
@@ -74,7 +74,9 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string):
 };
 
 // Check password history to prevent reuse
-UserSchema.methods.checkPasswordHistory = async function (candidatePassword: string): Promise<boolean> {
+UserSchema.methods.checkPasswordHistory = async function (
+  candidatePassword: string,
+): Promise<boolean> {
   if (!this.passwordHistory || this.passwordHistory.length === 0) return false;
 
   for (const previousPassword of this.passwordHistory) {
@@ -84,4 +86,4 @@ UserSchema.methods.checkPasswordHistory = async function (candidatePassword: str
   return false; // Password is new
 };
 
-export const User = mongoose.model<IUser>('User', UserSchema);
+export const User = mongoose.model<IUser>("User", UserSchema);

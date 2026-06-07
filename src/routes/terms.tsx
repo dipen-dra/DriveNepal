@@ -6,7 +6,11 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — RentalSphere" },
-      { name: "description", content: "Terms, rental conditions, renter liability, and safety guidelines for renting with RentalSphere." },
+      {
+        name: "description",
+        content:
+          "Terms, rental conditions, renter liability, and safety guidelines for renting with RentalSphere.",
+      },
     ],
   }),
   component: TermsPage,
@@ -43,7 +47,6 @@ function TermsPage() {
   return (
     <div className="py-20 md:py-28 bg-surface/30">
       <div className="container-page max-w-4xl space-y-16">
-        
         {/* Header */}
         <div className="space-y-4">
           <motion.span
@@ -75,7 +78,9 @@ function TermsPage() {
             <ShieldAlert className="h-5 w-5 text-primary" /> Rental Agreement Notice
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Please read these terms carefully before scheduling any vehicle booking. By initiating a booking on our website, you agree to comply with all standard renter rules and insurance liabilities mentioned below.
+            Please read these terms carefully before scheduling any vehicle booking. By initiating a
+            booking on our website, you agree to comply with all standard renter rules and insurance
+            liabilities mentioned below.
           </p>
         </motion.div>
 
@@ -114,14 +119,18 @@ function TermsPage() {
             <AlertTriangle className="h-5 w-5" /> Off-road Driving Warning
           </h4>
           <p className="text-xs text-amber-900/80 dark:text-amber-300/80 leading-relaxed">
-            Driving premium sedans on off-road terrain or routes beyond standard highways (such as dirt paths or river basins) is strictly prohibited. For high-altitude remote trips like the Scottish Highlands or rural tracks, you must book 4x4 SUVs or adventure off-road bikes.
+            Driving premium sedans on off-road terrain or routes beyond standard highways (such as
+            dirt paths or river basins) is strictly prohibited. For high-altitude remote trips like
+            the Scottish Highlands or rural tracks, you must book 4x4 SUVs or adventure off-road
+            bikes.
           </p>
         </motion.div>
 
         {/* Contact Footer */}
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
-            If you have questions or require clarification regarding standard contract conditions, feel free to submit a support query.
+            If you have questions or require clarification regarding standard contract conditions,
+            feel free to submit a support query.
           </p>
           <Link
             to="/contact"
@@ -130,7 +139,6 @@ function TermsPage() {
             Contact Support <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
-
       </div>
     </div>
   );

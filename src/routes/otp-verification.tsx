@@ -71,7 +71,7 @@ function OtpPage() {
       toast.error("Please enter all 6 digits.");
       return;
     }
-    
+
     try {
       setLoading(true);
       await verifyOtp(email, code);
@@ -94,7 +94,7 @@ function OtpPage() {
       toast.error("Email is missing. Please restart the process.");
       return;
     }
-    
+
     try {
       setCooldown(45);
       await forgotPassword(email);
@@ -118,19 +118,31 @@ function OtpPage() {
           <span className="inline-flex h-12 w-12 rounded-2xl bg-white/15 backdrop-blur items-center justify-center mb-8">
             <KeyRound className="h-6 w-6" />
           </span>
-          <h2 className="font-display text-4xl font-bold leading-tight text-white">Check your inbox</h2>
+          <h2 className="font-display text-4xl font-bold leading-tight text-white">
+            Check your inbox
+          </h2>
           <p className="mt-6 text-white/85 leading-relaxed">
-            We sent a 6-digit code to {email ? <strong>{email}</strong> : "your email"}. It expires in 10 minutes.
+            We sent a 6-digit code to {email ? <strong>{email}</strong> : "your email"}. It expires
+            in 10 minutes.
           </p>
         </div>
       </div>
 
       <div className="flex items-center justify-center p-6 md:p-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-          <Link to="/forgot-password" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <Link
+            to="/forgot-password"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+          >
             <ArrowLeft className="h-4 w-4" /> Change email
           </Link>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Enter verification code</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
+            Enter verification code
+          </h1>
           <p className="mt-2 text-muted-foreground">
             Sent to <span className="font-medium text-foreground">{email ?? "your email"}</span>
           </p>
@@ -140,7 +152,9 @@ function OtpPage() {
               {digits.map((d, i) => (
                 <input
                   key={i}
-                  ref={(el) => { refs.current[i] = el; }}
+                  ref={(el) => {
+                    refs.current[i] = el;
+                  }}
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   maxLength={1}
@@ -161,7 +175,9 @@ function OtpPage() {
 
             <button
               type="button"
-              onClick={() => { void resend(); }}
+              onClick={() => {
+                void resend();
+              }}
               disabled={cooldown > 0}
               className="w-full inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-60"
             >

@@ -7,10 +7,15 @@ import { submitQuery } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({ meta: [
-    { title: "Contact — RentalSphere" },
-    { name: "description", content: "Get in touch with the RentalSphere team. We respond within an hour." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Contact — RentalSphere" },
+      {
+        name: "description",
+        content: "Get in touch with the RentalSphere team. We respond within an hour.",
+      },
+    ],
+  }),
   component: ContactPage,
 });
 
@@ -59,7 +64,8 @@ function ContactPage() {
         <p className="text-sm font-semibold text-primary uppercase tracking-wider">Contact</p>
         <h1 className="mt-3 text-4xl md:text-5xl font-bold tracking-tight">Let's talk wheels.</h1>
         <p className="mt-4 text-muted-foreground max-w-md">
-          Have a question, want a custom rental, or building something exciting? We respond within an hour.
+          Have a question, want a custom rental, or building something exciting? We respond within
+          an hour.
         </p>
 
         <div className="mt-10 space-y-4">
@@ -68,8 +74,13 @@ function ContactPage() {
             { icon: Mail, k: "Email", v: "hello@rentalsphere.com" },
             { icon: MapPin, k: "Headquarters", v: "Soho, London, UK" },
           ].map((c) => (
-            <div key={c.k} className="flex items-center gap-4 p-5 rounded-2xl bg-surface border border-border/60">
-              <div className="h-11 w-11 rounded-full gradient-brand text-white inline-flex items-center justify-center"><c.icon className="h-4 w-4" /></div>
+            <div
+              key={c.k}
+              className="flex items-center gap-4 p-5 rounded-2xl bg-surface border border-border/60"
+            >
+              <div className="h-11 w-11 rounded-full gradient-brand text-white inline-flex items-center justify-center">
+                <c.icon className="h-4 w-4" />
+              </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-muted-foreground">{c.k}</p>
                 <p className="text-sm font-semibold text-ink">{c.v}</p>
@@ -80,7 +91,9 @@ function ContactPage() {
       </motion.div>
 
       <motion.form
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
         onSubmit={handleSubmit}
         className="rounded-3xl border border-border/60 bg-card p-8 space-y-5 h-fit"
       >

@@ -46,10 +46,20 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">Try refreshing or head back home.</p>
         <div className="mt-6 flex gap-2 justify-center">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="h-10 px-5 rounded-full gradient-brand text-white text-sm font-medium"
-          >Try again</button>
-          <a href="/" className="h-10 px-5 inline-flex items-center rounded-full border border-border text-sm font-medium">Go home</a>
+          >
+            Try again
+          </button>
+          <a
+            href="/"
+            className="h-10 px-5 inline-flex items-center rounded-full border border-border text-sm font-medium"
+          >
+            Go home
+          </a>
         </div>
       </div>
     </div>
@@ -62,10 +72,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "RentalSphere — Premium Car & Bike Rentals Across the UK" },
-      { name: "description", content: "Rent luxury cars, SUVs and bikes across the UK. Instant booking, transparent pricing, and multiple checkout options." },
+      {
+        name: "description",
+        content:
+          "Rent luxury cars, SUVs and bikes across the UK. Instant booking, transparent pricing, and multiple checkout options.",
+      },
       { name: "theme-color", content: "#5D8BF4" },
       { property: "og:title", content: "RentalSphere — Premium Car & Bike Rentals" },
-      { property: "og:description", content: "Drive luxury, ride freedom. Premium rentals across the UK." },
+      {
+        property: "og:description",
+        content: "Drive luxury, ride freedom. Premium rentals across the UK.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -74,7 +91,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -86,7 +106,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head><HeadContent /></head>
+      <head>
+        <HeadContent />
+      </head>
       <body>
         {children}
         <Scripts />

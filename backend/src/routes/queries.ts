@@ -1,22 +1,22 @@
-import { Router, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import { Query } from '../models/Query.js';
-import { Notification } from '../models/Notification.js';
-import { protect, optionalProtect, AuthRequest } from '../middleware/auth.js';
-import { adminOnly } from '../middleware/admin.js';
-import { sendEmail } from '../utils/email.js';
+import { Router, Response } from "express";
+import { body, validationResult } from "express-validator";
+import { Query } from "../models/Query.js";
+import { Notification } from "../models/Notification.js";
+import { protect, optionalProtect, AuthRequest } from "../middleware/auth.js";
+import { adminOnly } from "../middleware/admin.js";
+import { sendEmail } from "../utils/email.js";
 
 const router = Router();
 
 /* ── POST /api/queries (Submit a new contact query) ──────── */
 router.post(
-  '/',
+  "/",
   optionalProtect,
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email is required'),
-    body('subject').trim().notEmpty().withMessage('Subject is required'),
-    body('message').trim().notEmpty().withMessage('Message is required'),
+    body("name").trim().notEmpty().withMessage("Name is required"),
+    body("email").isEmail().withMessage("Valid email is required"),
+    body("subject").trim().notEmpty().withMessage("Subject is required"),
+    body("message").trim().notEmpty().withMessage("Message is required"),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -41,29 +41,35 @@ router.post(
     });
 
     res.status(201).json({ success: true, data: query });
-  }
+  },
 );
 
 /* ── GET /api/queries/me (Get logged-in user's queries) ─── */
-router.get('/me', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/me", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const queries = await Query.find({ user: req.user!._id }).sort({ createdAt: -1 }).lean();
   res.json({ success: true, data: queries });
 });
 
 /* ── GET /api/queries/admin/all (Get all queries for admin) ─ */
-router.get('/admin/all', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
-  const queries = await Query.find().populate('user', 'name email avatar').sort({ createdAt: -1 }).lean();
-  res.json({ success: true, data: queries });
-});
+router.get(
+  "/admin/all",
+  protect,
+  adminOnly,
+  async (_req: AuthRequest, res: Response): Promise<void> => {
+    const queries = await Query.find()
+      .populate("user", "name email avatar")
+      .sort({ createdAt: -1 })
+      .lean();
+    res.json({ success: true, data: queries });
+  },
+);
 
 /* ── POST /api/queries/admin/:id/reply (Reply to query) ──── */
 router.post(
-  '/admin/:id/reply',
+  "/admin/:id/reply",
   protect,
   adminOnly,
-  [
-    body('reply').trim().notEmpty().withMessage('Reply content is required'),
-  ],
+  [body("reply").trim().notEmpty().withMessage("Reply content is required")],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -75,7 +81,7 @@ router.post(
 
     const query = await Query.findById(req.params.id);
     if (!query) {
-      res.status(404).json({ success: false, message: 'Query not found.' });
+      res.status(404).json({ success: false, message: "Query not found." });
       return;
     }
 
@@ -88,11 +94,11 @@ router.post(
     if (query.user) {
       Notification.create({
         user: query.user,
-        type: 'message',
+        type: "message",
         title: `Reply to: ${query.subject}`,
-        body: `Support team replied: "${reply.slice(0, 80)}${reply.length > 80 ? '...' : ''}"`,
-        href: '/dashboard/queries',
-      }).catch((err) => console.error('Error creating query reply notification:', err));
+        body: `Support team replied: "${reply.slice(0, 80)}${reply.length > 80 ? "..." : ""}"`,
+        href: "/dashboard/queries",
+      }).catch((err) => console.error("Error creating query reply notification:", err));
     }
 
     // Send email notification to user via SMTP / sendEmail util
@@ -119,10 +125,10 @@ router.post(
           <p style="margin-top: 32px; font-size: 13px; color: #94a3b8; line-height: 1.5;">Best regards,<br><strong>The RentalSphere Team</strong></p>
         </div>
       `,
-    }).catch((err) => console.error('Error sending query reply email:', err));
+    }).catch((err) => console.error("Error sending query reply email:", err));
 
     res.json({ success: true, data: query });
-  }
+  },
 );
 
 export default router;

@@ -1,46 +1,46 @@
-import { Router, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { body, validationResult } from 'express-validator';
-import { OAuth2Client } from 'google-auth-library';
-import { User } from '../models/User.js';
-import { protect, AuthRequest } from '../middleware/auth.js';
-import { sendEmail } from '../utils/email.js';
-import { validatePasswordStrength, isStrongPassword } from '../utils/passwordValidator.js';
-import { logPasswordChange } from '../utils/securityLogger.js';
+import { Router, Request, Response } from "express";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { body, validationResult } from "express-validator";
+import { OAuth2Client } from "google-auth-library";
+import { User } from "../models/User.js";
+import { protect, AuthRequest } from "../middleware/auth.js";
+import { sendEmail } from "../utils/email.js";
+import { validatePasswordStrength, isStrongPassword } from "../utils/passwordValidator.js";
+import { logPasswordChange } from "../utils/securityLogger.js";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const router = Router();
 
 const signToken = (id: string, role: string): string => {
-  const secret = process.env.JWT_SECRET || 'fallback_secret';
+  const secret = process.env.JWT_SECRET || "fallback_secret";
   return jwt.sign({ id, role }, secret, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   } as jwt.SignOptions);
 };
 
 const sendTokenCookie = (res: Response, token: string): void => {
-  const isProduction = process.env.NODE_ENV === 'production';
-  res.cookie('token', token, {
+  const isProduction = process.env.NODE_ENV === "production";
+  res.cookie("token", token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 };
 
 /* ── POST /api/auth/register ─────────────────────────────── */
 router.post(
-  '/register',
+  "/register",
   [
-    body('name').trim().notEmpty().withMessage('Name is required'),
-    body('email').isEmail().withMessage('Valid email required'),
-    body('password')
+    body("name").trim().notEmpty().withMessage("Name is required"),
+    body("email").isEmail().withMessage("Valid email required"),
+    body("password")
       .isLength({ min: 10 })
-      .withMessage('Password must be at least 10 characters')
+      .withMessage("Password must be at least 10 characters")
       .custom((value) => isStrongPassword(value))
-      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
+      .withMessage("Password must contain uppercase, lowercase, numbers, and special characters"),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -56,7 +56,7 @@ router.post(
     if (!passwordValidation.isValid) {
       res.status(400).json({
         success: false,
-        message: 'Password does not meet security requirements',
+        message: "Password does not meet security requirements",
         feedback: passwordValidation.feedback,
       });
       return;
@@ -64,7 +64,7 @@ router.post(
 
     const existing = await User.findOne({ email });
     if (existing) {
-      res.status(409).json({ success: false, message: 'Email already in use.' });
+      res.status(409).json({ success: false, message: "Email already in use." });
       return;
     }
 
@@ -72,7 +72,7 @@ router.post(
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please log in.',
+      message: "Registration successful. Please log in.",
       user: {
         _id: user._id,
         name: user.name,
@@ -88,10 +88,10 @@ router.post(
 
 /* ── POST /api/auth/login ────────────────────────────────── */
 router.post(
-  '/login',
+  "/login",
   [
-    body('email').isEmail().withMessage('Valid email required'),
-    body('password').notEmpty().withMessage('Password required'),
+    body("email").isEmail().withMessage("Valid email required"),
+    body("password").notEmpty().withMessage("Password required"),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -102,8 +102,10 @@ router.post(
 
     const { email, password } = req.body as { email: string; password: string };
 
-    const user = await User.findOne({ email }).select('+password +failedLoginAttempts +lastFailedLogin');
-    
+    const user = await User.findOne({ email }).select(
+      "+password +failedLoginAttempts +lastFailedLogin",
+    );
+
     // Check for brute force attempts
     if (user && user.failedLoginAttempts >= 5) {
       const lastFailed = user.lastFailedLogin ? new Date(user.lastFailedLogin).getTime() : 0;
@@ -114,7 +116,8 @@ router.post(
         console.warn(`[SECURITY] Brute force attempt detected for ${email}`);
         res.status(429).json({
           success: false,
-          message: 'Account temporarily locked due to multiple failed attempts. Try again in 15 minutes.',
+          message:
+            "Account temporarily locked due to multiple failed attempts. Try again in 15 minutes.",
         });
         return;
       }
@@ -127,12 +130,12 @@ router.post(
         user.lastFailedLogin = new Date();
         await user.save();
       }
-      res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      res.status(401).json({ success: false, message: "Invalid email or password." });
       return;
     }
 
     if (!user.isActive) {
-      res.status(403).json({ success: false, message: 'Account is suspended.' });
+      res.status(403).json({ success: false, message: "Account is suspended." });
       return;
     }
 
@@ -161,10 +164,10 @@ router.post(
 );
 
 /* ── POST /api/auth/google ───────────────────────────────── */
-router.post('/google', async (req: Request, res: Response): Promise<void> => {
+router.post("/google", async (req: Request, res: Response): Promise<void> => {
   const { credential } = req.body;
   if (!credential) {
-    res.status(400).json({ success: false, message: 'Google credential required' });
+    res.status(400).json({ success: false, message: "Google credential required" });
     return;
   }
 
@@ -175,27 +178,27 @@ router.post('/google', async (req: Request, res: Response): Promise<void> => {
     });
     const payload = ticket.getPayload();
     if (!payload || !payload.email) {
-      res.status(400).json({ success: false, message: 'Invalid Google token' });
+      res.status(400).json({ success: false, message: "Invalid Google token" });
       return;
     }
 
     let user = await User.findOne({ email: payload.email });
     if (!user) {
       // Create new user with random password (Google users don't need it)
-      const randomPassword = crypto.randomBytes(16).toString('hex');
+      const randomPassword = crypto.randomBytes(16).toString("hex");
       user = await User.create({
-        name: payload.name || 'Google User',
+        name: payload.name || "Google User",
         email: payload.email,
         password: randomPassword,
-        avatar: payload.picture || '',
-        authProvider: 'google',
-        role: 'user',
+        avatar: payload.picture || "",
+        authProvider: "google",
+        role: "user",
         isActive: true,
       });
     }
 
     if (!user.isActive) {
-      res.status(403).json({ success: false, message: 'Account is suspended.' });
+      res.status(403).json({ success: false, message: "Account is suspended." });
       return;
     }
 
@@ -217,19 +220,19 @@ router.post('/google', async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error('Google Auth Error:', error);
-    res.status(401).json({ success: false, message: 'Google authentication failed' });
+    console.error("Google Auth Error:", error);
+    res.status(401).json({ success: false, message: "Google authentication failed" });
   }
 });
 
 /* ── POST /api/auth/logout ───────────────────────────────── */
-router.post('/logout', (_req: Request, res: Response): void => {
-  res.clearCookie('token');
-  res.json({ success: true, message: 'Logged out.' });
+router.post("/logout", (_req: Request, res: Response): void => {
+  res.clearCookie("token");
+  res.json({ success: true, message: "Logged out." });
 });
 
 /* ── GET /api/auth/me ────────────────────────────────────── */
-router.get('/me', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/me", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const user = req.user!;
   res.json({
     success: true,
@@ -249,8 +252,8 @@ router.get('/me', protect, async (req: AuthRequest, res: Response): Promise<void
 
 /* ── POST /api/auth/forgot-password ─────────────────────── */
 router.post(
-  '/forgot-password',
-  [body('email').isEmail().withMessage('Valid email required')],
+  "/forgot-password",
+  [body("email").isEmail().withMessage("Valid email required")],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -259,19 +262,19 @@ router.post(
     }
 
     const { email } = req.body as { email: string };
-    const user = await User.findOne({ email }).select('+resetPasswordToken +resetPasswordExpires');
+    const user = await User.findOne({ email }).select("+resetPasswordToken +resetPasswordExpires");
 
     // Always return success to prevent email enumeration
     if (!user) {
       res.json({
         success: true,
-        message: 'If that email exists, a reset link has been sent.',
+        message: "If that email exists, a reset link has been sent.",
       });
       return;
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordToken = crypto.createHash("sha256").update(otp).digest("hex");
     user.resetPasswordExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save({ validateBeforeSave: false });
 
@@ -279,7 +282,7 @@ router.post(
     try {
       await sendEmail({
         to: user.email,
-        subject: 'Your Password Reset OTP — RentalSphere',
+        subject: "Your Password Reset OTP — RentalSphere",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Password Reset</h2>
@@ -293,26 +296,26 @@ router.post(
         `,
       });
     } catch (err) {
-      console.error('Email send error:', err);
+      console.error("Email send error:", err);
     }
 
     res.json({
       success: true,
-      message: 'If that email exists, a reset link has been sent.',
+      message: "If that email exists, a reset link has been sent.",
     });
   },
 );
 
 /* ── POST /api/auth/verify-otp ──────────────────────────── */
 router.post(
-  '/verify-otp',
+  "/verify-otp",
   [
-    body('email').isEmail().withMessage('Valid email required'),
-    body('otp').isLength({ min: 6, max: 6 }).withMessage('Valid 6-digit OTP required'),
+    body("email").isEmail().withMessage("Valid email required"),
+    body("otp").isLength({ min: 6, max: 6 }).withMessage("Valid 6-digit OTP required"),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const { email, otp } = req.body as { email: string; otp: string };
-    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
     const user = await User.findOne({
       email,
@@ -321,25 +324,25 @@ router.post(
     });
 
     if (!user) {
-      res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+      res.status(400).json({ success: false, message: "Invalid or expired OTP." });
       return;
     }
 
-    res.json({ success: true, message: 'OTP verified successfully.' });
+    res.json({ success: true, message: "OTP verified successfully." });
   },
 );
 
 /* ── POST /api/auth/reset-password ──────────────────────── */
 router.post(
-  '/reset-password',
+  "/reset-password",
   [
-    body('email').isEmail().withMessage('Valid email required'),
-    body('otp').isLength({ min: 6, max: 6 }).withMessage('Valid OTP required'),
-    body('password')
+    body("email").isEmail().withMessage("Valid email required"),
+    body("otp").isLength({ min: 6, max: 6 }).withMessage("Valid OTP required"),
+    body("password")
       .isLength({ min: 10 })
-      .withMessage('Password must be at least 10 characters')
+      .withMessage("Password must be at least 10 characters")
       .custom((value) => isStrongPassword(value))
-      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
+      .withMessage("Password must contain uppercase, lowercase, numbers, and special characters"),
   ],
   async (req: Request, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -355,23 +358,23 @@ router.post(
     if (!passwordValidation.isValid) {
       res.status(400).json({
         success: false,
-        message: 'Password does not meet security requirements',
+        message: "Password does not meet security requirements",
         feedback: passwordValidation.feedback,
       });
       return;
     }
 
     // Check if password was previously used
-    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
     const user = await User.findOne({
       email,
       resetPasswordToken: hashedOtp,
       resetPasswordExpires: { $gt: new Date() },
-    }).select('+resetPasswordToken +resetPasswordExpires +passwordHistory');
+    }).select("+resetPasswordToken +resetPasswordExpires +passwordHistory");
 
     if (!user) {
-      res.status(400).json({ success: false, message: 'Invalid or expired OTP.' });
+      res.status(400).json({ success: false, message: "Invalid or expired OTP." });
       return;
     }
 
@@ -380,7 +383,7 @@ router.post(
     if (passwordWasPreviouslyUsed) {
       res.status(400).json({
         success: false,
-        message: 'Password was previously used. Please choose a different password.',
+        message: "Password was previously used. Please choose a different password.",
       });
       return;
     }
@@ -395,7 +398,7 @@ router.post(
     const jwtToken = signToken(user._id.toString(), user.role);
     sendTokenCookie(res, jwtToken);
 
-    res.json({ success: true, message: 'Password reset successfully.', token: jwtToken });
+    res.json({ success: true, message: "Password reset successfully.", token: jwtToken });
   },
 );
 

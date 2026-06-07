@@ -44,14 +44,17 @@ function EsewaSuccess() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center container-page py-12">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md bg-card border border-border/60 rounded-3xl p-8 md:p-10 text-center shadow-soft"
       >
         {status === "loading" && (
           <>
             <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto" />
             <h2 className="mt-6 font-display text-2xl font-bold">Verifying Payment...</h2>
-            <p className="mt-2 text-muted-foreground text-sm">Please wait while we confirm your transaction with PayPal.</p>
+            <p className="mt-2 text-muted-foreground text-sm">
+              Please wait while we confirm your transaction with PayPal.
+            </p>
           </>
         )}
 
@@ -67,11 +70,16 @@ function EsewaSuccess() {
             {bookingId && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-surface border border-border px-4 py-2 text-sm">
                 <span className="text-muted-foreground">Booking ID</span>
-                <span className="font-mono font-semibold text-ink">{bookingId.slice(-6).toUpperCase()}</span>
+                <span className="font-mono font-semibold text-ink">
+                  {bookingId.slice(-6).toUpperCase()}
+                </span>
               </div>
             )}
             <div className="mt-8 flex gap-3 justify-center">
-              <Link to="/dashboard/bookings" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
+              <Link
+                to="/dashboard/bookings"
+                className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform"
+              >
                 View My Bookings
               </Link>
             </div>
@@ -84,7 +92,10 @@ function EsewaSuccess() {
             <h2 className="mt-6 font-display text-2xl font-bold text-ink">Payment Failed</h2>
             <p className="mt-2 text-muted-foreground text-sm">{errorMsg}</p>
             <div className="mt-8 flex gap-3 justify-center">
-              <Link to="/dashboard" className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">
+              <Link
+                to="/dashboard"
+                className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors"
+              >
                 Back to Dashboard
               </Link>
             </div>

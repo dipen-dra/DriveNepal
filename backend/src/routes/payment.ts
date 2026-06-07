@@ -1,21 +1,27 @@
-import { Router, Response } from 'express';
-import crypto from 'crypto';
-import { protect, AuthRequest } from '../middleware/auth.js';
-import { Booking } from '../models/Booking.js';
-import { Vehicle } from '../models/Vehicle.js';
-import { Notification } from '../models/Notification.js';
-import { generateBookingId, storePendingBooking, getPendingBooking, deletePendingBooking } from '../utils/pendingBookings.js';
-import { sendEmail } from '../utils/email.js';
-import { calculateBookingTotal, verifyBookingAmount } from '../utils/bookingCalculator.js';
-import { validatePaymentAmount, logPaymentValidationAttempt } from '../utils/paymentValidator.js';
-import { logPaymentTampering } from '../utils/securityLogger.js';
+import { Router, Response } from "express";
+import crypto from "crypto";
+import { protect, AuthRequest } from "../middleware/auth.js";
+import { Booking } from "../models/Booking.js";
+import { Vehicle } from "../models/Vehicle.js";
+import { Notification } from "../models/Notification.js";
+import {
+  generateBookingId,
+  storePendingBooking,
+  getPendingBooking,
+  deletePendingBooking,
+} from "../utils/pendingBookings.js";
+import { sendEmail } from "../utils/email.js";
+import { calculateBookingTotal, verifyBookingAmount } from "../utils/bookingCalculator.js";
+import { validatePaymentAmount, logPaymentValidationAttempt } from "../utils/paymentValidator.js";
+import { logPaymentTampering } from "../utils/securityLogger.js";
 
 const router = Router();
 
-const KHALTI_SECRET_KEY = process.env.KHALTI_SECRET_KEY || 'test_secret_key_3f78fb6364ef4bd1b5fc670ce33a06f5';
-const ESEWA_URL = 'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
-const ESEWA_SCD = 'EPAYTEST';
-const ESEWA_SECRET = process.env.ESEWA_SECRET || '8gBm/:&EnhH.1/q';
+const KHALTI_SECRET_KEY =
+  process.env.KHALTI_SECRET_KEY || "test_secret_key_3f78fb6364ef4bd1b5fc670ce33a06f5";
+const ESEWA_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+const ESEWA_SCD = "EPAYTEST";
+const ESEWA_SECRET = process.env.ESEWA_SECRET || "8gBm/:&EnhH.1/q";
 
 // Helper to calculate total for verification
 export const calculateBookingTotalLegacy = async (
@@ -26,10 +32,10 @@ export const calculateBookingTotalLegacy = async (
   dropoff?: string,
   pickup?: string,
   insurance?: string,
-  addons?: string[]
+  addons?: string[],
 ) => {
   const vehicle = await Vehicle.findOne({ slug: vehicleSlug });
-  if (!vehicle) throw new Error('Vehicle not found');
+  if (!vehicle) throw new Error("Vehicle not found");
 
   const insurancePrices: Record<string, number> = {
     basic: 0,
@@ -44,17 +50,17 @@ export const calculateBookingTotalLegacy = async (
     helmet: 1.5,
   };
 
-  const insurancePrice = insurancePrices[insurance || 'basic'] ?? 0;
+  const insurancePrice = insurancePrices[insurance || "basic"] ?? 0;
   const addonsPrice = (addons || []).reduce((sum, id) => sum + (addonPrices[id] ?? 0), 0);
 
   const msPerDay = 86400000;
   const days = Math.max(1, Math.ceil((+new Date(endDate) - +new Date(startDate)) / msPerDay));
-  
+
   const subtotal = vehicle.pricePerDay * days + (insurancePrice + addonsPrice) * days;
   const serviceFee = Math.round(subtotal * 0.05);
-  const dropOffFee = (dropoff && pickup && dropoff !== pickup) ? 10 : 0;
-  const vat = Math.round((subtotal + dropOffFee) * 0.20);
-  const discount = couponCode === 'DRIVE10' ? Math.round(subtotal * 0.1) : 0;
+  const dropOffFee = dropoff && pickup && dropoff !== pickup ? 10 : 0;
+  const vat = Math.round((subtotal + dropOffFee) * 0.2);
+  const discount = couponCode === "DRIVE10" ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + serviceFee + vat + dropOffFee - discount;
 
   return { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount };
@@ -62,23 +68,23 @@ export const calculateBookingTotalLegacy = async (
 
 // @desc    Verify Khalti payment
 // @route   POST /api/payment/khalti/verify
-router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.post("/khalti/verify", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { token, amount, bookingData } = req.body;
 
     if (!token || !amount || !bookingData) {
-      res.status(400).json({ success: false, message: 'Missing required fields' });
+      res.status(400).json({ success: false, message: "Missing required fields" });
       return;
     }
 
-    const verificationUrl = 'https://khalti.com/api/v2/payment/verify/';
-    
+    const verificationUrl = "https://khalti.com/api/v2/payment/verify/";
+
     // Using global fetch (Node 18+)
     const response = await globalThis.fetch(verificationUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Key ${KHALTI_SECRET_KEY}`,
-        'Content-Type': 'application/json',
+        Authorization: `Key ${KHALTI_SECRET_KEY}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ token, amount }),
     });
@@ -87,38 +93,44 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
 
     if (verificationData.idx) {
       // Re-calculate to verify amount matches (CRITICAL SECURITY CHECK)
-      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotalLegacy(
-        bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-        bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
-        bookingData.insurance, bookingData.addons
-      );
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } =
+        await calculateBookingTotalLegacy(
+          bookingData.vehicleSlug,
+          bookingData.startDate,
+          bookingData.endDate,
+          bookingData.couponCode,
+          bookingData.dropoff,
+          bookingData.pickup,
+          bookingData.insurance,
+          bookingData.addons,
+        );
 
       // SECURITY: Verify that the amount paid matches the calculated total
       const paymentValidation = validatePaymentAmount(amount, total, 1); // 1 rupee tolerance
-      
+
       if (!paymentValidation.valid) {
         logPaymentTampering(
           req.user!._id.toString(),
           amount,
           total,
           req.ip,
-          req.headers['user-agent']
+          req.headers["user-agent"],
         );
         console.warn(`[SECURITY] Amount tampering detected! Paid: ${amount}, Calculated: ${total}`);
         res.status(400).json({
           success: false,
-          message: 'Payment amount does not match booking total. Please try again.',
+          message: "Payment amount does not match booking total. Please try again.",
         });
         return;
       }
 
       logPaymentValidationAttempt(
         req.user!._id.toString(),
-        req.ip || 'unknown',
+        req.ip || "unknown",
         true,
         amount,
         total,
-        { method: 'khalti', bookingSlug: bookingData.vehicleSlug }
+        { method: "khalti", bookingSlug: bookingData.vehicleSlug },
       );
 
       // Create Booking
@@ -140,8 +152,8 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
         total,
         insurance: bookingData.insurance,
         addons: bookingData.addons,
-        status: 'upcoming',
-        payment: 'Khalti',
+        status: "upcoming",
+        payment: "Khalti",
         customerName: bookingData.customerName,
         customerEmail: bookingData.customerEmail,
         customerPhone: bookingData.customerPhone,
@@ -153,10 +165,10 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
 
       Notification.create({
         user: req.user!._id,
-        type: 'booking',
-        title: 'Booking Confirmed!',
+        type: "booking",
+        title: "Booking Confirmed!",
         body: `Your booking for ${vehicle.name} has been paid via Khalti.`,
-        href: '/dashboard',
+        href: "/dashboard",
       }).catch(console.error);
 
       // Send confirmation email
@@ -177,32 +189,39 @@ router.post('/khalti/verify', protect, async (req: AuthRequest, res: Response): 
 
       res.status(200).json({ success: true, data: booking });
     } else {
-      res.status(400).json({ success: false, message: 'Khalti verification failed', error: verificationData });
+      res
+        .status(400)
+        .json({ success: false, message: "Khalti verification failed", error: verificationData });
     }
   } catch (error) {
-    console.error('Khalti verification error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("Khalti verification error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
 // @desc    Initiate eSewa payment
 // @route   POST /api/payment/esewa/initiate
-router.post('/esewa/initiate', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.post("/esewa/initiate", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { bookingData } = req.body;
     if (!bookingData) {
-      res.status(400).json({ success: false, message: 'Booking data is required' });
+      res.status(400).json({ success: false, message: "Booking data is required" });
       return;
     }
 
     const { total } = await calculateBookingTotalLegacy(
-      bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-      bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
-      bookingData.insurance, bookingData.addons
+      bookingData.vehicleSlug,
+      bookingData.startDate,
+      bookingData.endDate,
+      bookingData.couponCode,
+      bookingData.dropoff,
+      bookingData.pickup,
+      bookingData.insurance,
+      bookingData.addons,
     );
 
     const bookingId = generateBookingId();
-    
+
     storePendingBooking(bookingId, {
       ...bookingData,
       userId: req.user!._id.toString(),
@@ -210,49 +229,49 @@ router.post('/esewa/initiate', protect, async (req: AuthRequest, res: Response):
     });
 
     const amountToPay = total.toString();
-    const signedFieldNames = 'total_amount,transaction_uuid,product_code';
+    const signedFieldNames = "total_amount,transaction_uuid,product_code";
     const signatureBaseString = `total_amount=${amountToPay},transaction_uuid=${bookingId},product_code=${ESEWA_SCD}`;
 
-    const hmac = crypto.createHmac('sha256', ESEWA_SECRET);
+    const hmac = crypto.createHmac("sha256", ESEWA_SECRET);
     hmac.update(signatureBaseString);
-    const signature = hmac.digest('base64');
+    const signature = hmac.digest("base64");
 
     res.json({
       success: true,
       data: {
         ESEWA_URL,
         amount: amountToPay,
-        success_url: `${(process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')}/payment/esewa/success`,
-        failure_url: `${(process.env.CLIENT_URL || 'http://localhost:5173').replace(/\/$/, '')}/payment/esewa/failure`,
-        product_delivery_charge: '0',
-        product_service_charge: '0',
+        success_url: `${(process.env.CLIENT_URL || "http://localhost:5173").replace(/\/$/, "")}/payment/esewa/success`,
+        failure_url: `${(process.env.CLIENT_URL || "http://localhost:5173").replace(/\/$/, "")}/payment/esewa/failure`,
+        product_delivery_charge: "0",
+        product_service_charge: "0",
         product_code: ESEWA_SCD,
         signature,
         signed_field_names: signedFieldNames,
-        tax_amount: '0',
+        tax_amount: "0",
         total_amount: amountToPay,
         transaction_uuid: bookingId,
-      }
+      },
     });
   } catch (error) {
-    console.error('eSewa initiate error:', error);
-    res.status(500).json({ success: false, message: 'Server Error' });
+    console.error("eSewa initiate error:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 });
 
 // @desc    Verify eSewa payment
 // @route   GET /api/payment/esewa/verify
-router.get('/esewa/verify', async (req, res): Promise<void> => {
+router.get("/esewa/verify", async (req, res): Promise<void> => {
   try {
     const { data } = req.query as { data?: string };
     if (!data) {
-      res.status(400).json({ success: false, message: 'No data provided' });
+      res.status(400).json({ success: false, message: "No data provided" });
       return;
     }
 
-    const decodedData = JSON.parse(Buffer.from(data, 'base64').toString('utf-8'));
-    if (decodedData.status !== 'COMPLETE') {
-      res.status(400).json({ success: false, message: 'Payment not complete.' });
+    const decodedData = JSON.parse(Buffer.from(data, "base64").toString("utf-8"));
+    if (decodedData.status !== "COMPLETE") {
+      res.status(400).json({ success: false, message: "Payment not complete." });
       return;
     }
 
@@ -260,49 +279,55 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
     const response = await globalThis.fetch(verificationUrl);
     const verificationResponse = await response.json();
 
-    if (verificationResponse.status === 'COMPLETE') {
+    if (verificationResponse.status === "COMPLETE") {
       const bookingId = decodedData.transaction_uuid;
       const bookingData = getPendingBooking(bookingId);
 
       if (!bookingData) {
-        res.status(404).json({ success: false, message: 'Booking expired' });
+        res.status(404).json({ success: false, message: "Booking expired" });
         return;
       }
 
-      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } = await calculateBookingTotalLegacy(
-        bookingData.vehicleSlug, bookingData.startDate, bookingData.endDate, 
-        bookingData.couponCode, bookingData.dropoff, bookingData.pickup,
-        bookingData.insurance, bookingData.addons
-      );
+      const { total, vehicle, days, subtotal, serviceFee, vat, dropOffFee, discount } =
+        await calculateBookingTotalLegacy(
+          bookingData.vehicleSlug,
+          bookingData.startDate,
+          bookingData.endDate,
+          bookingData.couponCode,
+          bookingData.dropoff,
+          bookingData.pickup,
+          bookingData.insurance,
+          bookingData.addons,
+        );
 
       // SECURITY: Verify that the amount paid matches the calculated total
       const paymentValidation = validatePaymentAmount(parseInt(decodedData.total_amount), total, 1);
-      
+
       if (!paymentValidation.valid) {
         logPaymentTampering(
           bookingData.userId,
           parseInt(decodedData.total_amount),
           total,
           req.ip,
-          req.headers['user-agent']
+          req.headers["user-agent"],
         );
         console.warn(
-          `[SECURITY] Amount tampering detected on eSewa payment! Paid: ${decodedData.total_amount}, Calculated: ${total}`
+          `[SECURITY] Amount tampering detected on eSewa payment! Paid: ${decodedData.total_amount}, Calculated: ${total}`,
         );
         res.status(400).json({
           success: false,
-          message: 'Payment amount does not match booking total. Please try again.',
+          message: "Payment amount does not match booking total. Please try again.",
         });
         return;
       }
 
       logPaymentValidationAttempt(
         bookingData.userId,
-        req.ip || 'unknown',
+        req.ip || "unknown",
         true,
         parseInt(decodedData.total_amount),
         total,
-        { method: 'esewa', bookingSlug: bookingData.vehicleSlug }
+        { method: "esewa", bookingSlug: bookingData.vehicleSlug },
       );
 
       const booking = await Booking.create({
@@ -323,8 +348,8 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
         total,
         insurance: bookingData.insurance,
         addons: bookingData.addons,
-        status: 'upcoming',
-        payment: 'eSewa',
+        status: "upcoming",
+        payment: "eSewa",
         customerName: bookingData.customerName,
         customerEmail: bookingData.customerEmail,
         customerPhone: bookingData.customerPhone,
@@ -338,10 +363,10 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
 
       Notification.create({
         user: bookingData.userId,
-        type: 'booking',
-        title: 'Booking Confirmed!',
+        type: "booking",
+        title: "Booking Confirmed!",
         body: `Your booking for ${vehicle.name} has been paid via eSewa.`,
-        href: '/dashboard',
+        href: "/dashboard",
       }).catch(console.error);
 
       // Send confirmation email
@@ -362,11 +387,11 @@ router.get('/esewa/verify', async (req, res): Promise<void> => {
 
       res.status(200).json({ success: true, data: booking });
     } else {
-      res.status(400).json({ success: false, message: 'eSewa verification failed' });
+      res.status(400).json({ success: false, message: "eSewa verification failed" });
     }
   } catch (error) {
-    console.error('eSewa verification error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    console.error("eSewa verification error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
