@@ -3,7 +3,7 @@
  * Always recalculates totals from database to prevent tampering
  */
 
-import { Vehicle } from '../models/Vehicle.js';
+import { Vehicle } from "../models/Vehicle.js";
 
 interface BookingCalculationResult {
   subtotal: number;
@@ -18,7 +18,7 @@ interface BookingCalculationResult {
 
 const PICKUP_FEE = 0;
 const DROPOFF_FEE = 10;
-const TAX_RATE = 0.20; // 20% VAT
+const TAX_RATE = 0.2; // 20% VAT
 const SERVICE_FEE_RATE = 0.05; // 5% service fee
 
 const INSURANCE_PRICES: Record<string, number> = {
@@ -46,12 +46,12 @@ export const calculateBookingTotal = async (
   pickup: string,
   dropoff?: string,
   insurance?: string,
-  addons?: string[]
+  addons?: string[],
 ): Promise<BookingCalculationResult> => {
   // Fetch vehicle from database (never trust client data)
-  const vehicle = await Vehicle.findById(vehicleId).select('pricePerDay');
+  const vehicle = await Vehicle.findById(vehicleId).select("pricePerDay");
   if (!vehicle) {
-    throw new Error('Vehicle not found');
+    throw new Error("Vehicle not found");
   }
 
   // Calculate days
@@ -70,17 +70,18 @@ export const calculateBookingTotal = async (
   const dropoffFeeAmount = dropoff && pickup && dropoff !== pickup ? DROPOFF_FEE : 0;
 
   // Calculate insurance cost
-  const insurancePrice = INSURANCE_PRICES[insurance || 'basic'] ?? 0;
+  const insurancePrice = INSURANCE_PRICES[insurance || "basic"] ?? 0;
   const insuranceCost = insurancePrice * days;
 
   // Calculate addons cost
   const addonsCost = (addons || []).reduce(
-    (sum, addonId) => sum + ((ADDON_PRICES[addonId] ?? 0) * days),
-    0
+    (sum, addonId) => sum + (ADDON_PRICES[addonId] ?? 0) * days,
+    0,
   );
 
   // Calculate subtotal with fees
-  const subtotalWithFees = subtotal + pickupFeeAmount + dropoffFeeAmount + insuranceCost + addonsCost;
+  const subtotalWithFees =
+    subtotal + pickupFeeAmount + dropoffFeeAmount + insuranceCost + addonsCost;
 
   // Calculate tax (20% VAT in UK)
   const tax = Math.round(subtotalWithFees * TAX_RATE);
@@ -112,7 +113,7 @@ export const verifyBookingAmount = async (
   clientTotal: number,
   dropoff?: string,
   insurance?: string,
-  addons?: string[]
+  addons?: string[],
 ): Promise<{
   isValid: boolean;
   calculation: BookingCalculationResult;
@@ -125,7 +126,7 @@ export const verifyBookingAmount = async (
     pickup,
     dropoff,
     insurance,
-    addons
+    addons,
   );
 
   const mismatch = Math.abs(clientTotal - calculation.total);

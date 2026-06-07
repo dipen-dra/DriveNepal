@@ -31,9 +31,7 @@ export function ConfirmModal({
 }) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {children}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -41,16 +39,31 @@ export function ConfirmModal({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{cancelText}</AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={() => {
               onConfirm();
             }}
-            className={variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+            className={
+              variant === "destructive"
+                ? "bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                : ""
+            }
           >
-            {confirmText.toLowerCase().includes("log out") ? <LogOut className="mr-2 h-4 w-4" /> : null}
-            {confirmText.toLowerCase().includes("delete") ? <Trash2 className="mr-2 h-4 w-4" /> : null}
-            {confirmText.toLowerCase().includes("cancel") ? <XCircle className="mr-2 h-4 w-4" /> : null}
-            {!confirmText.toLowerCase().includes("log out") && !confirmText.toLowerCase().includes("delete") && !confirmText.toLowerCase().includes("cancel") && variant === "destructive" ? <AlertTriangle className="mr-2 h-4 w-4" /> : null}
+            {confirmText.toLowerCase().includes("log out") ? (
+              <LogOut className="mr-2 h-4 w-4" />
+            ) : null}
+            {confirmText.toLowerCase().includes("delete") ? (
+              <Trash2 className="mr-2 h-4 w-4" />
+            ) : null}
+            {confirmText.toLowerCase().includes("cancel") ? (
+              <XCircle className="mr-2 h-4 w-4" />
+            ) : null}
+            {!confirmText.toLowerCase().includes("log out") &&
+            !confirmText.toLowerCase().includes("delete") &&
+            !confirmText.toLowerCase().includes("cancel") &&
+            variant === "destructive" ? (
+              <AlertTriangle className="mr-2 h-4 w-4" />
+            ) : null}
             {confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -11,7 +11,8 @@ function KhaltiFailure() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center container-page py-12">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="w-full max-w-md bg-card border border-border/60 rounded-3xl p-8 md:p-10 text-center shadow-soft"
       >
         <div className="mx-auto h-16 w-16 rounded-full bg-destructive/10 inline-flex items-center justify-center text-destructive">
@@ -23,7 +24,10 @@ function KhaltiFailure() {
         </p>
 
         <div className="mt-8 flex gap-3 justify-center">
-          <Link to="/cars" className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
+          <Link
+            to="/cars"
+            className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform"
+          >
             Browse Vehicles
           </Link>
         </div>

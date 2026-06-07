@@ -1,20 +1,20 @@
-import { Router, Response } from 'express';
-import { body, validationResult } from 'express-validator';
-import { User } from '../models/User.js';
-import { Booking } from '../models/Booking.js';
-import { protect, AuthRequest } from '../middleware/auth.js';
-import { adminOnly } from '../middleware/admin.js';
-import { upload } from '../middleware/upload.js';
-import { validatePasswordStrength, isStrongPassword } from '../utils/passwordValidator.js';
-import { logIdorAttempt, logAdminAction } from '../utils/securityLogger.js';
+import { Router, Response } from "express";
+import { body, validationResult } from "express-validator";
+import { User } from "../models/User.js";
+import { Booking } from "../models/Booking.js";
+import { protect, AuthRequest } from "../middleware/auth.js";
+import { adminOnly } from "../middleware/admin.js";
+import { upload } from "../middleware/upload.js";
+import { validatePasswordStrength, isStrongPassword } from "../utils/passwordValidator.js";
+import { logIdorAttempt, logAdminAction } from "../utils/securityLogger.js";
 
 const router = Router();
 
 /* ── GET /api/users/me ───────────────────────────────────── */
-router.get('/me', protect, async (req: AuthRequest, res: Response): Promise<void> => {
+router.get("/me", protect, async (req: AuthRequest, res: Response): Promise<void> => {
   const user = await User.findById(req.user!._id);
   if (!user) {
-    res.status(404).json({ success: false, message: 'User not found.' });
+    res.status(404).json({ success: false, message: "User not found." });
     return;
   }
   res.json({
@@ -35,14 +35,14 @@ router.get('/me', protect, async (req: AuthRequest, res: Response): Promise<void
 
 /* ── PUT /api/users/me ───────────────────────────────────── */
 router.put(
-  '/me',
+  "/me",
   protect,
   [
-    body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
-    body('email').optional().isEmail().withMessage('Valid email required'),
-    body('phone').optional(),
-    body('license').optional(),
-    body('city').optional(),
+    body("name").optional().trim().notEmpty().withMessage("Name cannot be empty"),
+    body("email").optional().isEmail().withMessage("Valid email required"),
+    body("phone").optional(),
+    body("license").optional(),
+    body("city").optional(),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -53,15 +53,19 @@ router.put(
 
     // Prevent role escalation
     const { name, email, phone, license, city, avatar } = req.body as {
-      name?: string; email?: string; phone?: string;
-      license?: string; city?: string; avatar?: string;
+      name?: string;
+      email?: string;
+      phone?: string;
+      license?: string;
+      city?: string;
+      avatar?: string;
     };
 
     // Never allow role change through this endpoint
-    if ('role' in req.body) {
+    if ("role" in req.body) {
       res.status(403).json({
         success: false,
-        message: 'Role cannot be modified through this endpoint',
+        message: "Role cannot be modified through this endpoint",
       });
       return;
     }
@@ -90,12 +94,12 @@ router.put(
 
 /* ── PATCH /api/users/profile/avatar ─────────────────────── */
 router.patch(
-  '/profile/avatar',
+  "/profile/avatar",
   protect,
-  upload.single('image'),
+  upload.single("image"),
   async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.file) {
-      res.status(400).json({ success: false, message: 'No image uploaded' });
+      res.status(400).json({ success: false, message: "No image uploaded" });
       return;
     }
 
@@ -111,15 +115,15 @@ router.patch(
 
 /* ── PUT /api/users/me/password ─────────────────────────── */
 router.put(
-  '/me/password',
+  "/me/password",
   protect,
   [
-    body('currentPassword').notEmpty(),
-    body('newPassword')
+    body("currentPassword").notEmpty(),
+    body("newPassword")
       .isLength({ min: 10 })
-      .withMessage('New password must be at least 10 characters')
+      .withMessage("New password must be at least 10 characters")
       .custom((value) => isStrongPassword(value))
-      .withMessage('Password must contain uppercase, lowercase, numbers, and special characters'),
+      .withMessage("Password must contain uppercase, lowercase, numbers, and special characters"),
   ],
   async (req: AuthRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
@@ -129,7 +133,8 @@ router.put(
     }
 
     const { currentPassword, newPassword } = req.body as {
-      currentPassword: string; newPassword: string;
+      currentPassword: string;
+      newPassword: string;
     };
 
     // Validate new password strength
@@ -137,64 +142,65 @@ router.put(
     if (!passwordValidation.isValid) {
       res.status(400).json({
         success: false,
-        message: 'New password does not meet security requirements',
+        message: "New password does not meet security requirements",
         feedback: passwordValidation.feedback,
       });
       return;
     }
 
-    const user = await User.findById(req.user!._id).select('+password');
+    const user = await User.findById(req.user!._id).select("+password");
     if (!user || !(await user.comparePassword(currentPassword))) {
-      res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+      res.status(401).json({ success: false, message: "Current password is incorrect." });
       return;
     }
 
     user.password = newPassword;
     await user.save();
-    res.json({ success: true, message: 'Password updated successfully.' });
+    res.json({ success: true, message: "Password updated successfully." });
   },
 );
 
 /* ── GET /api/users/admin/all (admin) ────────────────────── */
-router.get('/admin/all', protect, adminOnly, async (_req: AuthRequest, res: Response): Promise<void> => {
-  const users = await User.find().sort({ createdAt: -1 }).lean();
+router.get(
+  "/admin/all",
+  protect,
+  adminOnly,
+  async (_req: AuthRequest, res: Response): Promise<void> => {
+    const users = await User.find().sort({ createdAt: -1 }).lean();
 
-  // Attach booking count to each user
-  const usersWithBookings = await Promise.all(
-    users.map(async (u) => {
-      const bookingsCount = await Booking.countDocuments({ user: u._id });
-      return { ...u, bookingsCount };
-    }),
-  );
+    // Attach booking count to each user
+    const usersWithBookings = await Promise.all(
+      users.map(async (u) => {
+        const bookingsCount = await Booking.countDocuments({ user: u._id });
+        return { ...u, bookingsCount };
+      }),
+    );
 
-  res.json({ success: true, data: usersWithBookings });
-});
+    res.json({ success: true, data: usersWithBookings });
+  },
+);
 
 /* ── PATCH /api/users/admin/:id/status (admin) ───────────── */
 router.patch(
-  '/admin/:id/status',
+  "/admin/:id/status",
   protect,
   adminOnly,
   async (req: AuthRequest, res: Response): Promise<void> => {
     const { isActive } = req.body as { isActive: boolean };
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { isActive },
-      { new: true },
-    );
+    const user = await User.findByIdAndUpdate(req.params.id, { isActive }, { new: true });
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found.' });
+      res.status(404).json({ success: false, message: "User not found." });
       return;
     }
 
     // Log admin action
     logAdminAction(
       req.user!._id.toString(),
-      'update_user_status',
+      "update_user_status",
       req.params.id as string,
-      { newStatus: isActive ? 'active' : 'suspended' },
+      { newStatus: isActive ? "active" : "suspended" },
       req.ip,
-      req.headers['user-agent']
+      req.headers["user-agent"],
     );
 
     res.json({ success: true, data: user });
@@ -203,30 +209,30 @@ router.patch(
 
 /* ── PATCH /api/users/admin/:id/role (admin) ────────────── */
 router.patch(
-  '/admin/:id/role',
+  "/admin/:id/role",
   protect,
   adminOnly,
   async (req: AuthRequest, res: Response): Promise<void> => {
-    const { role } = req.body as { role: 'user' | 'admin' };
-    if (!['user', 'admin'].includes(role)) {
-      res.status(400).json({ success: false, message: 'Invalid role.' });
+    const { role } = req.body as { role: "user" | "admin" };
+    if (!["user", "admin"].includes(role)) {
+      res.status(400).json({ success: false, message: "Invalid role." });
       return;
     }
 
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found.' });
+      res.status(404).json({ success: false, message: "User not found." });
       return;
     }
 
     // Log admin action
     logAdminAction(
       req.user!._id.toString(),
-      'update_user_role',
+      "update_user_role",
       req.params.id as string,
       { newRole: role },
       req.ip,
-      req.headers['user-agent']
+      req.headers["user-agent"],
     );
 
     res.json({ success: true, data: user });
@@ -235,27 +241,27 @@ router.patch(
 
 /* ── DELETE /api/users/admin/:id (admin) ────────────────── */
 router.delete(
-  '/admin/:id',
+  "/admin/:id",
   protect,
   adminOnly,
   async (req: AuthRequest, res: Response): Promise<void> => {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
-      res.status(404).json({ success: false, message: 'User not found.' });
+      res.status(404).json({ success: false, message: "User not found." });
       return;
     }
 
     // Log admin action
     logAdminAction(
       req.user!._id.toString(),
-      'delete_user',
+      "delete_user",
       req.params.id as string,
       { userEmail: user.email, userName: user.name },
       req.ip,
-      req.headers['user-agent']
+      req.headers["user-agent"],
     );
 
-    res.json({ success: true, message: 'User deleted.' });
+    res.json({ success: true, message: "User deleted." });
   },
 );
 

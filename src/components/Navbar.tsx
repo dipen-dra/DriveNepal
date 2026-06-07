@@ -33,7 +33,9 @@ export function Navbar() {
     return () => unsub();
   }, [scrollY]);
 
-  useEffect(() => { setOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const blur = useTransform(scrollY, [0, 100], [0, 14]);
 
@@ -44,7 +46,12 @@ export function Navbar() {
   };
 
   const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
     : "?";
 
   return (
@@ -59,7 +66,11 @@ export function Navbar() {
     >
       <div className="container-page flex h-16 md:h-20 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
-          <img src={logo} alt="RentalSphere Logo" className="h-9 w-9 object-contain transition-transform group-hover:scale-105" />
+          <img
+            src={logo}
+            alt="RentalSphere Logo"
+            className="h-9 w-9 object-contain transition-transform group-hover:scale-105"
+          />
           <span className="font-display text-xl font-semibold tracking-tight text-ink">
             RentalSphere
           </span>
@@ -67,7 +78,8 @@ export function Navbar() {
 
         <nav className="hidden lg:flex items-center gap-1">
           {nav.map((n) => {
-            const active = location.pathname === n.to || (n.to !== "/" && location.pathname.startsWith(n.to));
+            const active =
+              location.pathname === n.to || (n.to !== "/" && location.pathname.startsWith(n.to));
             return (
               <Link
                 key={n.to}
@@ -126,10 +138,17 @@ export function Navbar() {
               <div className="relative hidden md:block">
                 <button
                   onClick={() => setUserMenuOpen((s) => !s)}
-                  className={cn("h-9 w-9 rounded-full font-semibold text-sm inline-flex items-center justify-center shadow-sm ring-1 ring-border hover:ring-primary/50 hover:opacity-90 transition-all", user.avatar ? "bg-background p-0.5" : "gradient-brand text-white")}
+                  className={cn(
+                    "h-9 w-9 rounded-full font-semibold text-sm inline-flex items-center justify-center shadow-sm ring-1 ring-border hover:ring-primary/50 hover:opacity-90 transition-all",
+                    user.avatar ? "bg-background p-0.5" : "gradient-brand text-white",
+                  )}
                 >
                   {user.avatar ? (
-                    <img src={user.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+                    <img
+                      src={user.avatar}
+                      alt=""
+                      className="h-full w-full rounded-full object-cover"
+                    />
                   ) : (
                     initials
                   )}
@@ -138,7 +157,7 @@ export function Navbar() {
                   <>
                     {/* Invisible backdrop for closing dropdown on outside click */}
                     <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-                    
+
                     <motion.div
                       initial={{ opacity: 0, y: -8 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -148,16 +167,24 @@ export function Navbar() {
                         <p className="text-sm font-semibold text-ink truncate">{user.name}</p>
                         <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       </div>
-                      <Link to="/dashboard" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors"
+                      >
                         <LayoutDashboard className="h-3.5 w-3.5" /> Dashboard
                       </Link>
                       {user.role === "admin" && (
-                        <Link to="/admin" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors">
+                        <Link
+                          to="/admin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 w-full px-3 py-2 text-sm rounded-lg hover:bg-muted transition-colors"
+                        >
                           <Shield className="h-3.5 w-3.5" /> Admin Panel
                         </Link>
                       )}
-                      <ConfirmModal 
-                        title="Log out" 
+                      <ConfirmModal
+                        title="Log out"
                         description="Are you sure you want to log out of your account?"
                         onConfirm={handleLogout}
                         confirmText="Log out"
@@ -173,16 +200,26 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/dashboard" className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors" aria-label="Dashboard">
+              <Link
+                to="/dashboard"
+                className="hidden md:inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted text-foreground/70 transition-colors"
+                aria-label="Dashboard"
+              >
                 <LayoutDashboard className="h-4 w-4" />
               </Link>
               <div className="hidden md:block">
                 <NotificationCenter />
               </div>
-              <Link to="/login" className="hidden md:inline-flex h-10 items-center px-4 rounded-full text-sm font-medium text-foreground/80 hover:text-foreground transition-colors">
+              <Link
+                to="/login"
+                className="hidden md:inline-flex h-10 items-center px-4 rounded-full text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
+              >
                 Login
               </Link>
-              <Link to="/signup" className="hidden md:inline-flex h-10 items-center px-5 rounded-full text-sm font-medium gradient-brand text-white shadow-[var(--shadow-glow)] hover:shadow-lg hover:-translate-y-0.5 transition-all">
+              <Link
+                to="/signup"
+                className="hidden md:inline-flex h-10 items-center px-5 rounded-full text-sm font-medium gradient-brand text-white shadow-[var(--shadow-glow)] hover:shadow-lg hover:-translate-y-0.5 transition-all"
+              >
                 Sign up
               </Link>
             </>
@@ -206,7 +243,11 @@ export function Navbar() {
         >
           <div className="container-page py-4 flex flex-col gap-1">
             {nav.map((n) => (
-              <Link key={n.to} to={n.to} className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/80 hover:bg-muted">
+              <Link
+                key={n.to}
+                to={n.to}
+                className="px-3 py-2.5 rounded-lg text-sm font-medium text-foreground/80 hover:bg-muted"
+              >
                 {n.label}
               </Link>
             ))}
@@ -217,22 +258,37 @@ export function Navbar() {
               </div>
             ) : isAuthenticated && user ? (
               <div className="mt-8 flex gap-3">
-                <Link to={user.role === "admin" ? "/admin" : "/dashboard"} className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium">
+                <Link
+                  to={user.role === "admin" ? "/admin" : "/dashboard"}
+                  className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium"
+                >
                   {user.role === "admin" ? "Admin Console" : "Dashboard"}
                 </Link>
-                <ConfirmModal 
-                  title="Log out" 
+                <ConfirmModal
+                  title="Log out"
                   description="Are you sure you want to log out?"
                   onConfirm={handleLogout}
                   confirmText="Log out"
                 >
-                  <button className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium">Logout</button>
+                  <button className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium">
+                    Logout
+                  </button>
                 </ConfirmModal>
               </div>
             ) : (
               <div className="flex gap-2 pt-3">
-                <Link to="/login" className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium">Login</Link>
-                <Link to="/signup" className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium">Sign up</Link>
+                <Link
+                  to="/login"
+                  className="flex-1 h-11 inline-flex items-center justify-center rounded-full border border-border text-sm font-medium"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="flex-1 h-11 inline-flex items-center justify-center rounded-full gradient-brand text-white text-sm font-medium"
+                >
+                  Sign up
+                </Link>
               </div>
             )}
           </div>

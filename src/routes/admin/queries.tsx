@@ -83,7 +83,7 @@ function AdminQueriesTab() {
                 "px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all",
                 filter === f
                   ? "gradient-brand text-white shadow-soft"
-                  : "text-foreground/60 hover:text-foreground"
+                  : "text-foreground/60 hover:text-foreground",
               )}
             >
               {f === "pending" ? "Pending Reply" : f}
@@ -98,7 +98,9 @@ function AdminQueriesTab() {
             <Inbox className="h-6 w-6" />
           </div>
           <p className="font-semibold text-ink">No inquiries found</p>
-          <p className="text-sm text-muted-foreground mt-1">There are no queries in this category.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            There are no queries in this category.
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -137,7 +139,7 @@ function AdminQueriesTab() {
                     "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
                     q.isReplied
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200/50 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
-                      : "bg-amber-50 text-amber-700 border border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20"
+                      : "bg-amber-50 text-amber-700 border border-amber-200/50 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
                   )}
                 >
                   {q.isReplied ? (
@@ -195,7 +197,9 @@ function AdminQueriesTab() {
                   )}
                   <div>
                     <h3 className="font-display text-lg font-bold text-ink">Inquiry Details</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">From {selectedQuery.name} &middot; {selectedQuery.email}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      From {selectedQuery.name} &middot; {selectedQuery.email}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -212,11 +216,17 @@ function AdminQueriesTab() {
               {/* Body */}
               <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                 <div className="rounded-2xl bg-muted/50 p-4 border border-border/40">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Subject</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                    Subject
+                  </p>
                   <p className="text-sm font-bold text-ink mt-0.5">{selectedQuery.subject}</p>
-                  
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mt-4">Message</p>
-                  <p className="text-sm text-foreground/80 mt-1 whitespace-pre-wrap leading-relaxed">{selectedQuery.message}</p>
+
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mt-4">
+                    Message
+                  </p>
+                  <p className="text-sm text-foreground/80 mt-1 whitespace-pre-wrap leading-relaxed">
+                    {selectedQuery.message}
+                  </p>
                 </div>
 
                 {selectedQuery.isReplied ? (
@@ -228,13 +238,18 @@ function AdminQueriesTab() {
                       "{selectedQuery.reply}"
                     </p>
                     <p className="text-[10px] text-emerald-600/70 mt-2">
-                      Replied on {selectedQuery.repliedAt ? new Date(selectedQuery.repliedAt).toLocaleString() : ""}
+                      Replied on{" "}
+                      {selectedQuery.repliedAt
+                        ? new Date(selectedQuery.repliedAt).toLocaleString()
+                        : ""}
                     </p>
                   </div>
                 ) : (
                   <form onSubmit={handleReplySubmit} className="space-y-3">
                     <label className="block">
-                      <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Write a Reply</span>
+                      <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                        Write a Reply
+                      </span>
                       <textarea
                         rows={4}
                         placeholder="Type support reply here..."
@@ -249,7 +264,8 @@ function AdminQueriesTab() {
                       disabled={replyMutation.isPending}
                       className="w-full h-11 rounded-full gradient-brand text-white font-semibold inline-flex items-center justify-center shadow-[var(--shadow-glow)] hover:-translate-y-0.5 transition-transform disabled:opacity-60 disabled:pointer-events-none"
                     >
-                      {replyMutation.isPending ? "Sending..." : "Send Reply"} <Send className="ml-2 h-4 w-4" />
+                      {replyMutation.isPending ? "Sending..." : "Send Reply"}{" "}
+                      <Send className="ml-2 h-4 w-4" />
                     </button>
                   </form>
                 )}

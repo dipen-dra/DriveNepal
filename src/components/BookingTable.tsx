@@ -14,16 +14,17 @@ const statusStyle: Record<BookingStatus, string> = {
 
 export function BookingTable({ rows, showActions }: { rows: Booking[]; showActions?: boolean }) {
   const queryClient = useQueryClient();
-  
+
   const { mutate: updateStatus } = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: BookingStatus }) => updateBookingStatus(id, status),
+    mutationFn: ({ id, status }: { id: string; status: BookingStatus }) =>
+      updateBookingStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminBookings"] });
       toast.success("Booking status updated");
     },
     onError: () => {
       toast.error("Failed to update booking status");
-    }
+    },
   });
 
   const { mutate: doDelete } = useMutation({
@@ -34,7 +35,7 @@ export function BookingTable({ rows, showActions }: { rows: Booking[]; showActio
     },
     onError: () => {
       toast.error("Failed to delete booking");
-    }
+    },
   });
 
   return (
@@ -59,21 +60,39 @@ export function BookingTable({ rows, showActions }: { rows: Booking[]; showActio
               <div className="text-xs text-muted-foreground">{b.customerEmail}</div>
             </td>
             <td className="px-5 py-3">{b.vehicleName}</td>
-            <td className="px-5 py-3 text-xs text-muted-foreground">{b.startDate} → {b.endDate}</td>
+            <td className="px-5 py-3 text-xs text-muted-foreground">
+              {b.startDate} → {b.endDate}
+            </td>
             <td className="px-5 py-3 font-medium text-ink">£{b.total.toLocaleString()}</td>
             <td className="px-5 py-3">
               {showActions ? (
                 <select
                   value={b.status}
-                  onChange={(e) => updateStatus({ id: b._id, status: e.target.value as BookingStatus })}
-                  className={cn("text-xs font-semibold px-2.5 py-1 rounded-full capitalize border-0 focus:outline-none cursor-pointer", statusStyle[b.status])}
+                  onChange={(e) =>
+                    updateStatus({ id: b._id, status: e.target.value as BookingStatus })
+                  }
+                  className={cn(
+                    "text-xs font-semibold px-2.5 py-1 rounded-full capitalize border-0 focus:outline-none cursor-pointer",
+                    statusStyle[b.status],
+                  )}
                 >
-                  {(["upcoming", "active", "completed", "cancelled"] as BookingStatus[]).map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
+                  {(["upcoming", "active", "completed", "cancelled"] as BookingStatus[]).map(
+                    (s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ),
+                  )}
                 </select>
               ) : (
-                <span className={cn("text-xs font-semibold px-2.5 py-1 rounded-full capitalize", statusStyle[b.status])}>{b.status}</span>
+                <span
+                  className={cn(
+                    "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
+                    statusStyle[b.status],
+                  )}
+                >
+                  {b.status}
+                </span>
               )}
             </td>
             {showActions && (

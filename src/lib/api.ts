@@ -3,7 +3,10 @@
  * All requests go through /api (proxied to localhost:5000 in dev).
  */
 
-const BASE = import.meta.env.VITE_API_URL || (typeof process !== 'undefined' ? process.env.VITE_API_URL || process.env.API_URL : undefined) || (typeof window === 'undefined' ? 'http://localhost:5001/api' : '/api');
+const BASE =
+  import.meta.env.VITE_API_URL ||
+  (typeof process !== "undefined" ? process.env.VITE_API_URL || process.env.API_URL : undefined) ||
+  (typeof window === "undefined" ? "http://localhost:5001/api" : "/api");
 
 export class ApiError extends Error {
   constructor(
@@ -12,17 +15,14 @@ export class ApiError extends Error {
     public errors?: Array<{ msg: string; path?: string }>,
   ) {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
   }
 }
 
-async function request<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    credentials: 'include',
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    credentials: "include",
     ...options,
   });
 
@@ -31,7 +31,7 @@ async function request<T>(
   if (!res.ok) {
     throw new ApiError(
       res.status,
-      (data as { message?: string }).message || 'Something went wrong',
+      (data as { message?: string }).message || "Something went wrong",
       (data as { errors?: Array<{ msg: string; path?: string }> }).errors,
     );
   }
@@ -41,7 +41,7 @@ async function request<T>(
 
 // ── Types ──────────────────────────────────────────────────
 
-export type UserRole = 'user' | 'admin';
+export type UserRole = "user" | "admin";
 
 export interface UserProfile {
   _id: string;
@@ -63,7 +63,7 @@ export interface AuthResponse {
   user: UserProfile;
 }
 
-export type VehicleType = 'car' | 'bike';
+export type VehicleType = "car" | "bike";
 export interface Vehicle {
   _id: string;
   slug: string;
@@ -72,8 +72,8 @@ export interface Vehicle {
   type: VehicleType;
   category: string;
   pricePerDay: number;
-  fuel: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid';
-  transmission: 'Automatic' | 'Manual';
+  fuel: "Petrol" | "Diesel" | "Electric" | "Hybrid";
+  transmission: "Automatic" | "Manual";
   seats: number;
   rating: number;
   reviews: number;
@@ -85,7 +85,7 @@ export interface Vehicle {
   isAvailable: boolean;
 }
 
-export type NotifType = 'booking' | 'payment' | 'promo' | 'alert' | 'message';
+export type NotifType = "booking" | "payment" | "promo" | "alert" | "message";
 
 export interface AppNotification {
   _id: string;
@@ -97,7 +97,7 @@ export interface AppNotification {
   createdAt: string;
 }
 
-export type BookingStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
+export type BookingStatus = "upcoming" | "active" | "completed" | "cancelled";
 export interface Booking {
   _id: string;
   bookingId: string;
@@ -115,7 +115,7 @@ export interface Booking {
   discount: number;
   total: number;
   status: BookingStatus;
-  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
+  payment: "Card" | "PayPal" | "Cash" | "Khalti" | "eSewa";
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -139,44 +139,42 @@ export interface AdminStats {
 // ── Auth ───────────────────────────────────────────────────
 
 export const loginUser = (email: string, password: string) =>
-  request<AuthResponse>('/auth/login', {
-    method: 'POST',
+  request<AuthResponse>("/auth/login", {
+    method: "POST",
     body: JSON.stringify({ email, password }),
   });
 
 export const registerUser = (name: string, email: string, password: string) =>
-  request<AuthResponse>('/auth/register', {
-    method: 'POST',
+  request<AuthResponse>("/auth/register", {
+    method: "POST",
     body: JSON.stringify({ name, email, password }),
   });
 
 export const googleLogin = (credential: string) =>
-  request<{ success: boolean; user: UserProfile; token: string }>('/auth/google', {
-    method: 'POST',
+  request<{ success: boolean; user: UserProfile; token: string }>("/auth/google", {
+    method: "POST",
     body: JSON.stringify({ credential }),
   });
 
-export const logoutUser = () =>
-  request<{ success: boolean }>('/auth/logout', { method: 'POST' });
+export const logoutUser = () => request<{ success: boolean }>("/auth/logout", { method: "POST" });
 
-export const getMe = () =>
-  request<{ success: boolean; user: UserProfile }>('/auth/me');
+export const getMe = () => request<{ success: boolean; user: UserProfile }>("/auth/me");
 
 export const forgotPassword = (email: string) =>
-  request<{ success: boolean; message: string }>('/auth/forgot-password', {
-    method: 'POST',
+  request<{ success: boolean; message: string }>("/auth/forgot-password", {
+    method: "POST",
     body: JSON.stringify({ email }),
   });
 
 export const verifyOtp = (email: string, otp: string) =>
-  request<{ success: boolean; message: string }>('/auth/verify-otp', {
-    method: 'POST',
+  request<{ success: boolean; message: string }>("/auth/verify-otp", {
+    method: "POST",
     body: JSON.stringify({ email, otp }),
   });
 
 export const resetPassword = (email: string, otp: string, password: string) =>
-  request<{ success: boolean; message: string }>('/auth/reset-password', {
-    method: 'POST',
+  request<{ success: boolean; message: string }>("/auth/reset-password", {
+    method: "POST",
     body: JSON.stringify({ email, otp, password }),
   });
 
@@ -194,50 +192,57 @@ export interface VehicleFilters {
 export const getVehicles = (filters: VehicleFilters = {}) => {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([k, v]) => {
-    if (v !== undefined && v !== '') params.set(k, String(v));
+    if (v !== undefined && v !== "") params.set(k, String(v));
   });
   const qs = params.toString();
-  return request<{ success: boolean; data: Vehicle[] }>(`/vehicles${qs ? `?${qs}` : ''}`);
+  return request<{ success: boolean; data: Vehicle[] }>(`/vehicles${qs ? `?${qs}` : ""}`);
 };
 
 export const getVehicle = (slug: string) =>
   request<{ success: boolean; data: Vehicle }>(`/vehicles/${slug}`);
 
-export const createVehicle = async (data: FormData): Promise<{ success: boolean; data: Vehicle }> => {
+export const createVehicle = async (
+  data: FormData,
+): Promise<{ success: boolean; data: Vehicle }> => {
   const res = await fetch(`${BASE}/vehicles`, {
-    method: 'POST',
-    credentials: 'include',
+    method: "POST",
+    credentials: "include",
     body: data,
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, json.message || 'Failed to create vehicle');
+  if (!res.ok) throw new ApiError(res.status, json.message || "Failed to create vehicle");
   return json;
 };
 
-export const updateVehicle = async (id: string, data: FormData): Promise<{ success: boolean; data: Vehicle }> => {
+export const updateVehicle = async (
+  id: string,
+  data: FormData,
+): Promise<{ success: boolean; data: Vehicle }> => {
   const res = await fetch(`${BASE}/vehicles/${id}`, {
-    method: 'PUT',
-    credentials: 'include',
+    method: "PUT",
+    credentials: "include",
     body: data,
   });
   const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, json.message || 'Failed to update vehicle');
+  if (!res.ok) throw new ApiError(res.status, json.message || "Failed to update vehicle");
   return json;
 };
 
 export const deleteVehicle = (id: string) =>
-  request<{ success: boolean; message: string }>(`/vehicles/${id}`, { method: 'DELETE' });
+  request<{ success: boolean; message: string }>(`/vehicles/${id}`, { method: "DELETE" });
 
 // ── Notifications ──────────────────────────────────────────
 
 export const getNotifications = () =>
-  request<{ success: boolean; data: AppNotification[] }>('/notifications');
+  request<{ success: boolean; data: AppNotification[] }>("/notifications");
 
 export const markNotificationRead = (id: string) =>
-  request<{ success: boolean; data: AppNotification }>(`/notifications/${id}/read`, { method: 'PATCH' });
+  request<{ success: boolean; data: AppNotification }>(`/notifications/${id}/read`, {
+    method: "PATCH",
+  });
 
 export const markAllNotificationsRead = () =>
-  request<{ success: boolean; message: string }>('/notifications/read-all', { method: 'PATCH' });
+  request<{ success: boolean; message: string }>("/notifications/read-all", { method: "PATCH" });
 
 // ── Bookings ───────────────────────────────────────────────
 
@@ -247,7 +252,7 @@ export interface CreateBookingPayload {
   endDate: string;
   pickup: string;
   dropoff?: string;
-  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
+  payment: "Card" | "PayPal" | "Cash" | "Khalti" | "eSewa";
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -258,117 +263,127 @@ export interface CreateBookingPayload {
 }
 
 export const getMyBookings = (status?: string) => {
-  const qs = status && status !== 'all' ? `?status=${status}` : '';
+  const qs = status && status !== "all" ? `?status=${status}` : "";
   return request<{ success: boolean; data: Booking[] }>(`/bookings${qs}`);
 };
 
 export const createBooking = (payload: CreateBookingPayload) =>
-  request<{ success: boolean; data: Booking }>('/bookings', {
-    method: 'POST',
+  request<{ success: boolean; data: Booking }>("/bookings", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 
 export const cancelBooking = (id: string) =>
-  request<{ success: boolean; data: Booking }>(`/bookings/${id}/cancel`, { method: 'PATCH' });
+  request<{ success: boolean; data: Booking }>(`/bookings/${id}/cancel`, { method: "PATCH" });
 
 export const getAllBookings = () =>
-  request<{ success: boolean; data: Booking[] }>('/bookings/admin/all');
+  request<{ success: boolean; data: Booking[] }>("/bookings/admin/all");
 
 export const updateBookingStatus = (id: string, status: BookingStatus) =>
   request<{ success: boolean; data: Booking }>(`/bookings/admin/${id}/status`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ status }),
   });
 
 export const deleteBooking = (id: string) =>
-  request<{ success: boolean }>(`/bookings/admin/${id}`, { method: 'DELETE' });
+  request<{ success: boolean }>(`/bookings/admin/${id}`, { method: "DELETE" });
 
 // ── Users ──────────────────────────────────────────────────
 
 export const updateProfile = (data: Partial<UserProfile>) =>
-  request<{ success: boolean; data: UserProfile }>('/users/me', {
-    method: 'PUT',
+  request<{ success: boolean; data: UserProfile }>("/users/me", {
+    method: "PUT",
     body: JSON.stringify(data),
   });
 
-export const uploadAvatar = async (file: File): Promise<{ success: boolean; data: UserProfile }> => {
+export const uploadAvatar = async (
+  file: File,
+): Promise<{ success: boolean; data: UserProfile }> => {
   const formData = new FormData();
-  formData.append('image', file);
+  formData.append("image", file);
 
   const res = await fetch(`${BASE}/users/profile/avatar`, {
-    method: 'PATCH',
+    method: "PATCH",
     headers: {
       // Don't set Content-Type here, let the browser set it with the boundary for FormData
     },
-    credentials: 'include',
+    credentials: "include",
     body: formData,
   });
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new ApiError(res.status, data.message || 'Avatar upload failed');
+    throw new ApiError(res.status, data.message || "Avatar upload failed");
   }
   return data;
 };
 
 export const changePassword = (currentPassword: string, newPassword: string) =>
-  request<{ success: boolean; message: string }>('/users/me/password', {
-    method: 'PUT',
+  request<{ success: boolean; message: string }>("/users/me/password", {
+    method: "PUT",
     body: JSON.stringify({ currentPassword, newPassword }),
   });
 
 export const getAllUsers = () =>
-  request<{ success: boolean; data: UserProfile[] }>('/users/admin/all');
+  request<{ success: boolean; data: UserProfile[] }>("/users/admin/all");
 
 export const updateUserStatus = (id: string, isActive: boolean) =>
   request<{ success: boolean; data: UserProfile }>(`/users/admin/${id}/status`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ isActive }),
   });
 
 export const updateUserRole = (id: string, role: UserRole) =>
   request<{ success: boolean; data: UserProfile }>(`/users/admin/${id}/role`, {
-    method: 'PATCH',
+    method: "PATCH",
     body: JSON.stringify({ role }),
   });
 
 export const deleteUser = (id: string) =>
-  request<{ success: boolean }>(`/users/admin/${id}`, { method: 'DELETE' });
+  request<{ success: boolean }>(`/users/admin/${id}`, { method: "DELETE" });
 
 // ── Admin ──────────────────────────────────────────────────
 
-export const getAdminStats = () =>
-  request<{ success: boolean; data: AdminStats }>('/admin/stats');
+export const getAdminStats = () => request<{ success: boolean; data: AdminStats }>("/admin/stats");
 
 /* ── Payments ────────────────────────────────────────────── */
 
-export async function initiateEsewaPayment(bookingData: CreateBookingPayload): Promise<{ success: boolean; data: {
-  ESEWA_URL: string;
-  amount: string;
-  success_url: string;
-  failure_url: string;
-  product_delivery_charge: string;
-  product_service_charge: string;
-  product_code: string;
-  signature: string;
-  signed_field_names: string;
-  tax_amount: string;
-  total_amount: string;
-  transaction_uuid: string;
-} }> {
-  return request('/payment/esewa/initiate', {
-    method: 'POST',
+export async function initiateEsewaPayment(bookingData: CreateBookingPayload): Promise<{
+  success: boolean;
+  data: {
+    ESEWA_URL: string;
+    amount: string;
+    success_url: string;
+    failure_url: string;
+    product_delivery_charge: string;
+    product_service_charge: string;
+    product_code: string;
+    signature: string;
+    signed_field_names: string;
+    tax_amount: string;
+    total_amount: string;
+    transaction_uuid: string;
+  };
+}> {
+  return request("/payment/esewa/initiate", {
+    method: "POST",
     body: JSON.stringify({ bookingData }),
   });
 }
 
-export async function verifyEsewaPayment(data: string): Promise<{ success: boolean; data: Booking }> {
-  return request(`/payment/esewa/verify?data=${encodeURIComponent(data)}`, { method: 'GET' });
+export async function verifyEsewaPayment(
+  data: string,
+): Promise<{ success: boolean; data: Booking }> {
+  return request(`/payment/esewa/verify?data=${encodeURIComponent(data)}`, { method: "GET" });
 }
 
-export async function verifyKhaltiPayment(token: string, amount: number, bookingData: CreateBookingPayload): Promise<{ success: boolean; data: Booking }> {
-  return request('/payment/khalti/verify', {
-    method: 'POST',
+export async function verifyKhaltiPayment(
+  token: string,
+  amount: number,
+  bookingData: CreateBookingPayload,
+): Promise<{ success: boolean; data: Booking }> {
+  return request("/payment/khalti/verify", {
+    method: "POST",
     body: JSON.stringify({ token, amount, bookingData }),
   });
 }
@@ -389,20 +404,25 @@ export interface ContactQuery {
   updatedAt: string;
 }
 
-export const submitQuery = (payload: { name: string; email: string; subject: string; message: string }) =>
-  request<{ success: boolean; data: ContactQuery }>('/queries', {
-    method: 'POST',
+export const submitQuery = (payload: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) =>
+  request<{ success: boolean; data: ContactQuery }>("/queries", {
+    method: "POST",
     body: JSON.stringify(payload),
   });
 
 export const getAdminQueries = () =>
-  request<{ success: boolean; data: ContactQuery[] }>('/queries/admin/all');
+  request<{ success: boolean; data: ContactQuery[] }>("/queries/admin/all");
 
 export const getUserQueries = () =>
-  request<{ success: boolean; data: ContactQuery[] }>('/queries/me');
+  request<{ success: boolean; data: ContactQuery[] }>("/queries/me");
 
 export const replyToQuery = (id: string, reply: string) =>
   request<{ success: boolean; data: ContactQuery }>(`/queries/admin/${id}/reply`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify({ reply }),
   });

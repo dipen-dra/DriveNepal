@@ -1,8 +1,8 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface INotification extends Document {
   user: mongoose.Types.ObjectId;
-  type: 'booking' | 'payment' | 'promo' | 'alert' | 'message';
+  type: "booking" | "payment" | "promo" | "alert" | "message";
   title: string;
   body: string;
   href?: string;
@@ -13,10 +13,10 @@ export interface INotification extends Document {
 
 const NotificationSchema: Schema = new Schema(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     type: {
       type: String,
-      enum: ['booking', 'payment', 'promo', 'alert', 'message'],
+      enum: ["booking", "payment", "promo", "alert", "message"],
       required: true,
     },
     title: { type: String, required: true },
@@ -24,10 +24,10 @@ const NotificationSchema: Schema = new Schema(
     href: { type: String },
     read: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Allow fast querying of user's unread vs read notifications
 NotificationSchema.index({ user: 1, read: 1 });
 
-export const Notification = mongoose.model<INotification>('Notification', NotificationSchema);
+export const Notification = mongoose.model<INotification>("Notification", NotificationSchema);

@@ -1,11 +1,11 @@
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import multer from 'multer';
-import dotenv from 'dotenv';
-import path from 'path';
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from "multer";
+import dotenv from "dotenv";
+import path from "path";
 
 // Load env vars if they aren't loaded yet
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 // Configure Cloudinary
 cloudinary.config({
@@ -19,11 +19,11 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
     // Generate a unique folder or use a default one based on route
-    const folder = req.baseUrl.includes('admin') ? 'rentalsphere/vehicles' : 'rentalsphere/users';
-    
+    const folder = req.baseUrl.includes("admin") ? "rentalsphere/vehicles" : "rentalsphere/users";
+
     // Set allowed formats
-    const allowedFormats = ['jpeg', 'png', 'jpg', 'webp'];
-    
+    const allowedFormats = ["jpeg", "png", "jpg", "webp"];
+
     return {
       folder: folder,
       allowed_formats: allowedFormats,
@@ -33,9 +33,9 @@ const storage = new CloudinaryStorage({
 });
 
 // Create Multer instance
-export const upload = multer({ 
+export const upload = multer({
   storage: storage,
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB limit
-  }
+  },
 });

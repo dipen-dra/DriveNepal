@@ -1,8 +1,8 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 const createTransporter = () => {
   return nodemailer.createTransport({
-    service: 'gmail', // You can change this based on your provider
+    service: "gmail", // You can change this based on your provider
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -19,7 +19,7 @@ interface EmailOptions {
 
 export const sendEmail = async (options: EmailOptions): Promise<void> => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('⚠️ EMAIL_USER or EMAIL_PASS not set. Email not sent.');
+    console.warn("⚠️ EMAIL_USER or EMAIL_PASS not set. Email not sent.");
     console.log(`[Mock Email to ${options.to}] Sub: ${options.subject}`);
     return;
   }
@@ -37,7 +37,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
   try {
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Failed to send email:', error);
-    throw new Error('Email delivery failed');
+    console.error("Failed to send email:", error);
+    throw new Error("Email delivery failed");
   }
 };

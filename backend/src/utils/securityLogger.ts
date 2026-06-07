@@ -4,14 +4,14 @@
  */
 
 type SecurityEventType =
-  | 'AUTH_FAILED'
-  | 'AUTH_SUCCESS'
-  | 'PASSWORD_CHANGED'
-  | 'PAYMENT_TAMPERING'
-  | 'IDOR_ATTEMPT'
-  | 'UNAUTHORIZED_ACCESS'
-  | 'ADMIN_ACTION'
-  | 'SUSPICIOUS_REQUEST';
+  | "AUTH_FAILED"
+  | "AUTH_SUCCESS"
+  | "PASSWORD_CHANGED"
+  | "PAYMENT_TAMPERING"
+  | "IDOR_ATTEMPT"
+  | "UNAUTHORIZED_ACCESS"
+  | "ADMIN_ACTION"
+  | "SUSPICIOUS_REQUEST";
 
 interface SecurityLog {
   timestamp: string;
@@ -20,7 +20,7 @@ interface SecurityLog {
   ipAddress?: string;
   userAgent?: string;
   details?: Record<string, unknown>;
-  severity: 'info' | 'warning' | 'critical';
+  severity: "info" | "warning" | "critical";
 }
 
 /**
@@ -31,17 +31,17 @@ export const logSecurityEvent = (
   userId: string | undefined,
   ipAddress: string | undefined,
   details?: Record<string, unknown>,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
-  const severityMap: Record<SecurityEventType, 'info' | 'warning' | 'critical'> = {
-    AUTH_FAILED: 'warning',
-    AUTH_SUCCESS: 'info',
-    PASSWORD_CHANGED: 'info',
-    PAYMENT_TAMPERING: 'critical',
-    IDOR_ATTEMPT: 'critical',
-    UNAUTHORIZED_ACCESS: 'critical',
-    ADMIN_ACTION: 'warning',
-    SUSPICIOUS_REQUEST: 'warning',
+  const severityMap: Record<SecurityEventType, "info" | "warning" | "critical"> = {
+    AUTH_FAILED: "warning",
+    AUTH_SUCCESS: "info",
+    PASSWORD_CHANGED: "info",
+    PAYMENT_TAMPERING: "critical",
+    IDOR_ATTEMPT: "critical",
+    UNAUTHORIZED_ACCESS: "critical",
+    ADMIN_ACTION: "warning",
+    SUSPICIOUS_REQUEST: "warning",
   };
 
   const log: SecurityLog = {
@@ -57,9 +57,9 @@ export const logSecurityEvent = (
   const prefix = getSeverityPrefix(log.severity);
   const message = formatSecurityLog(log);
 
-  if (log.severity === 'critical') {
+  if (log.severity === "critical") {
     console.error(`${prefix} ${message}`);
-  } else if (log.severity === 'warning') {
+  } else if (log.severity === "warning") {
     console.warn(`${prefix} ${message}`);
   } else {
     console.log(`${prefix} ${message}`);
@@ -73,31 +73,23 @@ export const logAuthFailure = (
   email: string,
   reason: string,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
-  logSecurityEvent('AUTH_FAILED', undefined, ipAddress, { email, reason }, userAgent);
+  logSecurityEvent("AUTH_FAILED", undefined, ipAddress, { email, reason }, userAgent);
 };
 
 /**
  * Log authentication success
  */
-export const logAuthSuccess = (
-  userId: string,
-  ipAddress?: string,
-  userAgent?: string
-): void => {
-  logSecurityEvent('AUTH_SUCCESS', userId, ipAddress, {}, userAgent);
+export const logAuthSuccess = (userId: string, ipAddress?: string, userAgent?: string): void => {
+  logSecurityEvent("AUTH_SUCCESS", userId, ipAddress, {}, userAgent);
 };
 
 /**
  * Log password change
  */
-export const logPasswordChange = (
-  userId: string,
-  ipAddress?: string,
-  userAgent?: string
-): void => {
-  logSecurityEvent('PASSWORD_CHANGED', userId, ipAddress, { action: 'password_reset' }, userAgent);
+export const logPasswordChange = (userId: string, ipAddress?: string, userAgent?: string): void => {
+  logSecurityEvent("PASSWORD_CHANGED", userId, ipAddress, { action: "password_reset" }, userAgent);
 };
 
 /**
@@ -108,10 +100,10 @@ export const logPaymentTampering = (
   clientAmount: number,
   serverAmount: number,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
   logSecurityEvent(
-    'PAYMENT_TAMPERING',
+    "PAYMENT_TAMPERING",
     userId,
     ipAddress,
     {
@@ -119,7 +111,7 @@ export const logPaymentTampering = (
       serverAmount,
       difference: Math.abs(clientAmount - serverAmount),
     },
-    userAgent
+    userAgent,
   );
 };
 
@@ -131,18 +123,18 @@ export const logIdorAttempt = (
   resourceType: string,
   attemptedResourceId: string,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
   logSecurityEvent(
-    'IDOR_ATTEMPT',
+    "IDOR_ATTEMPT",
     userId,
     ipAddress,
     {
       resourceType,
       attemptedResourceId,
-      action: 'unauthorized_resource_access',
+      action: "unauthorized_resource_access",
     },
-    userAgent
+    userAgent,
   );
 };
 
@@ -153,14 +145,14 @@ export const logUnauthorizedAccess = (
   endpoint: string,
   userId: string | undefined,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
   logSecurityEvent(
-    'UNAUTHORIZED_ACCESS',
+    "UNAUTHORIZED_ACCESS",
     userId,
     ipAddress,
-    { endpoint, action: 'insufficient_permissions' },
-    userAgent
+    { endpoint, action: "insufficient_permissions" },
+    userAgent,
   );
 };
 
@@ -173,28 +165,22 @@ export const logAdminAction = (
   targetId: string,
   details?: Record<string, unknown>,
   ipAddress?: string,
-  userAgent?: string
+  userAgent?: string,
 ): void => {
-  logSecurityEvent(
-    'ADMIN_ACTION',
-    adminId,
-    ipAddress,
-    { action, targetId, ...details },
-    userAgent
-  );
+  logSecurityEvent("ADMIN_ACTION", adminId, ipAddress, { action, targetId, ...details }, userAgent);
 };
 
 /**
  * Get severity prefix for console output
  */
-const getSeverityPrefix = (severity: 'info' | 'warning' | 'critical'): string => {
+const getSeverityPrefix = (severity: "info" | "warning" | "critical"): string => {
   switch (severity) {
-    case 'critical':
-      return '[🚨 SECURITY ALERT - CRITICAL]';
-    case 'warning':
-      return '[⚠️ SECURITY WARNING]';
-    case 'info':
-      return '[ℹ️ SECURITY INFO]';
+    case "critical":
+      return "[🚨 SECURITY ALERT - CRITICAL]";
+    case "warning":
+      return "[⚠️ SECURITY WARNING]";
+    case "info":
+      return "[ℹ️ SECURITY INFO]";
   }
 };
 

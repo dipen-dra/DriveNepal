@@ -11,7 +11,12 @@ export const Route = createFileRoute("/login")({
       subtitle="Log in to manage your bookings and saved vehicles."
       mode="login"
       footer={
-        <>Don't have an account? <Link to="/signup" className="text-primary font-semibold">Sign up</Link></>
+        <>
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-primary font-semibold">
+            Sign up
+          </Link>
+        </>
       }
     />
   ),

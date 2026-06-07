@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IQuery extends Document {
   user?: mongoose.Types.ObjectId;
@@ -15,7 +15,7 @@ export interface IQuery extends Document {
 
 const QuerySchema = new Schema<IQuery>(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", index: true },
     name: { type: String, required: true },
     email: { type: String, required: true },
     subject: { type: String, required: true },
@@ -24,7 +24,7 @@ const QuerySchema = new Schema<IQuery>(
     isReplied: { type: Boolean, default: false },
     repliedAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export const Query = mongoose.model<IQuery>('Query', QuerySchema);
+export const Query = mongoose.model<IQuery>("Query", QuerySchema);

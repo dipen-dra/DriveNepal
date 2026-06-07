@@ -1,12 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Sparkles, Briefcase, MapPin, DollarSign, Calendar, ArrowRight, Star, Heart, Compass } from "lucide-react";
+import {
+  Sparkles,
+  Briefcase,
+  MapPin,
+  DollarSign,
+  Calendar,
+  ArrowRight,
+  Star,
+  Heart,
+  Compass,
+} from "lucide-react";
 
 export const Route = createFileRoute("/careers")({
   head: () => ({
     meta: [
       { title: "Careers — RentalSphere" },
-      { name: "description", content: "Join our team at RentalSphere. Build the future of premium car and bike rentals." },
+      {
+        name: "description",
+        content: "Join our team at RentalSphere. Build the future of premium car and bike rentals.",
+      },
     ],
   }),
   component: CareersPage,
@@ -20,7 +33,8 @@ const jobs = [
     type: "Full-Time",
     salary: "£2,500 - £3,500 / month",
     icon: Compass,
-    description: "Lead the inspection, maintenance, and staging of premium SUVs and adventure bikes for off-road Scottish Highlands expeditions.",
+    description:
+      "Lead the inspection, maintenance, and staging of premium SUVs and adventure bikes for off-road Scottish Highlands expeditions.",
   },
   {
     title: "Full Stack Software Engineer",
@@ -29,7 +43,8 @@ const jobs = [
     type: "Full-Time",
     salary: "£4,500 - £6,000 / month",
     icon: Sparkles,
-    description: "Scale our booking system, enhance the admin dashboard tools, and build intelligent routing logic for vehicle deliveries.",
+    description:
+      "Scale our booking system, enhance the admin dashboard tools, and build intelligent routing logic for vehicle deliveries.",
   },
   {
     title: "Customer Success Lead",
@@ -38,21 +53,33 @@ const jobs = [
     type: "Full-Time",
     salary: "£2,000 - £2,800 / month",
     icon: Heart,
-    description: "Provide exceptional, premium booking coordination and emergency road assistance support to international and local travelers.",
+    description:
+      "Provide exceptional, premium booking coordination and emergency road assistance support to international and local travelers.",
   },
 ];
 
 const perks = [
-  { icon: Heart, title: "Health & Wellbeing", desc: "Comprehensive medical insurance and mental wellness allowances for you and your family." },
-  { icon: Compass, title: "Road Trips & Rentals", desc: "Free quarterly luxury vehicle rentals and sponsored team road-trips across the UK." },
-  { icon: Star, title: "Equity & Performance", desc: "Annual performance bonuses, stock options, and ongoing learning stipends." },
+  {
+    icon: Heart,
+    title: "Health & Wellbeing",
+    desc: "Comprehensive medical insurance and mental wellness allowances for you and your family.",
+  },
+  {
+    icon: Compass,
+    title: "Road Trips & Rentals",
+    desc: "Free quarterly luxury vehicle rentals and sponsored team road-trips across the UK.",
+  },
+  {
+    icon: Star,
+    title: "Equity & Performance",
+    desc: "Annual performance bonuses, stock options, and ongoing learning stipends.",
+  },
 ];
 
 function CareersPage() {
   return (
     <div className="py-20 md:py-28 bg-surface/30">
       <div className="container-page max-w-6xl space-y-20">
-        
         {/* Hero Section */}
         <div className="text-center max-w-3xl mx-auto space-y-6">
           <motion.span
@@ -69,7 +96,9 @@ function CareersPage() {
             className="font-display text-4xl md:text-6xl font-bold tracking-tight text-ink"
           >
             Build the future of travel <br />
-            <span className="bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">in the UK</span>
+            <span className="bg-gradient-to-r from-primary to-violet-600 bg-clip-text text-transparent">
+              in the UK
+            </span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 25 }}
@@ -77,7 +106,8 @@ function CareersPage() {
             transition={{ delay: 0.2 }}
             className="text-lg text-muted-foreground leading-relaxed"
           >
-            We are looking for builders, adventure seekers, and problem solvers to help us redefine premium transportation and travel experiences in the UK.
+            We are looking for builders, adventure seekers, and problem solvers to help us redefine
+            premium transportation and travel experiences in the UK.
           </motion.p>
         </div>
 
@@ -85,7 +115,9 @@ function CareersPage() {
         <div className="space-y-12">
           <div className="text-center max-w-xl mx-auto">
             <h2 className="font-display text-3xl font-bold text-ink">Perks of the Road</h2>
-            <p className="text-sm text-muted-foreground mt-2">What you receive when you join the RentalSphere family.</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              What you receive when you join the RentalSphere family.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {perks.map((p, i) => {
@@ -115,7 +147,9 @@ function CareersPage() {
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <h2 className="font-display text-3xl font-bold text-ink">Open Opportunities</h2>
-              <p className="text-sm text-muted-foreground mt-1">Explore our current roles and join us on our journey.</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Explore our current roles and join us on our journey.
+              </p>
             </div>
             <span className="text-xs font-bold text-primary uppercase bg-primary/5 px-3 py-1.5 rounded-full border border-primary/10 self-start md:self-auto">
               {jobs.length} Active Positions
@@ -143,9 +177,15 @@ function CareersPage() {
                         {job.title}
                       </h3>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {job.location}</span>
-                        <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" /> {job.type}</span>
-                        <span className="flex items-center gap-1"><DollarSign className="h-3.5 w-3.5" /> {job.salary}</span>
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5" /> {job.location}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" /> {job.type}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <DollarSign className="h-3.5 w-3.5" /> {job.salary}
+                        </span>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">
                         {job.description}
@@ -173,9 +213,12 @@ function CareersPage() {
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.15),transparent_70%)]" />
           <div className="relative z-10 max-w-xl mx-auto space-y-6">
-            <h3 className="font-display text-2xl md:text-3xl font-bold text-white">Don't see the perfect role?</h3>
+            <h3 className="font-display text-2xl md:text-3xl font-bold text-white">
+              Don't see the perfect role?
+            </h3>
             <p className="text-white/80 text-sm leading-relaxed">
-              We are always looking for exceptional talent who love cars, bikes, and hospitality. Drop us an open application query via our contact center!
+              We are always looking for exceptional talent who love cars, bikes, and hospitality.
+              Drop us an open application query via our contact center!
             </p>
             <Link
               to="/contact"
@@ -185,7 +228,6 @@ function CareersPage() {
             </Link>
           </div>
         </motion.div>
-
       </div>
     </div>
   );

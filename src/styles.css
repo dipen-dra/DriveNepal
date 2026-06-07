@@ -50,18 +50,18 @@
 
   /* Brand */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.36 0.04 252);            /* #334155 ink text */
-  --ink: oklch(0.21 0.05 260);                   /* #0F172A dark accent */
-  --surface: oklch(0.984 0.006 247);             /* #F8FAFC light section */
+  --foreground: oklch(0.36 0.04 252); /* #334155 ink text */
+  --ink: oklch(0.21 0.05 260); /* #0F172A dark accent */
+  --surface: oklch(0.984 0.006 247); /* #F8FAFC light section */
 
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.69 0.14 256);               /* #5D8BF4 shy blue */
+  --primary: oklch(0.69 0.14 256); /* #5D8BF4 shy blue */
   --primary-foreground: oklch(1 0 0);
-  --primary-soft: oklch(0.81 0.08 254);          /* #8FB8FF */
+  --primary-soft: oklch(0.81 0.08 254); /* #8FB8FF */
 
   --secondary: oklch(0.97 0.012 250);
   --secondary-foreground: var(--ink);
@@ -121,8 +121,12 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -130,7 +134,24 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); color: var(--color-ink); letter-spacing: -0.02em; }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+    letter-spacing: -0.02em;
+  }
+
+  select option {
+    background-color: var(--color-card);
+    color: var(--color-ink);
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
 }
 
 @layer components {
@@ -140,26 +161,55 @@
     -webkit-backdrop-filter: saturate(160%) blur(14px);
     border: 1px solid color-mix(in oklab, white 60%, var(--color-border));
   }
+  .dark .glass {
+    background: color-mix(in oklab, var(--color-surface) 65%, transparent);
+    border-color: color-mix(in oklab, white 12%, transparent);
+  }
   .glass-dark {
     background: color-mix(in oklab, var(--color-ink) 60%, transparent);
     backdrop-filter: saturate(160%) blur(14px);
     border: 1px solid color-mix(in oklab, white 10%, transparent);
   }
   .gradient-brand {
-    background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-soft) 100%);
+    background-image: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-soft) 100%
+    );
   }
   .text-gradient {
-    background-image: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-soft) 100%);
+    background-image: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-primary-soft) 100%
+    );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
-  .container-page { @apply max-w-7xl mx-auto px-6 md:px-10; }
-  .card-hover { transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s; }
-  .card-hover:hover { transform: translateY(-6px); box-shadow: var(--shadow-glow); }
+  .container-page {
+    @apply max-w-7xl mx-auto px-6 md:px-10;
+  }
+  .card-hover {
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.35s;
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-glow);
+  }
   .noise-bg {
     background-image:
-      radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--color-primary-soft) 35%, transparent), transparent),
-      radial-gradient(800px 500px at -10% 20%, color-mix(in oklab, var(--color-primary) 18%, transparent), transparent);
+      radial-gradient(
+        1200px 600px at 80% -10%,
+        color-mix(in oklab, var(--color-primary-soft) 35%, transparent),
+        transparent
+      ),
+      radial-gradient(
+        800px 500px at -10% 20%,
+        color-mix(in oklab, var(--color-primary) 18%, transparent),
+        transparent
+      );
   }
 }

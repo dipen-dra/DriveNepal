@@ -1,6 +1,6 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
-export type BookingStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
+export type BookingStatus = "upcoming" | "active" | "completed" | "cancelled";
 
 export interface IBooking extends Document {
   _id: mongoose.Types.ObjectId;
@@ -21,7 +21,7 @@ export interface IBooking extends Document {
   discount: number;
   total: number;
   status: BookingStatus;
-  payment: 'Card' | 'PayPal' | 'Cash' | 'Khalti' | 'eSewa';
+  payment: "Card" | "PayPal" | "Cash" | "Khalti" | "eSewa";
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -44,13 +44,13 @@ export interface IBooking extends Document {
 const BookingSchema = new Schema<IBooking>(
   {
     bookingId: { type: String, unique: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    vehicle: { type: Schema.Types.ObjectId, ref: 'Vehicle', required: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", required: true },
     vehicleName: { type: String },
     vehicleImage: { type: String },
     vehicleSlug: { type: String },
     pickup: { type: String, required: true },
-    dropoff: { type: String, default: '' },
+    dropoff: { type: String, default: "" },
     startDate: { type: String, required: true },
     endDate: { type: String, required: true },
     days: { type: Number, required: true, min: 1 },
@@ -61,16 +61,16 @@ const BookingSchema = new Schema<IBooking>(
     total: { type: Number, required: true },
     status: {
       type: String,
-      enum: ['upcoming', 'active', 'completed', 'cancelled'],
-      default: 'upcoming',
+      enum: ["upcoming", "active", "completed", "cancelled"],
+      default: "upcoming",
     },
-    payment: { type: String, enum: ['Card', 'PayPal', 'Cash', 'Khalti', 'eSewa'], required: true },
+    payment: { type: String, enum: ["Card", "PayPal", "Cash", "Khalti", "eSewa"], required: true },
     customerName: { type: String },
     customerEmail: { type: String },
     customerPhone: { type: String },
     license: { type: String },
     couponCode: { type: String },
-    insurance: { type: String, default: 'basic' },
+    insurance: { type: String, default: "basic" },
     addons: { type: [String], default: [] },
     calculatedTotal: { type: Number, select: false },
     serverValidated: { type: Boolean, default: false },
@@ -87,7 +87,7 @@ const BookingSchema = new Schema<IBooking>(
 );
 
 // Auto-generate bookingId before first save
-BookingSchema.pre('save', function (next) {
+BookingSchema.pre("save", function (next) {
   if (!this.bookingId) {
     const rand = Math.floor(Math.random() * 900000 + 100000);
     this.bookingId = `DN-${rand}`;
@@ -97,4 +97,4 @@ BookingSchema.pre('save', function (next) {
 
 BookingSchema.index({ user: 1, status: 1 });
 
-export const Booking = mongoose.model<IBooking>('Booking', BookingSchema);
+export const Booking = mongoose.model<IBooking>("Booking", BookingSchema);

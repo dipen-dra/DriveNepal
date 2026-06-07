@@ -3,11 +3,32 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useMemo, useState, useEffect } from "react";
 import { z } from "zod";
 import {
-  Check, ChevronRight, ArrowLeft, Banknote, Sparkles,
-  Shield, ShieldCheck, ShieldPlus, Baby, Navigation, HardHat, UserPlus, MapPin, Calendar, Clock, Loader2, CreditCard,
+  Check,
+  ChevronRight,
+  ArrowLeft,
+  Banknote,
+  Sparkles,
+  Shield,
+  ShieldCheck,
+  ShieldPlus,
+  Baby,
+  Navigation,
+  HardHat,
+  UserPlus,
+  MapPin,
+  Calendar,
+  Clock,
+  Loader2,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getVehicle, createBooking, ApiError, type Vehicle, type CreateBookingPayload } from "@/lib/api";
+import {
+  getVehicle,
+  createBooking,
+  ApiError,
+  type Vehicle,
+  type CreateBookingPayload,
+} from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -43,9 +64,27 @@ export const Route = createFileRoute("/booking/$slug")({
 const steps = ["Vehicle", "Pickup & Return", "Summary", "Payment", "Confirmed"] as const;
 
 const insurances = [
-  { id: "basic", name: "Basic Cover", price: 0, desc: "Third-party liability included", icon: Shield },
-  { id: "plus", name: "Plus Protection", price: 5, desc: "Covers minor damage & theft", icon: ShieldCheck },
-  { id: "max", name: "Max Shield", price: 10, desc: "Zero deductible, full coverage", icon: ShieldPlus },
+  {
+    id: "basic",
+    name: "Basic Cover",
+    price: 0,
+    desc: "Third-party liability included",
+    icon: Shield,
+  },
+  {
+    id: "plus",
+    name: "Plus Protection",
+    price: 5,
+    desc: "Covers minor damage & theft",
+    icon: ShieldCheck,
+  },
+  {
+    id: "max",
+    name: "Max Shield",
+    price: 10,
+    desc: "Zero deductible, full coverage",
+    icon: ShieldPlus,
+  },
 ] as const;
 
 const addons = [
@@ -90,7 +129,7 @@ function BookingFlow() {
       try {
         const parsed = JSON.parse(saved);
         if (parsed[key] !== undefined) {
-          if (key === 'selectedAddons') return new Set(parsed[key]) as unknown as T;
+          if (key === "selectedAddons") return new Set(parsed[key]) as unknown as T;
           return parsed[key] as T;
         }
       } catch {}
@@ -98,30 +137,40 @@ function BookingFlow() {
     return fallback;
   };
 
-  const [step, setStep] = useState(() => getInit('step', 0));
+  const [step, setStep] = useState(() => getInit("step", 0));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Step 0 — Vehicle / extras
-  const [insurance, setInsurance] = useState<InsuranceId>(() => getInit('insurance', 'plus'));
-  const [selectedAddons, setSelectedAddons] = useState<Set<AddonId>>(() => getInit('selectedAddons', new Set()));
+  const [insurance, setInsurance] = useState<InsuranceId>(() => getInit("insurance", "plus"));
+  const [selectedAddons, setSelectedAddons] = useState<Set<AddonId>>(() =>
+    getInit("selectedAddons", new Set()),
+  );
 
   // Step 1 — Pickup & return
   const today = new Date().toISOString().split("T")[0];
-  const [pickupDate, setPickupDate] = useState(() => getInit('pickupDate', "", search.pickupDate));
-  const [pickupTime, setPickupTime] = useState(() => getInit('pickupTime', "10:00"));
-  const [returnDate, setReturnDate] = useState(() => getInit('returnDate', "", search.returnDate));
-  const [returnTime, setReturnTime] = useState(() => getInit('returnTime', "10:00"));
-  const [pickupLoc, setPickupLoc] = useState(() => getInit('pickupLoc', locations[0], search.pickupLocation));
-  const [returnLoc, setReturnLoc] = useState(() => getInit('returnLoc', locations[0], search.pickupLocation));
-  const [sameLoc, setSameLoc] = useState(() => getInit('sameLoc', true));
+  const [pickupDate, setPickupDate] = useState(() => getInit("pickupDate", "", search.pickupDate));
+  const [pickupTime, setPickupTime] = useState(() => getInit("pickupTime", "10:00"));
+  const [returnDate, setReturnDate] = useState(() => getInit("returnDate", "", search.returnDate));
+  const [returnTime, setReturnTime] = useState(() => getInit("returnTime", "10:00"));
+  const [pickupLoc, setPickupLoc] = useState(() =>
+    getInit("pickupLoc", locations[0], search.pickupLocation),
+  );
+  const [returnLoc, setReturnLoc] = useState(() =>
+    getInit("returnLoc", locations[0], search.pickupLocation),
+  );
+  const [sameLoc, setSameLoc] = useState(() => getInit("sameLoc", true));
 
   // Step 2 — contact (collected on summary)
-  const [details, setDetails] = useState(() => getInit('details', { fullName: "", email: "", phone: "", license: "" }));
+  const [details, setDetails] = useState(() =>
+    getInit("details", { fullName: "", email: "", phone: "", license: "" }),
+  );
   const [detailsErr, setDetailsErr] = useState<Partial<Record<keyof typeof details, string>>>({});
-  const [agree, setAgree] = useState(() => getInit('agree', false));
+  const [agree, setAgree] = useState(() => getInit("agree", false));
 
   // Step 3 — payment
-  const [payment, setPayment] = useState<"Card" | "PayPal" | "Cash">(() => getInit('payment', "Cash"));
+  const [payment, setPayment] = useState<"Card" | "PayPal" | "Cash">(() =>
+    getInit("payment", "Cash"),
+  );
   const [cardNumber, setCardNumber] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
@@ -150,13 +199,37 @@ function BookingFlow() {
       return;
     }
     const stateToSave = {
-      step, insurance, selectedAddons: Array.from(selectedAddons),
-      pickupDate, pickupTime, returnDate, returnTime,
-      pickupLoc, returnLoc, sameLoc,
-      details, agree, payment
+      step,
+      insurance,
+      selectedAddons: Array.from(selectedAddons),
+      pickupDate,
+      pickupTime,
+      returnDate,
+      returnTime,
+      pickupLoc,
+      returnLoc,
+      sameLoc,
+      details,
+      agree,
+      payment,
     };
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [step, insurance, selectedAddons, pickupDate, pickupTime, returnDate, returnTime, pickupLoc, returnLoc, sameLoc, details, agree, payment, STORAGE_KEY]);
+  }, [
+    step,
+    insurance,
+    selectedAddons,
+    pickupDate,
+    pickupTime,
+    returnDate,
+    returnTime,
+    pickupLoc,
+    returnLoc,
+    sameLoc,
+    details,
+    agree,
+    payment,
+    STORAGE_KEY,
+  ]);
 
   // Pricing
   const days = useMemo(() => {
@@ -166,12 +239,14 @@ function BookingFlow() {
   }, [pickupDate, returnDate]);
 
   const insurancePrice = insurances.find((i) => i.id === insurance)?.price ?? 0;
-  const addonsPrice = addons.filter((a) => selectedAddons.has(a.id)).reduce((s, a) => s + a.price, 0);
+  const addonsPrice = addons
+    .filter((a) => selectedAddons.has(a.id))
+    .reduce((s, a) => s + a.price, 0);
   const dropOffFee = !sameLoc && pickupLoc !== returnLoc ? 10 : 0;
 
   const subtotal = v.pricePerDay * days + (insurancePrice + addonsPrice) * days;
   const service = Math.round(subtotal * 0.05);
-  const vat = Math.round((subtotal + dropOffFee) * 0.20);
+  const vat = Math.round((subtotal + dropOffFee) * 0.2);
   const discount = couponApplied ? Math.round(subtotal * 0.1) : 0;
   const total = subtotal + service + vat + dropOffFee - discount;
 
@@ -190,7 +265,9 @@ function BookingFlow() {
       const r = detailsSchema.safeParse(details);
       if (!r.success) {
         const errs: typeof detailsErr = {};
-        r.error.issues.forEach((i) => { errs[i.path[0] as keyof typeof details] = i.message; });
+        r.error.issues.forEach((i) => {
+          errs[i.path[0] as keyof typeof details] = i.message;
+        });
         setDetailsErr(errs);
         return;
       }
@@ -245,14 +322,15 @@ function BookingFlow() {
     setStep((s) => Math.min(s + 1, steps.length - 1));
   };
 
-  const canContinue =
-    step === 1 ? Boolean(datesValid) :
-    step === 2 ? agree :
-    true;
+  const canContinue = step === 1 ? Boolean(datesValid) : step === 2 ? agree : true;
 
   return (
     <section className="container-page py-12 md:py-16">
-      <Link to="/vehicles/$slug" params={{ slug: v.slug }} className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8">
+      <Link
+        to="/vehicles/$slug"
+        params={{ slug: v.slug }}
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to vehicle
       </Link>
 
@@ -263,17 +341,31 @@ function BookingFlow() {
           <AnimatePresence mode="wait">
             {/* Step 0 — Vehicle & extras */}
             {step === 0 && (
-              <motion.div key="vehicle" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <motion.div
+                key="vehicle"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
                 <h2 className="font-display text-2xl font-bold">Your vehicle & extras</h2>
-                <p className="text-sm text-muted-foreground mt-1">Confirm the ride and tailor your trip.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Confirm the ride and tailor your trip.
+                </p>
 
                 <div className="mt-6 rounded-2xl border border-border/60 bg-surface p-5 flex gap-4">
                   <img src={v.image} alt={v.name} className="h-24 w-32 rounded-xl object-cover" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{v.brand}</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                      {v.brand}
+                    </p>
                     <p className="font-display text-lg font-semibold text-ink">{v.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{v.category} · {v.transmission ?? "Auto"} · {v.seats ?? 5} seats</p>
-                    <p className="mt-2 font-semibold text-primary">£{v.pricePerDay.toLocaleString()} <span className="text-xs font-normal text-muted-foreground">/ day</span></p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {v.category} · {v.transmission ?? "Auto"} · {v.seats ?? 5} seats
+                    </p>
+                    <p className="mt-2 font-semibold text-primary">
+                      £{v.pricePerDay.toLocaleString()}{" "}
+                      <span className="text-xs font-normal text-muted-foreground">/ day</span>
+                    </p>
                   </div>
                 </div>
 
@@ -289,10 +381,17 @@ function BookingFlow() {
                         onClick={() => setInsurance(opt.id)}
                         className={cn(
                           "relative text-left rounded-2xl border-2 p-4 transition-all",
-                          active ? "border-primary bg-primary/5 shadow-[var(--shadow-glow)]" : "border-border bg-surface hover:border-primary/40",
+                          active
+                            ? "border-primary bg-primary/5 shadow-[var(--shadow-glow)]"
+                            : "border-border bg-surface hover:border-primary/40",
                         )}
                       >
-                        <div className={cn("h-10 w-10 rounded-full inline-flex items-center justify-center", active ? "gradient-brand text-white" : "bg-muted")}>
+                        <div
+                          className={cn(
+                            "h-10 w-10 rounded-full inline-flex items-center justify-center",
+                            active ? "gradient-brand text-white" : "bg-muted",
+                          )}
+                        >
                           <Icon className="h-5 w-5" />
                         </div>
                         <p className="mt-3 font-semibold text-ink">{opt.name}</p>
@@ -317,17 +416,26 @@ function BookingFlow() {
                         onClick={() => toggleAddon(a.id)}
                         className={cn(
                           "flex items-center gap-3 rounded-xl border-2 p-3 text-left transition-all",
-                          active ? "border-primary bg-primary/5" : "border-border bg-surface hover:border-primary/40",
+                          active
+                            ? "border-primary bg-primary/5"
+                            : "border-border bg-surface hover:border-primary/40",
                         )}
                       >
-                        <div className={cn("h-10 w-10 rounded-lg inline-flex items-center justify-center", active ? "gradient-brand text-white" : "bg-muted")}>
+                        <div
+                          className={cn(
+                            "h-10 w-10 rounded-lg inline-flex items-center justify-center",
+                            active ? "gradient-brand text-white" : "bg-muted",
+                          )}
+                        >
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-ink">{a.name}</p>
                           <p className="text-xs text-muted-foreground">{a.desc}</p>
                         </div>
-                        <span className="text-xs font-semibold text-primary whitespace-nowrap">+ £{a.price}/day</span>
+                        <span className="text-xs font-semibold text-primary whitespace-nowrap">
+                          + £{a.price}/day
+                        </span>
                       </button>
                     );
                   })}
@@ -337,34 +445,94 @@ function BookingFlow() {
 
             {/* Step 1 — Pickup & return */}
             {step === 1 && (
-              <motion.div key="pickup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <motion.div
+                key="pickup"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
                 <h2 className="font-display text-2xl font-bold">Pickup & return</h2>
-                <p className="text-sm text-muted-foreground mt-1">When and where do you want the keys?</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  When and where do you want the keys?
+                </p>
 
                 <div className="mt-8 grid sm:grid-cols-2 gap-4">
-                  <Input label="Pickup date" type="date" min={today} value={pickupDate} onChange={setPickupDate} icon={<Calendar className="h-4 w-4" />} />
-                  <Input label="Pickup time" type="time" value={pickupTime} onChange={setPickupTime} icon={<Clock className="h-4 w-4" />} />
-                  <Input label="Return date" type="date" min={pickupDate || today} value={returnDate} onChange={setReturnDate} icon={<Calendar className="h-4 w-4" />} />
-                  <Input label="Return time" type="time" value={returnTime} onChange={setReturnTime} icon={<Clock className="h-4 w-4" />} />
+                  <Input
+                    label="Pickup date"
+                    type="date"
+                    min={today}
+                    value={pickupDate}
+                    onChange={setPickupDate}
+                    icon={<Calendar className="h-4 w-4" />}
+                  />
+                  <Input
+                    label="Pickup time"
+                    type="time"
+                    value={pickupTime}
+                    onChange={setPickupTime}
+                    icon={<Clock className="h-4 w-4" />}
+                  />
+                  <Input
+                    label="Return date"
+                    type="date"
+                    min={pickupDate || today}
+                    value={returnDate}
+                    onChange={setReturnDate}
+                    icon={<Calendar className="h-4 w-4" />}
+                  />
+                  <Input
+                    label="Return time"
+                    type="time"
+                    value={returnTime}
+                    onChange={setReturnTime}
+                    icon={<Clock className="h-4 w-4" />}
+                  />
                 </div>
 
                 {pickupDate && returnDate && !datesValid && (
-                  <p className="mt-3 text-xs text-destructive">Return date must be on or after pickup date.</p>
+                  <p className="mt-3 text-xs text-destructive">
+                    Return date must be on or after pickup date.
+                  </p>
                 )}
 
                 <div className="mt-8 space-y-4">
-                  <Select label="Pickup location" value={pickupLoc} onChange={(val) => { setPickupLoc(val); if (sameLoc) setReturnLoc(val); }} options={locations} icon={<MapPin className="h-4 w-4" />} />
+                  <Select
+                    label="Pickup location"
+                    value={pickupLoc}
+                    onChange={(val) => {
+                      setPickupLoc(val);
+                      if (sameLoc) setReturnLoc(val);
+                    }}
+                    options={locations}
+                    icon={<MapPin className="h-4 w-4" />}
+                  />
 
                   <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={sameLoc} onChange={(e) => { setSameLoc(e.target.checked); if (e.target.checked) setReturnLoc(pickupLoc); }} className="h-4 w-4 accent-primary" />
+                    <input
+                      type="checkbox"
+                      checked={sameLoc}
+                      onChange={(e) => {
+                        setSameLoc(e.target.checked);
+                        if (e.target.checked) setReturnLoc(pickupLoc);
+                      }}
+                      className="h-4 w-4 accent-primary"
+                    />
                     Return to the same location
                   </label>
 
                   {!sameLoc && (
-                    <Select label="Return location" value={returnLoc} onChange={setReturnLoc} options={locations} icon={<MapPin className="h-4 w-4" />} />
+                    <Select
+                      label="Return location"
+                      value={returnLoc}
+                      onChange={setReturnLoc}
+                      options={locations}
+                      icon={<MapPin className="h-4 w-4" />}
+                    />
                   )}
                   {!sameLoc && pickupLoc !== returnLoc && (
-                    <p className="text-xs text-muted-foreground">One-way drop-off fee of £10 applies.</p>
+                    <p className="text-xs text-muted-foreground">
+                      One-way drop-off fee of £10 applies.
+                    </p>
                   )}
                 </div>
               </motion.div>
@@ -372,14 +540,30 @@ function BookingFlow() {
 
             {/* Step 2 — Summary + contact */}
             {step === 2 && (
-              <motion.div key="summary" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <motion.div
+                key="summary"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
                 <h2 className="font-display text-2xl font-bold">Review your booking</h2>
-                <p className="text-sm text-muted-foreground mt-1">Make sure everything looks right before payment.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Make sure everything looks right before payment.
+                </p>
 
                 <div className="mt-6 grid sm:grid-cols-2 gap-3">
-                  <SummaryCard title="Pickup" lines={[pickupLoc, `${pickupDate || "—"} · ${pickupTime}`]} />
-                  <SummaryCard title="Return" lines={[returnLoc, `${returnDate || "—"} · ${returnTime}`]} />
-                  <SummaryCard title="Insurance" lines={[insurances.find((i) => i.id === insurance)?.name ?? "Plus Protection"]} />
+                  <SummaryCard
+                    title="Pickup"
+                    lines={[pickupLoc, `${pickupDate || "—"} · ${pickupTime}`]}
+                  />
+                  <SummaryCard
+                    title="Return"
+                    lines={[returnLoc, `${returnDate || "—"} · ${returnTime}`]}
+                  />
+                  <SummaryCard
+                    title="Insurance"
+                    lines={[insurances.find((i) => i.id === insurance)?.name ?? "Plus Protection"]}
+                  />
                   <SummaryCard
                     title="Add-ons"
                     lines={
@@ -391,29 +575,68 @@ function BookingFlow() {
                 </div>
 
                 <h3 className="mt-8 font-display text-lg font-semibold">Your details</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">For the rental agreement and pickup confirmation.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  For the rental agreement and pickup confirmation.
+                </p>
                 <div className="mt-4 grid sm:grid-cols-2 gap-4">
-                  <Input label="Full name" value={details.fullName} onChange={(val) => setDetails((d) => ({ ...d, fullName: val }))} error={detailsErr.fullName} />
-                  <Input label="Email" type="email" value={details.email} onChange={(val) => setDetails((d) => ({ ...d, email: val }))} error={detailsErr.email} />
-                  <Input label="Phone" value={details.phone} onChange={(val) => setDetails((d) => ({ ...d, phone: val }))} error={detailsErr.phone} />
-                  <Input label="Driving license number" value={details.license} onChange={(val) => setDetails((d) => ({ ...d, license: val }))} error={detailsErr.license} />
+                  <Input
+                    label="Full name"
+                    value={details.fullName}
+                    onChange={(val) => setDetails((d) => ({ ...d, fullName: val }))}
+                    error={detailsErr.fullName}
+                  />
+                  <Input
+                    label="Email"
+                    type="email"
+                    value={details.email}
+                    onChange={(val) => setDetails((d) => ({ ...d, email: val }))}
+                    error={detailsErr.email}
+                  />
+                  <Input
+                    label="Phone"
+                    value={details.phone}
+                    onChange={(val) => setDetails((d) => ({ ...d, phone: val }))}
+                    error={detailsErr.phone}
+                  />
+                  <Input
+                    label="Driving license number"
+                    value={details.license}
+                    onChange={(val) => setDetails((d) => ({ ...d, license: val }))}
+                    error={detailsErr.license}
+                  />
                 </div>
 
                 <label className="mt-6 flex items-start gap-2 text-xs text-muted-foreground">
-                  <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 accent-primary shrink-0" />
-                  I agree to RentalSphere's <span className="text-primary font-medium">rental terms</span> and confirm that the driver will hold a valid license at pickup.
+                  <input
+                    type="checkbox"
+                    checked={agree}
+                    onChange={(e) => setAgree(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-primary shrink-0"
+                  />
+                  I agree to RentalSphere's{" "}
+                  <span className="text-primary font-medium">rental terms</span> and confirm that
+                  the driver will hold a valid license at pickup.
                 </label>
                 {!agree && step === 2 && (
-                  <p className="mt-1 ml-6 text-xs text-muted-foreground/70">Please accept the terms to continue.</p>
+                  <p className="mt-1 ml-6 text-xs text-muted-foreground/70">
+                    Please accept the terms to continue.
+                  </p>
                 )}
               </motion.div>
             )}
 
             {/* Step 3 — Payment */}
             {step === 3 && (
-              <motion.div key="pay" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <motion.div
+                key="pay"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+              >
                 <h2 className="font-display text-2xl font-bold">Choose payment method</h2>
-                <p className="text-sm text-muted-foreground mt-1">Secure checkout. Cancel free up to 24h before pickup.</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Secure checkout. Cancel free up to 24h before pickup.
+                </p>
                 <div className="mt-8 grid sm:grid-cols-3 gap-3">
                   <PayOption
                     active={payment === "Card"}
@@ -447,22 +670,24 @@ function BookingFlow() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-6 p-5 rounded-2xl bg-surface border border-border/60 space-y-4"
                   >
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Card Details</p>
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                      Card Details
+                    </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div className="sm:col-span-3">
                         <Input
                           label="Card Number"
                           value={cardNumber}
                           onChange={(val) => {
-                            const clean = val.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                            const clean = val.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
                             const matches = clean.match(/\d{4,16}/g);
-                            const match = (matches && matches[0]) || '';
+                            const match = (matches && matches[0]) || "";
                             const parts = [];
                             for (let i = 0, len = match.length; i < len; i += 4) {
                               parts.push(match.substring(i, i + 4));
                             }
                             if (parts.length > 0) {
-                              setCardNumber(parts.join(' '));
+                              setCardNumber(parts.join(" "));
                             } else {
                               setCardNumber(clean);
                             }
@@ -476,9 +701,9 @@ function BookingFlow() {
                           label="Expiry Date"
                           value={cardExpiry}
                           onChange={(val) => {
-                            const clean = val.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+                            const clean = val.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
                             if (clean.length >= 2) {
-                              setCardExpiry(`${clean.slice(0,2)}/${clean.slice(2,4)}`);
+                              setCardExpiry(`${clean.slice(0, 2)}/${clean.slice(2, 4)}`);
                             } else {
                               setCardExpiry(clean);
                             }
@@ -490,7 +715,7 @@ function BookingFlow() {
                         <Input
                           label="CVC"
                           value={cardCvc}
-                          onChange={(val) => setCardCvc(val.replace(/[^0-9]/g, '').slice(0, 3))}
+                          onChange={(val) => setCardCvc(val.replace(/[^0-9]/g, "").slice(0, 3))}
                           placeholder="123"
                         />
                       </div>
@@ -505,12 +730,16 @@ function BookingFlow() {
                     className="mt-6 p-5 rounded-2xl bg-[#0070ba]/5 border border-[#0070ba]/20 flex items-center gap-3 text-sm text-[#0070ba] font-medium"
                   >
                     <span className="font-bold italic text-lg">PayPal</span>
-                    <span>You will be prompted to log in to PayPal to complete the checkout safely.</span>
+                    <span>
+                      You will be prompted to log in to PayPal to complete the checkout safely.
+                    </span>
                   </motion.div>
                 )}
 
                 <div className="mt-8 rounded-2xl bg-surface p-5 border border-border/60">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">Have a coupon?</p>
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                    Have a coupon?
+                  </p>
                   <div className="mt-2 flex gap-2">
                     <input
                       value={coupon}
@@ -527,7 +756,9 @@ function BookingFlow() {
                     </button>
                   </div>
                   {couponApplied && (
-                    <p className="mt-3 text-xs text-primary flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5" /> DRIVE10 applied — 10% off</p>
+                    <p className="mt-3 text-xs text-primary flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5" /> DRIVE10 applied — 10% off
+                    </p>
                   )}
                   {coupon && !couponApplied && coupon !== "DRIVE10" && (
                     <p className="mt-3 text-xs text-destructive">Coupon not valid.</p>
@@ -538,25 +769,45 @@ function BookingFlow() {
 
             {/* Step 4 — Confirmed */}
             {step === 4 && (
-              <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+              <motion.div
+                key="done"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+              >
                 <motion.div
-                  initial={{ scale: 0 }} animate={{ scale: 1 }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
                   className="mx-auto h-20 w-20 rounded-full gradient-brand inline-flex items-center justify-center text-white shadow-[var(--shadow-glow)]"
                 >
                   <Check className="h-10 w-10" />
                 </motion.div>
-                <h2 className="mt-6 font-display text-3xl md:text-4xl font-bold">Booking confirmed!</h2>
+                <h2 className="mt-6 font-display text-3xl md:text-4xl font-bold">
+                  Booking confirmed!
+                </h2>
                 <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-                  We've sent the rental details to <strong className="text-ink">{details.email || "your email"}</strong>. See you at {pickupLoc} on {pickupDate || "your pickup date"} at {pickupTime}.
+                  We've sent the rental details to{" "}
+                  <strong className="text-ink">{details.email || "your email"}</strong>. See you at{" "}
+                  {pickupLoc} on {pickupDate || "your pickup date"} at {pickupTime}.
                 </p>
                 <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-surface border border-border px-4 py-2 text-sm">
                   <span className="text-muted-foreground">Booking ID</span>
-                  <span className="font-mono font-semibold text-ink">{bookingId?.slice(-6).toUpperCase()}</span>
+                  <span className="font-mono font-semibold text-ink">
+                    {bookingId?.slice(-6).toUpperCase()}
+                  </span>
                 </div>
                 <div className="mt-8 flex gap-3 justify-center flex-wrap">
-                  <Link to="/dashboard/bookings" className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors">My bookings</Link>
-                  <button onClick={() => navigate({ to: "/cars" })} className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform">
+                  <Link
+                    to="/dashboard/bookings"
+                    className="h-11 px-6 inline-flex items-center rounded-full border border-border text-sm font-medium hover:bg-muted transition-colors"
+                  >
+                    My bookings
+                  </Link>
+                  <button
+                    onClick={() => navigate({ to: "/cars" })}
+                    className="h-11 px-6 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold hover:-translate-y-0.5 transition-transform"
+                  >
                     Browse more vehicles
                   </button>
                 </div>
@@ -574,14 +825,21 @@ function BookingFlow() {
                 Back
               </button>
               <button
-                onClick={() => { void next(); }}
+                onClick={() => {
+                  void next();
+                }}
                 disabled={!canContinue || isSubmitting}
                 className="h-12 px-7 inline-flex items-center rounded-full gradient-brand text-white text-sm font-semibold shadow-[var(--shadow-glow)] hover:-translate-y-0.5 transition-transform disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 {isSubmitting ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
+                  </>
                 ) : (
-                  <>{step === 3 ? `Confirm & Pay £${total.toLocaleString()}` : "Continue"} <ChevronRight className="ml-1 h-4 w-4" /></>
+                  <>
+                    {step === 3 ? `Confirm & Pay £${total.toLocaleString()}` : "Continue"}{" "}
+                    <ChevronRight className="ml-1 h-4 w-4" />
+                  </>
                 )}
               </button>
             </div>
@@ -594,12 +852,17 @@ function BookingFlow() {
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">{v.brand}</p>
               <p className="font-display font-semibold text-ink truncate">{v.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">{days} day{days > 1 ? "s" : ""}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {days} day{days > 1 ? "s" : ""}
+              </p>
             </div>
           </div>
 
           <div className="mt-6 space-y-2 text-sm">
-            <Row k={`£${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`} v={`£${(v.pricePerDay * days).toLocaleString()}`} />
+            <Row
+              k={`£${v.pricePerDay.toLocaleString()} × ${days} day${days > 1 ? "s" : ""}`}
+              v={`£${(v.pricePerDay * days).toLocaleString()}`}
+            />
             {insurancePrice > 0 && (
               <Row k={`Insurance × ${days}`} v={`£${(insurancePrice * days).toLocaleString()}`} />
             )}
@@ -609,10 +872,14 @@ function BookingFlow() {
             {dropOffFee > 0 && <Row k="One-way drop-off" v={`£${dropOffFee.toLocaleString()}`} />}
             <Row k="Service fee" v={`£${service.toLocaleString()}`} />
             <Row k="VAT (20%)" v={`£${vat.toLocaleString()}`} />
-            {couponApplied && <Row k="Discount (DRIVE10)" v={`− £${discount.toLocaleString()}`} accent />}
+            {couponApplied && (
+              <Row k="Discount (DRIVE10)" v={`− £${discount.toLocaleString()}`} accent />
+            )}
             <div className="pt-3 border-t border-border flex items-baseline justify-between">
               <span className="font-semibold">Total</span>
-              <span className="font-display text-2xl font-bold text-ink">£{total.toLocaleString()}</span>
+              <span className="font-display text-2xl font-bold text-ink">
+                £{total.toLocaleString()}
+              </span>
             </div>
           </div>
 
@@ -630,15 +897,23 @@ function Stepper({ step }: { step: number }) {
     <div className="flex items-center gap-2 md:gap-3 max-w-4xl mx-auto overflow-x-auto">
       {steps.map((s, i) => (
         <div key={s} className="flex-1 flex items-center gap-2 md:gap-3 min-w-fit">
-          <div className={`flex items-center gap-2 ${i <= step ? "text-primary" : "text-muted-foreground"}`}>
-            <div className={`h-9 w-9 shrink-0 rounded-full inline-flex items-center justify-center text-xs font-semibold ${i < step ? "gradient-brand text-white" : i === step ? "bg-primary/10 text-primary border-2 border-primary" : "bg-muted"}`}>
+          <div
+            className={`flex items-center gap-2 ${i <= step ? "text-primary" : "text-muted-foreground"}`}
+          >
+            <div
+              className={`h-9 w-9 shrink-0 rounded-full inline-flex items-center justify-center text-xs font-semibold ${i < step ? "gradient-brand text-white" : i === step ? "bg-primary/10 text-primary border-2 border-primary" : "bg-muted"}`}
+            >
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
             </div>
             <span className="hidden md:inline text-sm font-medium whitespace-nowrap">{s}</span>
           </div>
           {i < steps.length - 1 && (
             <div className="flex-1 h-0.5 rounded-full bg-muted relative overflow-hidden min-w-6">
-              <motion.div className="absolute inset-y-0 left-0 gradient-brand" animate={{ width: i < step ? "100%" : "0%" }} transition={{ duration: 0.4 }} />
+              <motion.div
+                className="absolute inset-y-0 left-0 gradient-brand"
+                animate={{ width: i < step ? "100%" : "0%" }}
+                transition={{ duration: 0.4 }}
+              />
             </div>
           )}
         </div>
@@ -648,18 +923,42 @@ function Stepper({ step }: { step: number }) {
 }
 
 function Input({
-  label, type = "text", value, onChange, error, icon, min, placeholder,
-}: { label: string; type?: string; value: string; onChange: (v: string) => void; error?: string; icon?: React.ReactNode; min?: string; placeholder?: string }) {
+  label,
+  type = "text",
+  value,
+  onChange,
+  error,
+  icon,
+  min,
+  placeholder,
+}: {
+  label: string;
+  type?: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  icon?: React.ReactNode;
+  min?: string;
+  placeholder?: string;
+}) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-      <span className={cn(
-        "mt-1 flex items-center gap-2 h-12 px-4 rounded-xl bg-muted border-2 transition-colors",
-        error ? "border-destructive" : "border-transparent focus-within:border-primary focus-within:bg-background",
-      )}>
+      <span
+        className={cn(
+          "mt-1 flex items-center gap-2 h-12 px-4 rounded-xl bg-muted border-2 transition-colors",
+          error
+            ? "border-destructive"
+            : "border-transparent focus-within:border-primary focus-within:bg-background",
+        )}
+      >
         {icon && <span className="text-muted-foreground">{icon}</span>}
         <input
-          type={type} value={value} onChange={(e) => onChange(e.target.value)} min={min} placeholder={placeholder}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          min={min}
+          placeholder={placeholder}
           className="w-full bg-transparent text-sm font-medium focus:outline-none"
         />
       </span>
@@ -669,15 +968,31 @@ function Input({
 }
 
 function Select({
-  label, value, onChange, options, icon,
-}: { label: string; value: string; onChange: (v: string) => void; options: readonly string[]; icon?: React.ReactNode }) {
+  label,
+  value,
+  onChange,
+  options,
+  icon,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly string[];
+  icon?: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
       <span className="mt-1 flex items-center gap-2 h-12 px-4 rounded-xl bg-muted border-2 border-transparent focus-within:border-primary focus-within:bg-background transition-colors">
         {icon && <span className="text-muted-foreground">{icon}</span>}
-        <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-transparent text-sm font-medium focus:outline-none">
-          {options.map((o) => <option key={o}>{o}</option>)}
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full bg-transparent text-sm font-medium focus:outline-none"
+        >
+          {options.map((o) => (
+            <option key={o}>{o}</option>
+          ))}
         </select>
       </span>
     </label>
@@ -690,7 +1005,9 @@ function SummaryCard({ title, lines }: { title: string; lines: string[] }) {
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{title}</p>
       <div className="mt-1.5 space-y-0.5">
         {lines.map((l, i) => (
-          <p key={i} className="text-sm font-medium text-ink">{l}</p>
+          <p key={i} className="text-sm font-medium text-ink">
+            {l}
+          </p>
         ))}
       </div>
     </div>
@@ -725,7 +1042,13 @@ const brandStyles = {
 };
 
 function PayOption({
-  active, onClick, icon, logoSrc, title, subtitle, brand,
+  active,
+  onClick,
+  icon,
+  logoSrc,
+  title,
+  subtitle,
+  brand,
 }: {
   active: boolean;
   onClick: () => void;
@@ -742,9 +1065,7 @@ function PayOption({
       onClick={onClick}
       className={cn(
         "relative text-left rounded-2xl border-2 p-5 transition-all",
-        active
-          ? `${s.border} ${s.bg} ${s.shadow}`
-          : `border-border bg-surface ${s.hoverBorder}`,
+        active ? `${s.border} ${s.bg} ${s.shadow}` : `border-border bg-surface ${s.hoverBorder}`,
       )}
     >
       <div
@@ -753,16 +1074,17 @@ function PayOption({
           active ? s.logoBg : "bg-muted text-foreground",
         )}
       >
-        {logoSrc ? (
-          <img src={logoSrc} alt={title} className="h-8 w-8 object-contain" />
-        ) : (
-          icon
-        )}
+        {logoSrc ? <img src={logoSrc} alt={title} className="h-8 w-8 object-contain" /> : icon}
       </div>
       <p className="mt-3 font-semibold text-ink">{title}</p>
       <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
       {active && (
-        <span className={cn("absolute top-3 right-3 h-5 w-5 rounded-full inline-flex items-center justify-center text-white", s.checkBg)}>
+        <span
+          className={cn(
+            "absolute top-3 right-3 h-5 w-5 rounded-full inline-flex items-center justify-center text-white",
+            s.checkBg,
+          )}
+        >
           <Check className="h-3 w-3" />
         </span>
       )}
